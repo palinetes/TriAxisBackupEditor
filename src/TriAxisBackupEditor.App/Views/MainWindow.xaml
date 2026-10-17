@@ -1,0 +1,610 @@
+﻿<Window x:Class="TriAxisBackupEditor.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:TriAxisBackupEditor.App.Views"
+        xmlns:simple="clr-namespace:TriAxisBackupEditor.App.Views.Simple"
+        Style="{StaticResource AppWindow}"
+        Title="{Binding Title}"
+        Icon="pack://application:,,,/TriAxisBackupEditor;component/Assets/app.ico"
+        Width="1200" Height="820" MinWidth="980" MinHeight="660"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.InputBindings>
+        <KeyBinding Key="F1" Command="{Binding OpenManualCommand}" />
+    </Window.InputBindings>
+
+    <DockPanel Background="{StaticResource BgBrush}">
+        <!-- Cabeçalho -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="20,12">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="TRIAXIS" FontSize="20" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+                    <TextBlock Text=" Backup &amp; Editor" FontSize="20" Foreground="{StaticResource TextBrush}" />
+                    <TextBlock Text="  v1.0 · por @palinetes · dados 100% locais" FontSize="12" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Bottom" Margin="0,0,0,3" />
+                </StackPanel>
+                <Button DockPanel.Dock="Right" Content="Manual (F1)" Command="{Binding OpenManualCommand}" Margin="12,0,0,0" VerticalAlignment="Center"
+                        ToolTip="Abre o manual do usuário no navegador (funciona sem internet)" />
+
+                <!-- Chave Simples | Avançado -->
+                <Border DockPanel.Dock="Right" Background="{StaticResource InputBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="3"
+                        Margin="12,0,0,0" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Style="{StaticResource SegmentButton}" GroupName="UiMode" Content="Simples" IsChecked="{Binding IsSimpleMode}"
+                                     ToolTip="Para quem não entende de MIDI: tudo em passos guiados" />
+                        <RadioButton Style="{StaticResource SegmentButton}" GroupName="UiMode" Content="Avançado" IsChecked="{Binding IsAdvancedMode}"
+                                     ToolTip="Todas as ferramentas: biblioteca, editor completo, hex, log, aprender MIDI" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Estado da ligação: técnico no avançado, amigável no simples -->
+                <Border HorizontalAlignment="Right" Style="{StaticResource StatusBanner}" Padding="10,5" Tag="{Binding Connection.ConnectionStatusKind}"
+                        Visibility="{Binding IsAdvancedMode, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding Connection.ConnectionStatus}" MaxWidth="460" TextTrimming="CharacterEllipsis" />
+                </Border>
+                <Grid HorizontalAlignment="Right" Visibility="{Binding IsSimpleMode, Converter={StaticResource BoolToVis}}">
+                    <Border Style="{StaticResource StatusBanner}" Tag="Ok" Padding="12,6" Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="✓ Ligação configurada" FontWeight="SemiBold" />
+                    </Border>
+                    <Button Content="Configurar ligação" Command="{Binding Simple.OpenWizardCommand}" Style="{StaticResource AccentButton}" Margin="0"
+                            Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVis}}" />
+                </Grid>
+            </DockPanel>
+        </Border>
+
+        <!-- Barra de status -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="20,6">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"
+                           Text="{Binding State.BusyOperation, StringFormat='● {0} em andamento'}"
+                           Visibility="{Binding State.IsBusy, Converter={StaticResource BoolToVis}}" />
+                <TextBlock Text="{Binding State.StatusText}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+            </DockPanel>
+        </Border>
+
+        <Grid>
+        <!-- Modo simples -->
+        <simple:SimpleShellView DataContext="{Binding Simple}" Visibility="{Binding DataContext.IsSimpleMode, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+
+        <!-- Modo avançado -->
+        <TabControl SelectedIndex="{Binding SelectedTab}" Visibility="{Binding IsAdvancedMode, Converter={StaticResource BoolToVis}}">
+
+            <!-- ===================== CONEXÃO ===================== -->
+            <TabItem Header="Conexão">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20" MaxWidth="980" HorizontalAlignment="Left">
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Interface MIDI" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Style="{StaticResource Label}" Text="MIDI IN (recebe do TriAxis MIDI OUT)" />
+                                        <ComboBox ItemsSource="{Binding Connection.Inputs}" SelectedItem="{Binding Connection.SelectedInput}"
+                                                  DisplayMemberPath="DisplayName"
+                                                  IsEnabled="{Binding State.IsBusy, Converter={StaticResource InverseBool}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Style="{StaticResource Label}" Text="MIDI OUT (envia para o TriAxis MIDI IN)" />
+                                        <ComboBox ItemsSource="{Binding Connection.Outputs}" SelectedItem="{Binding Connection.SelectedOutput}"
+                                                  DisplayMemberPath="DisplayName"
+                                                  IsEnabled="{Binding State.IsBusy, Converter={StaticResource InverseBool}}" />
+                                    </StackPanel>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                    <Button Content="Atualizar dispositivos" Command="{Binding Connection.RefreshCommand}" />
+                                    <Button Content="Testar conexão" Command="{Binding Connection.TestCommand}" Style="{StaticResource AccentButton}" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,12,0,0"
+                                           Text="A lista é atualizada automaticamente quando uma interface é conectada ou desconectada. Abrir portas e testar a conexão NÃO envia nada ao TriAxis: o teste apenas abre as portas e escuta a entrada por 5 segundos." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource StatusBanner}" Tag="{Binding Connection.ConnectionStatusKind}" Margin="0,0,0,12">
+                            <TextBlock Text="{Binding Connection.ConnectionStatus}" TextWrapping="Wrap" />
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Visibility="{Binding Connection.TestResult, Converter={StaticResource NullToCollapsed}}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Resultado do teste" />
+                                <TextBlock Style="{StaticResource Mono}" Text="{Binding Connection.TestResult}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Ligação dos cabos" />
+                                <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource MutedBrush}"
+                                           Text="TriAxis MIDI OUT  ──►  MIDI IN da interface   (backup)&#x0a;Interface MIDI OUT ──►  TriAxis MIDI IN        (restauração)&#x0a;&#x0a;Com pedaleira (ex.: FCB1010) na mesma cadeia, desconecte-a durante backup/restauração&#x0a;ou garanta que o TriAxis esteja ligado diretamente à interface. Veja o README." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== MODO CONTROLE ===================== -->
+            <TabItem Header="Controle">
+                <views:ControlView DataContext="{Binding Control}" />
+            </TabItem>
+
+            <!-- ===================== BACKUP ===================== -->
+            <TabItem Header="Backup">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20" MaxWidth="980" HorizontalAlignment="Left">
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Backup completo da memória" />
+                                <TextBlock Style="{StaticResource Label}" Text="Pasta de destino" />
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Abrir pasta" Command="{Binding Backup.OpenFolderCommand}" Margin="8,0,0,0" />
+                                    <Button DockPanel.Dock="Right" Content="Escolher pasta..." Command="{Binding Backup.ChooseFolderCommand}" Margin="8,0,0,0" />
+                                    <TextBox Text="{Binding Backup.BackupFolder, Mode=OneWay}" IsReadOnly="True" />
+                                </DockPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Observação (opcional — ex.: &quot;timbres do show de sábado&quot;)" Margin="0,12,0,4" />
+                                <TextBox Text="{Binding Backup.Notes, UpdateSourceTrigger=PropertyChanged}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Content="Fazer backup" Command="{Binding Backup.StartCommand}" Style="{StaticResource AccentButton}" Padding="22,9" FontSize="14" />
+                                    <Button Content="Cancelar" Command="{Binding Backup.CancelCommand}" Padding="18,9" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,12,0,0">
+                                    <Run Text="{Binding Backup.ExpectedSizeText, Mode=OneWay}" />
+                                    <LineBreak />
+                                    <Run Text="Nome automático: TriAxis_Backup_AAAA-MM-DD_HH-mm-ss.syx. O dump é gravado exatamente como recebido, verificado por SHA-256 e nunca sobrescreve arquivos existentes. Requer MIDI IN e MIDI OUT selecionados." />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" BorderBrush="{StaticResource AccentBrush}" BorderThickness="2"
+                                Visibility="{Binding Backup.Instruction, Converter={StaticResource NullToCollapsed}}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Backup.Instruction}" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap" />
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,0"
+                                           Text="O TriAxis envia o dump completo (presets, mapa de programas e FX loop/switching). Aguarde a barra chegar ao fim." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Progresso" />
+                                <ProgressBar Value="{Binding Backup.ProgressPercent, Mode=OneWay}" Maximum="100" />
+                                <TextBlock Text="{Binding Backup.BytesText}" Margin="0,6,0,10" FontFamily="{StaticResource MonoFont}" />
+                                <Border Style="{StaticResource StatusBanner}" Tag="{Binding Backup.StatusKind}">
+                                    <TextBlock Text="{Binding Backup.StatusText}" TextWrapping="Wrap" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Visibility="{Binding Backup.LastFilePath, Converter={StaticResource NullToCollapsed}}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Último arquivo" />
+                                <TextBlock Style="{StaticResource Mono}" Text="{Binding Backup.LastFilePath}" />
+                                <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,10"
+                                           Text="{Binding Backup.LastHash, StringFormat='SHA-256: {0}'}"
+                                           Visibility="{Binding Backup.LastHash, Converter={StaticResource NullToCollapsed}}" />
+                                <Button Content="Mostrar no Explorer" Command="{Binding Backup.OpenLastFileCommand}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== RESTAURAR ===================== -->
+            <TabItem Header="Restaurar">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20" MaxWidth="980" HorizontalAlignment="Left">
+                        <Border Background="{StaticResource DangerBgBrush}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="2" CornerRadius="6" Padding="16" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="⚠ ATENÇÃO: a restauração substitui toda a memória atual do TriAxis" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErrorBrush}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,6,0,0" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"
+                                           Text="Presets, mapa de programas MIDI e configurações de FX loop/switching serão sobrescritos. Antes de enviar, o programa pedirá confirmação em duas etapas e oferecerá um backup de segurança do estado atual." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="1. Arquivo" />
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Selecionar .syx..." Command="{Binding Restore.SelectFileCommand}" Margin="8,0,0,0" />
+                                    <TextBox Text="{Binding Restore.FilePath, Mode=OneWay}" IsReadOnly="True" />
+                                </DockPanel>
+                                <Grid Margin="0,12,0,0" Visibility="{Binding Restore.HasFile, Converter={StaticResource BoolToVis}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Style="{StaticResource Label}" Text="Tamanho" />
+                                    <TextBlock Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Restore.SizeText}" />
+                                    <TextBlock Grid.Row="1" Style="{StaticResource Label}" Text="SHA-256" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Restore.HashText}" />
+                                    <TextBlock Grid.Row="2" Style="{StaticResource Label}" Text="Cabeçalho" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Restore.HeaderText}" />
+                                    <TextBlock Grid.Row="3" Style="{StaticResource Label}" Text="Mensagens SysEx" />
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Restore.MessagesText}" />
+                                </Grid>
+                                <Border Style="{StaticResource StatusBanner}" Tag="{Binding Restore.ValidationKind}" Margin="0,12,0,0"
+                                        Visibility="{Binding Restore.HasFile, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="{Binding Restore.ValidationSummary}" TextWrapping="Wrap" />
+                                </Border>
+                                <ItemsControl ItemsSource="{Binding Restore.Issues}" Margin="0,8,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Style="{StaticResource Mono}" Foreground="{StaticResource WarnBrush}" Margin="0,2" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="2. Envio em blocos" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Label}" Text="Tamanho do bloco (bytes)" />
+                                        <TextBox Text="{Binding Restore.ChunkSize, UpdateSourceTrigger=LostFocus}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Style="{StaticResource Label}">
+                                            <Run Text="Intervalo entre blocos:" />
+                                            <Run Text="{Binding Restore.ChunkDelayMs, Mode=OneWay}" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
+                                            <Run Text="ms (5–50)" />
+                                        </TextBlock>
+                                        <Slider Minimum="{Binding Restore.MinChunkDelay, Mode=OneWay}" Maximum="{Binding Restore.MaxChunkDelay, Mode=OneWay}"
+                                                Value="{Binding Restore.ChunkDelayMs}" IsSnapToTickEnabled="True" TickFrequency="1" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,8,0,0"
+                                           Text="Interfaces antigas podem perder dados com envio rápido. Se o TriAxis não piscar, aumente o intervalo. Uma mensagem iniciada é sempre enviada até o F7 — o cancelamento vale antes do envio e entre mensagens, para nunca deixar dados parciais no TriAxis." />
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Content="Restaurar backup..." Command="{Binding Restore.RestoreCommand}" Style="{StaticResource DangerButton}" Padding="22,9" FontSize="14" />
+                                    <Button Content="Cancelar" Command="{Binding Restore.CancelCommand}" Padding="18,9" />
+                                </StackPanel>
+                                <ProgressBar Value="{Binding Restore.ProgressPercent, Mode=OneWay}" Maximum="100" Margin="0,16,0,0" />
+                                <TextBlock Text="{Binding Restore.ProgressText}" Margin="0,6,0,10" FontFamily="{StaticResource MonoFont}" />
+                                <Border Style="{StaticResource StatusBanner}" Tag="{Binding Restore.StatusKind}">
+                                    <TextBlock Text="{Binding Restore.StatusText}" TextWrapping="Wrap" />
+                                </Border>
+                                <Border Style="{StaticResource Card}" BorderBrush="{StaticResource AccentBrush}" BorderThickness="2" Margin="0,12,0,0"
+                                        Visibility="{Binding Restore.ShowDisplayCheck, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap"
+                                               Text="Confira o display do TriAxis: ele deve ter piscado, confirmando o recebimento. Depois, teste alguns presets." />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== BIBLIOTECA ===================== -->
+            <TabItem Header="Biblioteca">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" MinHeight="160" />
+                        <RowDefinition Height="8" />
+                        <RowDefinition Height="230" MinHeight="80" />
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Margin="0,0,0,10">
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding Library.CountText}" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        <TextBlock DockPanel.Dock="Left" Text="Buscar:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource MutedBrush}" />
+                        <TextBox Text="{Binding Library.SearchText, UpdateSourceTrigger=PropertyChanged, Delay=250}"
+                                 ToolTip="Nome, data (AAAA-MM-DD ou DD/MM/AAAA), observação ou hash" />
+                    </DockPanel>
+
+                    <WrapPanel Grid.Row="1" Margin="0,0,0,10">
+                        <Button Content="Importar .syx..." Command="{Binding Library.ImportCommand}" Margin="0,0,8,6" />
+                        <Button Content="Abrir pasta" Command="{Binding Library.OpenFolderCommand}" Margin="0,0,8,6" />
+                        <Button Content="Visualizar" Command="{Binding Library.ViewCommand}" Margin="0,0,8,6" />
+                        <Button Content="Editar" Command="{Binding Library.EditCommand}" Margin="0,0,8,6" />
+                        <Button Content="Restaurar..." Command="{Binding Library.RestoreCommand}" Margin="0,0,8,6" />
+                        <Button Content="Duplicar" Command="{Binding Library.DuplicateCommand}" Margin="0,0,8,6" />
+                        <Button Content="Renomear..." Command="{Binding Library.RenameCommand}" Margin="0,0,8,6" />
+                        <Button Content="Observação..." Command="{Binding Library.EditNotesCommand}" Margin="0,0,8,6" />
+                        <Button Content="Excluir..." Command="{Binding Library.DeleteCommand}" Margin="0,0,8,6" />
+                        <Button Content="Exportar CSV..." Command="{Binding Library.ExportCsvCommand}" Margin="0,0,8,6" />
+                        <Button Content="Comparar 2 selecionados" Command="{Binding Library.CompareCommand}" Style="{StaticResource AccentButton}" Margin="0,0,8,6" />
+                    </WrapPanel>
+
+                    <DataGrid x:Name="LibraryGrid" Grid.Row="2" ItemsSource="{Binding Library.Items}" SelectedItem="{Binding Library.Selected}"
+                              SelectionMode="Extended" SelectionChanged="LibraryGrid_SelectionChanged" MouseDoubleClick="LibraryGrid_MouseDoubleClick">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nome" Binding="{Binding FileName}" Width="2*" />
+                            <DataGridTextColumn Header="Data" Binding="{Binding DateText}" Width="150" SortMemberPath="Record.CreatedAt" />
+                            <DataGridTextColumn Header="Tamanho" Binding="{Binding SizeText}" Width="90" SortMemberPath="Record.SizeBytes" />
+                            <DataGridTemplateColumn Header="SHA-256" Width="160" SortMemberPath="Sha256">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ShortHash}" ToolTip="{Binding Sha256}" FontFamily="{StaticResource MonoFont}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Origem" Binding="{Binding Origin}" Width="90" />
+                            <DataGridTextColumn Header="Observação" Binding="{Binding Notes}" Width="3*" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <GridSplitter Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="4" Background="{StaticResource BorderBrush}" />
+
+                    <DockPanel Grid.Row="4">
+                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource Label}" Text="Comparação (hash SHA-256 e diferenças byte a byte)" />
+                        <TextBox Style="{StaticResource MonoBox}" Text="{Binding Library.ComparisonText, Mode=OneWay}" />
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ===================== EDITOR ===================== -->
+            <TabItem Header="Editor">
+                <views:EditorView DataContext="{Binding Editor}" />
+            </TabItem>
+
+            <!-- ===================== VISUALIZAR ===================== -->
+            <TabItem Header="Visualizar dump">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Margin="0,0,0,10">
+                        <Button DockPanel.Dock="Left" Content="Abrir .syx..." Command="{Binding Viewer.OpenFileCommand}" Style="{StaticResource AccentButton}" />
+                        <Button DockPanel.Dock="Right" Content="Abrir no editor" Command="{Binding Viewer.OpenInEditorCommand}" Margin="8,0,0,0" />
+                        <TextBox Text="{Binding Viewer.FilePath, Mode=OneWay}" IsReadOnly="True" />
+                    </DockPanel>
+
+                    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Style="{StaticResource Label}" Text="Tamanho" />
+                            <TextBlock Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Viewer.SizeText}" />
+                            <TextBlock Grid.Row="1" Style="{StaticResource Label}" Text="SHA-256" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Viewer.HashText}" />
+                            <TextBlock Grid.Row="2" Style="{StaticResource Label}" Text="Cabeçalho" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource Mono}" Text="{Binding Viewer.HeaderText}" />
+                            <Border Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource StatusBanner}" Tag="{Binding Viewer.ValidationKind}" Margin="0,8,0,0">
+                                <TextBlock Text="{Binding Viewer.ValidationSummary}" TextWrapping="Wrap" />
+                            </Border>
+                            <ItemsControl Grid.Row="4" Grid.ColumnSpan="2" ItemsSource="{Binding Viewer.Issues}" Margin="0,6,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Style="{StaticResource Mono}" Foreground="{StaticResource WarnBrush}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Style="{StaticResource StatusBanner}" Tag="Warning" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Viewer.EditorMessage}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Viewer.MapSourceText}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <TabControl Grid.Row="3">
+                        <TabItem Header="Hex / ASCII">
+                            <TextBox Style="{StaticResource MonoBox}" Text="{Binding Viewer.HexText, Mode=OneWay}" Margin="0,8,0,0" />
+                        </TabItem>
+                        <TabItem Header="Presets (mapa preliminar)">
+                            <DockPanel Margin="0,8,0,0">
+                                <TextBlock DockPanel.Dock="Top" Style="{StaticResource Muted}" Text="{Binding Viewer.ParseMessage}" Margin="0,0,0,8" />
+                                <DataGrid ItemsSource="{Binding Viewer.Presets}" Visibility="{Binding Viewer.HasParsedDump, Converter={StaticResource BoolToVis}}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="#" Binding="{Binding Number, StringFormat=00}" Width="44" />
+                                        <DataGridTextColumn Header="Gain" Binding="{Binding Gain}" Width="*" />
+                                        <DataGridTextColumn Header="Treble" Binding="{Binding Treble}" Width="*" />
+                                        <DataGridTextColumn Header="Middle" Binding="{Binding Middle}" Width="*" />
+                                        <DataGridTextColumn Header="Bass" Binding="{Binding Bass}" Width="*" />
+                                        <DataGridTextColumn Header="Lead 1" Binding="{Binding Lead1Drive}" Width="*" />
+                                        <DataGridTextColumn Header="Lead 2" Binding="{Binding Lead2Drive}" Width="*" />
+                                        <DataGridTextColumn Header="Master" Binding="{Binding Master}" Width="*" />
+                                        <DataGridTextColumn Header="Presence" Binding="{Binding Presence}" Width="*" />
+                                        <DataGridTextColumn Header="Dyn Voice" Binding="{Binding DynamicVoice}" Width="*" />
+                                        <DataGridTextColumn Header="Modo" Binding="{Binding Mode}" Width="1.6*" />
+                                        <DataGridTemplateColumn Header="FX" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding FxLoop, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="SW1" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch1, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="SW2" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch2, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="SW3" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch3, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="SW4" Width="40">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch4, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Bytes (hex)" Width="2.6*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding RawHex}" FontFamily="{StaticResource MonoFont}" Foreground="{StaticResource MutedBrush}" /></DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </TabItem>
+                        <TabItem Header="Programas MIDI">
+                            <DataGrid ItemsSource="{Binding Viewer.Programs}" Margin="0,8,0,0" HorizontalAlignment="Left" Width="360"
+                                      Visibility="{Binding Viewer.HasParsedDump, Converter={StaticResource BoolToVis}}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Program Change" Binding="{Binding Program, StringFormat=000}" Width="*" />
+                                    <DataGridTextColumn Header="→ Preset" Binding="{Binding Preset}" Width="*" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+
+            <!-- ===================== CONFIGURAÇÕES ===================== -->
+            <TabItem Header="Configurações">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20" MaxWidth="900" HorizontalAlignment="Left">
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Pasta de backups" />
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Escolher..." Command="{Binding Settings.ChooseFolderCommand}" Margin="8,0,0,0" />
+                                    <TextBox Text="{Binding Settings.Edit.BackupFolder}" />
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Tempos e envio" />
+                                <UniformGrid Columns="3">
+                                    <StackPanel Margin="0,0,16,10">
+                                        <TextBlock Style="{StaticResource Label}" Text="Tamanho do bloco (16–4096 bytes)" />
+                                        <TextBox Text="{Binding Settings.Edit.ChunkSize}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,16,10">
+                                        <TextBlock Style="{StaticResource Label}" Text="Intervalo entre blocos (5–50 ms)" />
+                                        <TextBox Text="{Binding Settings.Edit.ChunkDelayMs}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,16,10">
+                                        <TextBlock Style="{StaticResource Label}" Text="Aguardar início do dump (s)" />
+                                        <TextBox Text="{Binding Settings.Edit.StartTimeoutSeconds}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,16,10">
+                                        <TextBlock Style="{StaticResource Label}" Text="Timeout de recepção (s, padrão 10)" />
+                                        <TextBox Text="{Binding Settings.Edit.ReceiveTimeoutSeconds}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,16,10">
+                                        <TextBlock Style="{StaticResource Label}" Text="Silêncio após F7 para concluir (ms)" />
+                                        <TextBox Text="{Binding Settings.Edit.PostDumpIdleMilliseconds}" />
+                                    </StackPanel>
+                                </UniformGrid>
+                                <TextBlock Style="{StaticResource Muted}"
+                                           Text="O tempo de início é o prazo para você pressionar SHIFT + PRESET DOWN. O timeout de recepção é o tempo máximo sem receber bytes no meio do dump." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Log técnico" />
+                                <CheckBox Content="Gravar log em arquivo (dispositivos, bytes, erros e hashes)" IsChecked="{Binding Settings.Edit.LoggingEnabled}" />
+                                <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource MutedBrush}" Text="{Binding Settings.LogsFolder}" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Saídas e loops (ex.: Simul-Class 2:90)" />
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
+                                           Text="Dê nome ao que cada saída controla no seu rig (ex.: &quot;2:90 Classe A esq.&quot;, &quot;2:90 Bright dir.&quot;). Os nomes aparecem no Editor e nas dicas dos LEDs. São só rótulos: não mudam nada no TriAxis." />
+                                <UniformGrid Columns="5">
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Style="{StaticResource Label}" Text="FX LOOP" />
+                                        <TextBox Text="{Binding Settings.Edit.SwitchNames[0]}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Style="{StaticResource Label}" Text="SW1" />
+                                        <TextBox Text="{Binding Settings.Edit.SwitchNames[1]}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Style="{StaticResource Label}" Text="SW2" />
+                                        <TextBox Text="{Binding Settings.Edit.SwitchNames[2]}" />
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Style="{StaticResource Label}" Text="SW3" />
+                                        <TextBox Text="{Binding Settings.Edit.SwitchNames[3]}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Label}" Text="SW4" />
+                                        <TextBox Text="{Binding Settings.Edit.SwitchNames[4]}" />
+                                    </StackPanel>
+                                </UniformGrid>
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,10,0,0"
+                                           Text="As configurações globais de loops/saídas do TriAxis ficam no bloco ainda não mapeado do dump. Para descobri-las com segurança, siga o roteiro &quot;TriAxis + 2:90&quot; do Manual (aba Biblioteca → Comparar)." />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" BorderBrush="{StaticResource WarnBrush}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Requisição de dump (avançado)" />
+                                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,8"
+                                           Text="Não há comando de requisição de dump documentado para o TriAxis neste projeto; o método confiável é SHIFT + PRESET DOWN no painel. Ative apenas se você tiver uma mensagem SysEx de fonte confiável — ela será ENVIADA ao TriAxis no início de cada backup." />
+                                <CheckBox Content="Enviar mensagem de requisição ao iniciar o backup" IsChecked="{Binding Settings.Edit.DumpRequestEnabled}" />
+                                <TextBlock Style="{StaticResource Label}" Text="Mensagem (hex, F0 ... F7)" Margin="0,8,0,4" />
+                                <TextBox Text="{Binding Settings.Edit.DumpRequestHex}" FontFamily="{StaticResource MonoFont}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H2}" Text="Dados locais (sem internet, sem telemetria)" />
+                                <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource MutedBrush}" Text="{Binding Settings.DataFolder, StringFormat='Pasta de dados: {0}'}" />
+                                <TextBlock Style="{StaticResource Mono}" Foreground="{StaticResource MutedBrush}" Text="{Binding Settings.DatabasePath, StringFormat='Biblioteca:     {0}'}" />
+                                <Button Content="Abrir pasta de dados" Command="{Binding Settings.OpenDataFolderCommand}" HorizontalAlignment="Left" Margin="0,10,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Salvar" Command="{Binding Settings.SaveCommand}" Style="{StaticResource AccentButton}" Padding="22,8" />
+                            <Button Content="Restaurar padrões" Command="{Binding Settings.ResetCommand}" />
+                            <TextBlock Text="{Binding Settings.Message}" Foreground="{StaticResource OkBrush}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== LOG ===================== -->
+            <TabItem Header="Log">
+                <DockPanel Margin="20">
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                            <Button Content="Copiar tudo" Command="{Binding Log.CopyCommand}" />
+                            <Button Content="Limpar visualização" Command="{Binding Log.ClearCommand}" />
+                            <Button Content="Abrir pasta de logs" Command="{Binding Log.OpenFolderCommand}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Log.LogFolder}" Foreground="{StaticResource MutedBrush}" FontFamily="{StaticResource MonoFont}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </DockPanel>
+                    <ListBox x:Name="LogList" ItemsSource="{Binding Log.Entries}" FontFamily="{StaticResource MonoFont}" FontSize="12"
+                             VirtualizingPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,0 +1,113 @@
+﻿<UserControl x:Class="TriAxisBackupEditor.App.Views.Simple.SafeSendView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TriAxisBackupEditor.App.Views.Simple">
+
+    <UserControl.Resources>
+        <!-- Mostra o bloco cujo Tag é o nome do passo atual -->
+        <Style x:Key="ForStep" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource StepNameEquals}">
+                            <Binding Path="Step" />
+                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="40,20,40,24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- Bloqueado -->
+            <StackPanel Tag="Blocked" Style="{StaticResource ForStep}">
+                <TextBlock Text="Este arquivo não pode ser enviado pelo modo simples" Style="{StaticResource PageTitle}" />
+                <TextBlock Text="{Binding Message}" Style="{StaticResource BigText}" Margin="0,12,0,22" />
+                <Button Content="Voltar" Command="{Binding BackCommand}" Style="{StaticResource BigButton}" HorizontalAlignment="Left" />
+            </StackPanel>
+
+            <!-- 1. Aviso -->
+            <StackPanel Tag="Warning" Style="{StaticResource ForStep}">
+                <TextBlock Text="Passo 1 de 3" Style="{StaticResource Lead}" />
+                <TextBlock Text="Isto vai trocar os timbres do seu TriAxis" Style="{StaticResource PageTitle}" Margin="0,4,0,0" />
+                <Border Background="{StaticResource DangerBgBrush}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="2" CornerRadius="12" Padding="24,20" Margin="0,18,0,22">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BigText}"><Run Text="Tudo o que está no TriAxis agora será substituído por " /><Run Text="{Binding Description, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="." /></TextBlock>
+                        <TextBlock Style="{StaticResource BigText}" Margin="0,12,0,0" Foreground="{StaticResource MutedBrush}"
+                                   Text="Para você poder voltar atrás, o próximo passo guarda automaticamente o que está no TriAxis agora." />
+                    </StackPanel>
+                </Border>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Continuar" Command="{Binding ContinueCommand}" Style="{StaticResource BigAccentButton}" />
+                    <Button Content="Cancelar" Command="{Binding BackCommand}" Style="{StaticResource BigButton}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- 2. Backup de segurança -->
+            <StackPanel Tag="SafetyBackup" Style="{StaticResource ForStep}">
+                <TextBlock Text="Passo 2 de 3" Style="{StaticResource Lead}" />
+                <TextBlock Text="Guardar o estado atual (obrigatório)" Style="{StaticResource PageTitle}" Margin="0,4,0,0" />
+                <TextBlock Text="Assim, se não gostar do resultado, é só devolver este backup pela página Backup."
+                           Style="{StaticResource Lead}" Margin="0,6,0,18" />
+                <local:CaptureCardView DataContext="{Binding SafetyCard}" />
+                <Button Content="Cancelar" Command="{Binding BackCommand}" Style="{StaticResource LinkButton}" HorizontalAlignment="Left" Margin="0,14,0,0" FontSize="14" />
+            </StackPanel>
+
+            <!-- 3. Confirmar -->
+            <StackPanel Tag="Confirm" Style="{StaticResource ForStep}">
+                <TextBlock Text="Passo 3 de 3" Style="{StaticResource Lead}" />
+                <TextBlock Text="Tudo pronto. Substituir os timbres do TriAxis?" Style="{StaticResource PageTitle}" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding SafetyBackupText}" Style="{StaticResource Lead}" Margin="0,8,0,22" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Sim, substituir" Command="{Binding ReplaceCommand}" Style="{StaticResource BigDangerButton}" />
+                    <Button Content="Cancelar" Command="{Binding BackCommand}" Style="{StaticResource BigButton}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Enviando -->
+            <StackPanel Tag="Sending" Style="{StaticResource ForStep}">
+                <TextBlock Text="Mandando para o TriAxis..." Style="{StaticResource PageTitle}" />
+                <TextBlock Text="Não desligue o TriAxis nem desconecte os cabos." Style="{StaticResource Lead}" Margin="0,6,0,18" />
+                <ProgressBar Value="{Binding Percent, Mode=OneWay}" Maximum="100" Height="20" />
+            </StackPanel>
+
+            <!-- Pronto -->
+            <StackPanel Tag="Done" Style="{StaticResource ForStep}">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{StaticResource IconCheck}" Stroke="{StaticResource OkBrush}" StrokeThickness="3.5" Width="36" Height="36" Stretch="Uniform" Margin="0,0,14,0" />
+                    <TextBlock Text="Enviado! O display do TriAxis piscou?" Style="{StaticResource PageTitle}" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="A piscada confirma que o TriAxis recebeu os timbres. Depois, toque alguns timbres para conferir."
+                           Style="{StaticResource Lead}" Margin="0,8,0,22" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Sim, piscou" Command="{Binding HomeCommand}" Style="{StaticResource BigAccentButton}" />
+                    <Button Content="Não piscou" Command="{Binding NoBlinkCommand}" Style="{StaticResource BigButton}" />
+                </StackPanel>
+                <Border Background="{StaticResource WarnBgBrush}" CornerRadius="10" Padding="20,16" Margin="0,20,0,0"
+                        Visibility="{Binding ShowNoBlinkHelp, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BigText}" FontSize="15" Foreground="{StaticResource WarnBrush}"
+                                   Text="Confira se o cabo sai do computador e entra no conector MIDI IN do TriAxis (em cabos USB-MIDI, troque os plugues de lugar). Se tiver uma pedaleira na mesma ligação, desconecte-a. Depois tente de novo; seus timbres antigos continuam guardados." />
+                        <Button Content="Tentar de novo" Command="{Binding RetryCommand}" Style="{StaticResource BigButton}" HorizontalAlignment="Left" Margin="0,14,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Falhou -->
+            <StackPanel Tag="Failed" Style="{StaticResource ForStep}">
+                <TextBlock Text="Não foi possível terminar o envio" Style="{StaticResource PageTitle}" />
+                <TextBlock Text="{Binding Message}" Style="{StaticResource BigText}" Margin="0,12,0,8" />
+                <TextBlock Text="Seus timbres antigos continuam guardados na página Backup." Style="{StaticResource Lead}" Margin="0,0,0,22" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Tentar de novo" Command="{Binding ReplaceCommand}" Style="{StaticResource BigAccentButton}" />
+                    <Button Content="Voltar" Command="{Binding BackCommand}" Style="{StaticResource BigButton}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

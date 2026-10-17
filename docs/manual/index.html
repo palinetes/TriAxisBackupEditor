@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual — TriAxis Backup &amp; Editor</title>
+<style>
+  :root {
+    --bg: #15171b; --panel: #1d2026; --panel2: #262a31; --border: #353b45;
+    --text: #e4e6ea; --muted: #98a1ad; --accent: #e8a317; --danger: #ff6b61; --ok: #3fb950; --warn: #e3b341;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f6f4; --panel: #ffffff; --panel2: #efefec; --border: #d8d8d2;
+    --text: #1d1f23; --muted: #5d6470; --accent: #a86f00; --danger: #b3261e; --ok: #1f7a33; --warn: #8a6100;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 "Segoe UI", system-ui, sans-serif; }
+  .wrap { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+  nav { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 24px 16px; border-right: 1px solid var(--border); }
+  nav .brand { font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+  nav .brand b { color: var(--accent); }
+  nav .by { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+  nav a { display: block; color: var(--muted); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  nav a:hover { color: var(--text); background: var(--panel2); }
+  main { padding: 32px 40px 80px; min-width: 0; }
+  h1 { font-size: 30px; margin: 0 0 4px; }
+  h1 b { color: var(--accent); }
+  h2 { font-size: 22px; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 17px; margin: 24px 0 8px; }
+  p, li { max-width: 78ch; }
+  a { color: var(--accent); }
+  code, kbd { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  pre { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; overflow-x: auto; }
+  figure { margin: 16px 0 24px; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; display: block; }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; background: var(--panel); }
+  .box { border: 1px solid var(--border); background: var(--panel); border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
+  .box.danger { border-color: var(--danger); }
+  .box.danger strong:first-child { color: var(--danger); }
+  .box.warn { border-color: var(--warn); }
+  .box.ok { border-color: var(--ok); }
+  .lead { color: var(--muted); font-size: 16px; margin-top: 0; }
+  .steps li { margin-bottom: 6px; }
+  .theme { position: fixed; right: 16px; top: 12px; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+    main { padding: 20px 16px 60px; }
+  }
+  @media print { nav, .theme { display: none; } .wrap { display: block; } h2 { break-before: page; } }
+</style>
+</head>
+<body>
+<button class="theme" onclick="toggleTheme()">Tema claro/escuro</button>
+<div class="wrap">
+<nav>
+  <div class="brand"><b>TRIAXIS</b> Backup &amp; Editor</div>
+  <div class="by">Manual do usuário · v1.0 · por @palinetes</div>
+  <a href="#inicio">1. Antes de começar</a>
+  <a href="#modos">2. Modo simples e avançado</a>
+  <a href="#assistente">3. Primeira vez: o assistente</a>
+  <a href="#tela-inicial">4. Tela inicial</a>
+  <a href="#timbres">5. Meus timbres</a>
+  <a href="#mandar">6. Mandar para o TriAxis</a>
+  <a href="#backup">7. Backup</a>
+  <a href="#tocar">8. Tocar</a>
+  <a href="#avancado">9. Modo avançado</a>
+  <a href="#290">10. TriAxis + Simul-Class 2:90</a>
+  <a href="#problemas">11. Se algo não funcionar</a>
+  <a href="#atalhos">12. Atalhos</a>
+  <a href="#sobre">13. Sobre</a>
+</nav>
+<main>
+<h1><b>TRIAXIS</b> Backup &amp; Editor</h1>
+<p class="lead">Guarde, ajuste e troque os timbres do seu Mesa/Boogie TriAxis pelo computador, sem precisar entender de MIDI. Tudo fica no seu computador: sem internet e sem cadastro.</p>
+
+<div class="box ok"><strong>Sua segurança:</strong> o programa nunca muda nada no TriAxis sem você pedir. E toda vez que for mandar timbres para o aparelho, ele <strong>guarda antes</strong> o que está no TriAxis, para você poder voltar atrás.</div>
+
+<h2 id="inicio">1. Antes de começar</h2>
+<ul>
+  <li><strong>Computador</strong> com Windows 10 ou 11. É só abrir o <code>TriAxisBackupEditor.exe</code>: não precisa instalar nada.</li>
+  <li><strong>Um jeito de ligar o TriAxis ao computador:</strong>
+    <ul>
+      <li>um <strong>cabo USB-MIDI</strong> (USB numa ponta, dois plugues redondos na outra), que é o mais comum;</li>
+      <li>ou uma <strong>placa de áudio com MIDI</strong> (RME, Focusrite etc.) e dois cabos MIDI.</li>
+    </ul>
+  </li>
+  <li>Feche outros programas de música (DAW, editores) enquanto usa este.</li>
+</ul>
+
+<h2 id="modos">2. Modo simples e modo avançado</h2>
+<p>No topo da janela há uma chave <strong>Simples | Avançado</strong>.</p>
+<ul>
+  <li><strong>Simples</strong> (padrão): três caminhos guiados, <em>Meus timbres</em>, <em>Backup</em> e <em>Tocar</em>, sem termos técnicos. É para quase todo mundo.</li>
+  <li><strong>Avançado:</strong> todas as ferramentas (biblioteca com comparação, editor completo, visualização em hexadecimal, log, botões CC, aprender MIDI, ajustes de envio). É para quem já mexe com MIDI ou tem uma pedaleira como a FCB1010.</li>
+</ul>
+<p>A segurança é a mesma nos dois modos. O programa lembra o último modo usado.</p>
+
+<h2 id="assistente">3. Primeira vez: o assistente</h2>
+<p>Na primeira vez, o programa abre um assistente de 4 passos. Você pode refazê-lo quando quiser, pelo botão <em>Configurar ligação</em> no topo ou pelo link na tela inicial.</p>
+
+<h3>Passo 1: o aparelho</h3>
+<figure><img src="img/simples_01_assistente_aparelho.png" alt="Assistente, passo 1"><figcaption>Escolha como o TriAxis vai se ligar e qual é o seu aparelho. A lista se atualiza sozinha quando você conecta o cabo.</figcaption></figure>
+
+<h3>Passo 2: os cabos</h3>
+<figure><img src="img/simples_02_assistente_cabos.png" alt="Assistente, passo 2"><figcaption>O desenho mostra os dois cabos: um sai do MIDI OUT do TriAxis e o outro entra no MIDI IN.</figcaption></figure>
+<p>Em cabos USB-MIDI, as etiquetas IN/OUT dos plugues às vezes enganam. Se você trocar, o passo seguinte avisa, e é só <strong>inverter os dois plugues</strong>.</p>
+
+<h3>Passo 3: o primeiro backup</h3>
+<figure><img src="img/simples_03_assistente_backup.png" alt="Assistente, passo 3"><figcaption>Segure SHIFT e aperte a seta da esquerda do PRESET (PRESET ▼). Os timbres chegam e ficam guardados.</figcaption></figure>
+<p>Este passo testa a ligação e, de quebra, já guarda todos os seus timbres no computador. Nada é alterado no TriAxis.</p>
+
+<h3>Passo 4: o teste de envio</h3>
+<figure><img src="img/simples_04_assistente_teste.png" alt="Assistente, passo 4"><figcaption>O programa pede ao TriAxis para trocar de programa. Mudou? Pronto. Não mudou? Ele ajuda a acertar o número.</figcaption></figure>
+<p>O "número do TriAxis" é o canal configurado no aparelho. Você não precisa saber qual é:</p>
+<ol class="steps">
+  <li>Clique em <strong>Testar a ligação</strong>. O programa manda a troca de programa para todos os números de uma vez.</li>
+  <li>Se o display do TriAxis <strong>não</strong> mudar, o problema é a ligação (cabo, porta ou pedaleira no meio do caminho), e o programa mostra o que conferir.</li>
+  <li>Se <strong>mudar</strong>, a ligação funciona. Com no máximo 4 testes de "mudou? sim/não", o programa descobre o número sozinho.</li>
+</ol>
+<p>Se em <em>Tocar</em> o TriAxis não trocar de programa, use o link <strong>"O TriAxis não troca de programa? Descobrir o problema"</strong>, que abre direto este teste.</p>
+
+<h2 id="tela-inicial">4. Tela inicial</h2>
+<figure><img src="img/simples_05_inicio.png" alt="Tela inicial"><figcaption>Três caminhos. Acima deles, quando foi seu último backup.</figcaption></figure>
+
+<h2 id="timbres">5. Meus timbres</h2>
+<figure><img src="img/simples_06_timbres.png" alt="Meus timbres"><figcaption>O painel do TriAxis na tela, a lista dos 90 timbres (com os nomes que você der) e o botão para mandar ao aparelho.</figcaption></figure>
+<ul>
+  <li>Escolha o timbre na lista à esquerda, ou com as setas do PRESET no painel.</li>
+  <li>Para ajustar um valor, clique nas setas ◄ ► embaixo do display, gire a roda do mouse sobre ele, ou clique nele e escolha o valor na lista.</li>
+  <li>Os LEDs da direita trocam o <strong>canal</strong> (Rhythm verde/amarelo, Lead 1, Lead 2) e ligam ou desligam o <strong>FX LOOP</strong> e as saídas <strong>SW 1–4</strong>.</li>
+  <li><strong>Dar nome a este timbre:</strong> por exemplo "Base limpa" ou "Solo". Os nomes ficam só no computador, porque o TriAxis não guarda nomes. Eles aparecem também na pedaleira de <em>Tocar</em>.</li>
+  <li><strong>Desfazer mudanças</strong> volta tudo ao que estava no backup.</li>
+</ul>
+<div class="box warn"><strong>Edição em fase de teste:</strong> a leitura dos valores de cada timbre usa um mapa feito por outro projeto e ainda não foi conferida em todos os aparelhos. Por isso o programa sempre guarda o estado do TriAxis antes de mandar. Se algo soar diferente do esperado, devolva o backup pela página <em>Backup</em>.</div>
+
+<h2 id="mandar">6. Mandar para o TriAxis</h2>
+<p>Use <strong>Mandar para o TriAxis</strong> (em <em>Meus timbres</em>) ou <strong>Devolver ao TriAxis</strong> (em <em>Backup</em>). São sempre três passos:</p>
+<figure><img src="img/simples_07_envio_aviso.png" alt="Envio, passo 1"><figcaption>1. O aviso: tudo o que está no TriAxis será substituído.</figcaption></figure>
+<ol class="steps">
+  <li><strong>Aviso:</strong> clique em <em>Continuar</em>, ou em <em>Cancelar</em> se mudou de ideia.</li>
+  <li><strong>Backup de segurança (obrigatório):</strong> aperte SHIFT + PRESET ▼ no TriAxis. O estado atual fica guardado.</li>
+  <li><strong>Confirmar:</strong> clique em <em>Sim, substituir</em>.</li>
+</ol>
+<figure><img src="img/simples_08_envio_confirmar.png" alt="Envio, passo 3"><figcaption>3. Com o backup de segurança feito, falta só confirmar.</figcaption></figure>
+<figure><img src="img/simples_09_envio_pronto.png" alt="Envio concluído"><figcaption>No fim: o display do TriAxis piscou? É a confirmação de que ele recebeu.</figcaption></figure>
+<p>Se o display <strong>não piscar</strong>, clique em <em>Não piscou</em> para ver o que conferir (normalmente o cabo que vai para o MIDI IN do TriAxis) e tente de novo. Seus timbres antigos continuam guardados.</p>
+
+<h2 id="backup">7. Backup</h2>
+<figure><img src="img/simples_10_backup.png" alt="Página Backup"><figcaption>Guardar a memória agora e a lista de todos os seus backups.</figcaption></figure>
+<ul>
+  <li><strong>Guardar a memória do TriAxis agora:</strong> dê um nome (ex.: "Timbres do show") e aperte SHIFT + PRESET ▼.</li>
+  <li><strong>Devolver ao TriAxis:</strong> escolha um backup na lista e siga os 3 passos da <a href="#mandar">seção 6</a>.</li>
+  <li><strong>Renomear</strong>, <strong>Apagar</strong> (o arquivo vai para a Lixeira do Windows e dá para recuperar) e <strong>Abrir a pasta</strong> (<code>Documentos\TriAxis Backups</code>).</li>
+  <li>Os backups marcados como <em>editado</em> foram criados pela página <em>Meus timbres</em>.</li>
+</ul>
+<p><strong>Dica:</strong> guarde uma cópia da pasta de backups num pendrive ou na nuvem de vez em quando.</p>
+
+<h2 id="tocar">8. Tocar</h2>
+<figure><img src="img/simples_11_tocar.png" alt="Tocar"><figcaption>A pedaleira na tela. Cada pedal mostra o nome do timbre que ele chama.</figcaption></figure>
+<ul>
+  <li>Clique num pedal, ou aperte <kbd>1</kbd>…<kbd>9</kbd> e <kbd>0</kbd> no teclado, para trocar de programa. O LED do pedal ativo acende.</li>
+  <li><strong>BANCO ▲▼</strong> (ou <kbd>↑</kbd> <kbd>↓</kbd>) troca o grupo de 10 programas: banco 0 tem os programas 1 a 10, banco 1 tem os 11 a 20, e assim por diante.</li>
+  <li><kbd>←</kbd> <kbd>→</kbd> passam para o programa anterior ou o seguinte.</li>
+  <li><strong>Botão direito num pedal → Dar nome ao timbre deste pedal.</strong></li>
+  <li>Trocar de programa não muda nenhum timbre: é como apertar as setas de PROGRAM/CHANNEL no TriAxis.</li>
+</ul>
+
+<h2 id="avancado">9. Modo avançado</h2>
+<p>Ligue a chave <strong>Avançado</strong> no topo. As ferramentas ficam em abas:</p>
+<table>
+  <tr><th>Aba</th><th>Para quê</th></tr>
+  <tr><td>Conexão</td><td>Escolher MIDI IN e MIDI OUT separadamente e testar a ligação (só escuta, não envia nada).</td></tr>
+  <tr><td>Controle</td><td>Pedaleira completa: canal MIDI, 4/5/8/10 pedais por banco, botões CC, <strong>aprender MIDI</strong> de uma pedaleira ligada ao PC (ex.: FCB1010) e repassar Program Change.</td></tr>
+  <tr><td>Backup / Restaurar</td><td>Backup com detalhes técnicos e restauração com ajuste de blocos e intervalo. A confirmação pede que você digite <code>RESTAURAR</code>.</td></tr>
+  <tr><td>Biblioteca</td><td>Busca, importação, exportação CSV e <strong>comparação byte a byte</strong> entre dois backups.</td></tr>
+  <tr><td>Editor</td><td>O painel do TriAxis com a lista de alterações byte a byte e a matriz dos 90 presets.</td></tr>
+  <tr><td>Visualizar dump</td><td>Hexadecimal/ASCII, presets e mapa de programas.</td></tr>
+  <tr><td>Configurações</td><td>Pasta, tempos, log, nomes das saídas e loops (ex.: funções da 2:90) e requisição de dump.</td></tr>
+  <tr><td>Log</td><td>Registro técnico da sessão (dispositivos, bytes, hashes, erros).</td></tr>
+</table>
+<figure><img src="img/avancado_editor.png" alt="Editor avançado"><figcaption>Editor do modo avançado, com a lista de alterações e a matriz de presets.</figcaption></figure>
+<figure><img src="img/avancado_controle.png" alt="Controle avançado"><figcaption>Modo Controle avançado: pedaleira, botões CC e aprender MIDI.</figcaption></figure>
+<figure><img src="img/avancado_biblioteca.png" alt="Biblioteca"><figcaption>Biblioteca: selecione dois backups (Ctrl+clique) e compare.</figcaption></figure>
+
+<h2 id="290">10. TriAxis + Simul-Class 2:90: loops e saídas</h2>
+<p>Com a 2:90, as <strong>saídas de switch</strong> do TriAxis (SW1–SW4) e o <strong>FX LOOP</strong> costumam comandar funções do power amp e do rack.</p>
+<table>
+  <tr><th>O quê</th><th>Onde fica</th><th>No programa</th></tr>
+  <tr><td>FX LOOP e SW1–SW4 ligados/desligados <em>em cada timbre</em></td><td>Dentro de cada timbre</td><td>Editável no painel (LEDs SW e FX LOOP). Dê nomes às saídas em <em>Avançado → Configurações → Saídas e loops</em>.</td></tr>
+  <tr><td>Configuração <em>geral</em> de loops e saídas</td><td>Numa parte da memória ainda não decifrada</td><td>É guardada e devolvida intacta pelos backups, mas ainda não é editável. Use o roteiro abaixo para descobri-la.</td></tr>
+</table>
+<h3>Roteiro para descobrir a configuração geral (só faz backups)</h3>
+<ol class="steps">
+  <li>Faça o backup <strong>A</strong> e escreva no nome qual é a configuração atual.</li>
+  <li>No TriAxis, mude <strong>uma única</strong> configuração de loop ou saída, seguindo o manual do aparelho.</li>
+  <li>Faça o backup <strong>B</strong> e escreva no nome o que mudou.</li>
+  <li>No <strong>modo avançado → Biblioteca</strong>, selecione A e B (<kbd>Ctrl</kbd>+clique), clique em <strong>Comparar</strong> e anote as posições <code>Controladores +N</code>.</li>
+  <li>Volte a configuração ao valor original, faça o backup <strong>C</strong> e confira que C é idêntico a A.</li>
+</ol>
+<table>
+  <tr><th>Configuração alterada</th><th>Antes → depois</th><th>Posição(ões)</th><th>Bytes A → B</th><th>C = A?</th></tr>
+  <tr><td>ex.: modo do loop</td><td>…</td><td>Controladores +…</td><td>… → …</td><td>sim/não</td></tr>
+</table>
+
+<h2 id="problemas">11. Se algo não funcionar</h2>
+<table>
+  <tr><th>O que aconteceu</th><th>O que fazer</th></tr>
+  <tr><td>Meu aparelho não aparece na lista</td><td>Conecte o cabo USB e espere alguns segundos; troque de porta USB se precisar. A lista se atualiza sozinha.</td></tr>
+  <tr><td>"Não chegou nada do TriAxis"</td><td>Confira o cabo no <strong>MIDI OUT</strong> do TriAxis. Em cabo USB-MIDI, <strong>inverta os dois plugues</strong>. Segure SHIFT e aperte PRESET ▼.</td></tr>
+  <tr><td>"A transmissão parou no meio"</td><td>Tente de novo. Se repetir, troque o cabo ou a porta USB (evite hubs).</td></tr>
+  <tr><td>O TriAxis não troca de programa</td><td>Em <em>Tocar</em>, clique em <strong>"O TriAxis não troca de programa? Descobrir o problema"</strong>. O teste diz se é cabo ou número e acerta o número sozinho.</td></tr>
+  <tr><td>Quero parar um backup que não está recebendo nada</td><td>Clique em <em>Cancelar</em> ou feche o programa. Esperar o TriAxis não muda nada no aparelho, então dá para interromper a qualquer momento. Só o <em>envio</em> ao TriAxis pede para esperar terminar.</td></tr>
+  <tr><td>O display não piscou ao mandar timbres</td><td>Confira o cabo que entra no <strong>MIDI IN</strong> do TriAxis e tire a pedaleira da ligação. No modo avançado, aumente o intervalo de envio.</td></tr>
+  <tr><td>"Não foi possível usar a interface"</td><td>Feche DAW e outros programas de música e tente de novo.</td></tr>
+</table>
+<p>Ao pedir ajuda, mande o arquivo de log, que fica em <code>%LOCALAPPDATA%\TriAxisBackupEditor\logs</code> (ou na aba Log do modo avançado).</p>
+
+<h2 id="atalhos">12. Atalhos</h2>
+<table>
+  <tr><th>Tecla</th><th>Onde</th><th>Ação</th></tr>
+  <tr><td><kbd>F1</kbd></td><td>Em qualquer lugar</td><td>Abre este manual</td></tr>
+  <tr><td><kbd>1</kbd>…<kbd>9</kbd>, <kbd>0</kbd></td><td>Tocar</td><td>Pedais 1–10</td></tr>
+  <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Tocar</td><td>Banco seguinte / anterior</td></tr>
+  <tr><td><kbd>→</kbd> / <kbd>←</kbd></td><td>Tocar</td><td>Programa seguinte / anterior</td></tr>
+  <tr><td>Roda do mouse</td><td>Painel do TriAxis</td><td>Muda o valor do display</td></tr>
+</table>
+
+<h2 id="sobre">13. Sobre</h2>
+<p><strong>TriAxis Backup &amp; Editor</strong> v1.0, por <strong>@palinetes</strong>.</p>
+<p>O mapa da memória do TriAxis usado na edição vem do editor web de Mark Philpot (<a href="https://github.com/markphilpot/triaxiseditor">markphilpot/triaxiseditor</a>, GPL-3.0, publicado em triaxiseditor.com). O código deste programa foi escrito do zero.</p>
+<p>Mesa/Boogie, TriAxis e Simul-Class são marcas de seus respectivos donos. Este é um projeto independente, sem relação com o fabricante.</p>
+</main>
+</div>
+<script>
+  function toggleTheme() {
+    var root = document.documentElement;
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('triaxis-manual-theme', next); } catch (e) {}
+  }
+  try { var saved = localStorage.getItem('triaxis-manual-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); } catch (e) {}
+</script>
+</body>
+</html>

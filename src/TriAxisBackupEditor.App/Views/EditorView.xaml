@@ -1,0 +1,109 @@
+﻿<UserControl x:Class="TriAxisBackupEditor.App.Views.EditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TriAxisBackupEditor.App.Views">
+
+    <Grid Margin="20,14,20,14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="120" />
+        </Grid.RowDefinitions>
+
+        <!-- Barra superior -->
+        <DockPanel Margin="0,0,0,10">
+            <Button DockPanel.Dock="Left" Content="Abrir .syx..." Command="{Binding OpenFileCommand}" Style="{StaticResource AccentButton}" />
+            <Button DockPanel.Dock="Left" Content="Abrir último backup" Command="{Binding OpenLatestCommand}" />
+            <TextBlock DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                       Text="● alterações não salvas" Visibility="{Binding IsModified, Converter={StaticResource BoolToVis}}" />
+            <TextBox Text="{Binding SourcePath, Mode=OneWay}" IsReadOnly="True" ToolTip="Arquivo de origem (nunca é alterado)" />
+        </DockPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource StatusBanner}" Tag="Warning" Margin="0,0,0,10">
+            <TextBlock Text="{Binding PreliminaryWarning}" TextWrapping="Wrap" FontSize="12" />
+        </Border>
+
+        <!-- Frente do TriAxis -->
+        <local:TriAxisPanelView Grid.Row="2" MaxHeight="250" Margin="0,0,0,12" />
+
+        <!-- Ações e alterações -->
+        <Grid Grid.Row="3" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource Card}" Margin="0" Padding="14">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource H2}" Text="{Binding CurrentPreset, StringFormat='Preset {0:00}'}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding ProgramInfo}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding ModeText, StringFormat='Modo: {0}'}" />
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding SwitchSummary}" Margin="0,0,0,10"
+                               ToolTip="Dê nomes às saídas em Configurações → Saídas e loops" />
+                    <WrapPanel>
+                        <Button Content="Copiar preset" Command="{Binding CopyPresetCommand}" Margin="0,0,8,8" />
+                        <Button Content="Colar aqui" Command="{Binding PastePresetCommand}" Margin="0,0,8,8" />
+                        <Button Content="Desfazer este preset" Command="{Binding RevertPresetCommand}" Margin="0,0,8,8" />
+                        <Button Content="Desfazer tudo" Command="{Binding RevertAllCommand}" Margin="0,0,8,8" />
+                    </WrapPanel>
+                    <WrapPanel Margin="0,6,0,0">
+                        <Button Content="Salvar como novo .syx" Command="{Binding SaveAsNewCommand}" Style="{StaticResource AccentButton}" Margin="0,0,8,0" />
+                        <Button Content="Enviar ao TriAxis..." Command="{Binding SendCommand}" Style="{StaticResource DangerButton}"
+                                ToolTip="Salva (se preciso) e abre a aba Restaurar, com confirmação em duas etapas" />
+                    </WrapPanel>
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding StatusText}" Margin="0,10,0,0" />
+                </StackPanel>
+            </Border>
+
+            <DockPanel Grid.Column="2">
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource Label}" Text="Alterações em relação ao arquivo de origem" />
+                <TextBox Style="{StaticResource MonoBox}" Text="{Binding ChangesText, Mode=OneWay}" Height="168" />
+            </DockPanel>
+        </Grid>
+
+        <!-- Matriz dos 90 presets -->
+        <DataGrid Grid.Row="4" ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedMatrixPreset}" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding Number, StringFormat=00}" Width="44" />
+                <DataGridTextColumn Header="Gain" Binding="{Binding Gain}" Width="*" />
+                <DataGridTextColumn Header="Treble" Binding="{Binding Treble}" Width="*" />
+                <DataGridTextColumn Header="Middle" Binding="{Binding Middle}" Width="*" />
+                <DataGridTextColumn Header="Bass" Binding="{Binding Bass}" Width="*" />
+                <DataGridTextColumn Header="Lead 1" Binding="{Binding Lead1Drive}" Width="*" />
+                <DataGridTextColumn Header="Lead 2" Binding="{Binding Lead2Drive}" Width="*" />
+                <DataGridTextColumn Header="Master" Binding="{Binding Master}" Width="*" />
+                <DataGridTextColumn Header="Presence" Binding="{Binding Presence}" Width="*" />
+                <DataGridTextColumn Header="Dyn Voice" Binding="{Binding DynamicVoice}" Width="*" />
+                <DataGridTextColumn Header="Modo" Binding="{Binding Mode}" Width="1.6*" />
+                <DataGridTemplateColumn Header="FX" Width="40">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding FxLoop, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="SW1" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch1, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="SW2" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch2, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="SW3" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch3, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="SW4" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate><TextBlock Text="●" Foreground="{StaticResource AccentBrush}" Visibility="{Binding Switch4, Converter={StaticResource BoolToVis}}" /></DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

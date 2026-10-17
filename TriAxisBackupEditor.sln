@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{41C834D8-CDCE-43FC-9AEA-D401AE241D19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.SysEx", "src\TriAxisBackupEditor.SysEx\TriAxisBackupEditor.SysEx.csproj", "{6CB472C5-3377-419E-84B7-A2D74709F114}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.Midi", "src\TriAxisBackupEditor.Midi\TriAxisBackupEditor.Midi.csproj", "{81B5FC78-1059-4346-B360-0A0365788572}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.Storage", "src\TriAxisBackupEditor.Storage\TriAxisBackupEditor.Storage.csproj", "{D6D7A778-6BF8-43F8-9C9F-F88CDBF4A57D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.Application", "src\TriAxisBackupEditor.Application\TriAxisBackupEditor.Application.csproj", "{261DB962-2ABA-4A97-8BC9-14D17CDA4E90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.Tests", "src\TriAxisBackupEditor.Tests\TriAxisBackupEditor.Tests.csproj", "{286634A3-8F24-4C72-80B5-3714E475CD3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.App", "src\TriAxisBackupEditor.App\TriAxisBackupEditor.App.csproj", "{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6CB472C5-3377-419E-84B7-A2D74709F114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CB472C5-3377-419E-84B7-A2D74709F114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CB472C5-3377-419E-84B7-A2D74709F114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CB472C5-3377-419E-84B7-A2D74709F114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81B5FC78-1059-4346-B360-0A0365788572}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81B5FC78-1059-4346-B360-0A0365788572}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81B5FC78-1059-4346-B360-0A0365788572}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81B5FC78-1059-4346-B360-0A0365788572}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6D7A778-6BF8-43F8-9C9F-F88CDBF4A57D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6D7A778-6BF8-43F8-9C9F-F88CDBF4A57D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6D7A778-6BF8-43F8-9C9F-F88CDBF4A57D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6D7A778-6BF8-43F8-9C9F-F88CDBF4A57D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{261DB962-2ABA-4A97-8BC9-14D17CDA4E90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{261DB962-2ABA-4A97-8BC9-14D17CDA4E90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{261DB962-2ABA-4A97-8BC9-14D17CDA4E90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{261DB962-2ABA-4A97-8BC9-14D17CDA4E90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{286634A3-8F24-4C72-80B5-3714E475CD3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{286634A3-8F24-4C72-80B5-3714E475CD3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{286634A3-8F24-4C72-80B5-3714E475CD3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{286634A3-8F24-4C72-80B5-3714E475CD3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6CB472C5-3377-419E-84B7-A2D74709F114} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+		{81B5FC78-1059-4346-B360-0A0365788572} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+		{D6D7A778-6BF8-43F8-9C9F-F88CDBF4A57D} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+		{261DB962-2ABA-4A97-8BC9-14D17CDA4E90} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+		{286634A3-8F24-4C72-80B5-3714E475CD3E} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+	EndGlobalSection
+EndGlobal

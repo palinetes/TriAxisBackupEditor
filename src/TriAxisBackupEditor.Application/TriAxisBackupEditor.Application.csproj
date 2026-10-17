@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>TriAxisBackupEditor.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TriAxisBackupEditor.Midi\TriAxisBackupEditor.Midi.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.Storage\TriAxisBackupEditor.Storage.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.SysEx\TriAxisBackupEditor.SysEx.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TriAxisBackupEditor.Tests" />
+  </ItemGroup>
+
+</Project>

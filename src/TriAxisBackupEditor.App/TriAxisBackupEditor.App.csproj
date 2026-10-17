@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TriAxisBackupEditor.App</RootNamespace>
+    <AssemblyName>TriAxisBackupEditor</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <AssemblyTitle>TriAxis Backup &amp; Editor</AssemblyTitle>
+    <!-- Publicação: veja publish.ps1 / README (win-x64, autônomo, arquivo único). -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Manual do usuário (docs/manual) embutido no .exe; aberto pelo botão Manual / F1. -->
+    <EmbeddedResource Include="..\..\docs\manual\**\*" LogicalName="manual/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Projetos WPF não incluem System.IO nos usings implícitos. -->
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TriAxisBackupEditor.Application\TriAxisBackupEditor.Application.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.Midi\TriAxisBackupEditor.Midi.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.Storage\TriAxisBackupEditor.Storage.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.SysEx\TriAxisBackupEditor.SysEx.csproj" />
+  </ItemGroup>
+
+</Project>

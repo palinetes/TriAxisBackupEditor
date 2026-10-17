@@ -1,0 +1,118 @@
+<UserControl x:Class="TriAxisBackupEditor.App.Views.Simple.SimpleTocarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:TriAxisBackupEditor.App.Controls"
+             Focusable="True" PreviewKeyDown="OnPreviewKeyDown" IsVisibleChanged="OnIsVisibleChanged">
+
+    <Grid Margin="28,16,28,20">
+        <!-- Ligação ainda não configurada -->
+        <Border Background="{StaticResource PanelBrush}" CornerRadius="12" Padding="32,28" VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="760"
+                Visibility="{Binding IsReady, Converter={StaticResource InverseBoolToVis}}">
+            <StackPanel>
+                <TextBlock Text="Antes de tocar, ligue o TriAxis ao programa" Style="{StaticResource PageTitle}" FontSize="22" />
+                <TextBlock Text="O assistente mostra onde ligar cada cabo e testa tudo." Style="{StaticResource Lead}" Margin="0,8,0,20" />
+                <Button Content="Configurar ligação" Command="{Binding Shell.OpenWizardCommand}" Style="{StaticResource BigAccentButton}" HorizontalAlignment="Left" />
+            </StackPanel>
+        </Border>
+
+        <DockPanel Visibility="{Binding IsReady, Converter={StaticResource BoolToVis}}">
+            <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+                <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Command="{Binding Shell.OpenChannelFinderCommand}" FontSize="14"
+                        Content="O TriAxis não troca de programa? Descobrir o problema →" Foreground="{StaticResource AccentBrush}" />
+                <TextBlock Style="{StaticResource Lead}" FontSize="13" VerticalAlignment="Center"
+                           Text="Teclado: 1 a 0 = pedais · ↑ ↓ = banco · ← → = programa · Botão direito num pedal = dar nome" />
+            </DockPanel>
+
+            <Viewbox Stretch="Uniform" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <Border CornerRadius="10" BorderBrush="#FF000000" BorderThickness="2" Padding="24" DataContext="{Binding Control}">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FF2E2E2E" Offset="0" />
+                            <GradientStop Color="#FF171717" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Banco e programa -->
+                        <StackPanel Width="210" VerticalAlignment="Center" Margin="0,0,20,0">
+                            <TextBlock Text="BANCO" Foreground="#FFF2F2F2" FontFamily="Arial" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" />
+                            <Border Background="#FF0A0202" BorderBrush="#FF000000" BorderThickness="2" CornerRadius="2" Padding="14,10" HorizontalAlignment="Center" Margin="0,8">
+                                <c:SevenSegmentDisplay Text="{Binding BankDisplay}" Digits="2" Height="70" OffBrush="{StaticResource SegRedOff}">
+                                    <c:SevenSegmentDisplay.RenderTransform>
+                                        <SkewTransform AngleX="-6" />
+                                    </c:SevenSegmentDisplay.RenderTransform>
+                                    <c:SevenSegmentDisplay.Effect>
+                                        <DropShadowEffect ShadowDepth="0" BlurRadius="10" Color="#FFFF2A1A" Opacity="0.6" />
+                                    </c:SevenSegmentDisplay.Effect>
+                                </c:SevenSegmentDisplay>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource BigArrow}" Content="▼" Command="{Binding BankDownCommand}" Width="96" Height="56" FontSize="20" Margin="0,4,8,4" />
+                                <Button Style="{StaticResource BigArrow}" Content="▲" Command="{Binding BankUpCommand}" Width="96" Height="56" FontSize="20" Margin="0,4,0,4" />
+                            </StackPanel>
+
+                            <TextBlock Text="PROGRAMA" Foreground="#FFF2F2F2" FontFamily="Arial" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" Margin="0,22,0,0" />
+                            <Border Background="#FF0A0202" BorderBrush="#FF000000" BorderThickness="2" CornerRadius="2" Padding="14,10" HorizontalAlignment="Center" Margin="0,8">
+                                <c:SevenSegmentDisplay Text="{Binding ProgramDisplay}" Digits="3" Height="70" OnBrush="{StaticResource SegGreen}" OffBrush="{StaticResource SegGreenOff}">
+                                    <c:SevenSegmentDisplay.RenderTransform>
+                                        <SkewTransform AngleX="-6" />
+                                    </c:SevenSegmentDisplay.RenderTransform>
+                                    <c:SevenSegmentDisplay.Effect>
+                                        <DropShadowEffect ShadowDepth="0" BlurRadius="10" Color="#FF6CFF3A" Opacity="0.5" />
+                                    </c:SevenSegmentDisplay.Effect>
+                                </c:SevenSegmentDisplay>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Pedais -->
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding BankRangeText}" Foreground="#FFB8B8B8" FontFamily="Arial" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,6" />
+                            <ItemsControl ItemsSource="{Binding Pedals}" Focusable="False">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="{Binding DataContext.PedalColumns, RelativeSource={RelativeSource AncestorType=Border}}" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource Footswitch}" Command="{Binding PressCommand}" Width="170" Height="186" ToolTip="{Binding KeyHint}"
+                                                Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Dar nome ao timbre deste pedal"
+                                                              Command="{Binding PlacementTarget.Tag.RenamePedalCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}" />
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                            <Grid>
+                                                <Ellipse HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse" BasedOn="{StaticResource PedalLed}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsLit}" Value="True">
+                                                                    <Setter Property="Fill" Value="{StaticResource LedRedBrush}" />
+                                                                    <Setter Property="Effect">
+                                                                        <Setter.Value>
+                                                                            <DropShadowEffect ShadowDepth="0" BlurRadius="14" Color="#FFFF2A1A" Opacity="0.9" />
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                                <TextBlock Text="{Binding Number}" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="30" FontWeight="Bold" FontFamily="Arial" Foreground="#FFF2F2F2" Margin="0,-6,4,0" />
+                                                <Ellipse Style="{StaticResource MetalCap}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                                <TextBlock Text="{Binding DisplayName}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontFamily="Arial" FontWeight="Bold" FontSize="14"
+                                                           Foreground="{StaticResource AccentBrush}" TextTrimming="CharacterEllipsis" MaxWidth="148" />
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Viewbox>
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,78 @@
+<Window x:Class="TriAxisBackupEditor.App.Views.RestoreConfirmWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource AppWindow}"
+        Title="Confirmar restauração"
+        Width="640" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+
+    <StackPanel Margin="20">
+        <!-- Aviso vermelho -->
+        <Border Background="{StaticResource DangerBgBrush}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="2" CornerRadius="6" Padding="16">
+            <StackPanel>
+                <TextBlock Text="⚠ A memória atual do TriAxis será SUBSTITUÍDA" FontSize="17" FontWeight="Bold" Foreground="{StaticResource ErrorBrush}" TextWrapping="Wrap" />
+                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
+                           Text="Todos os presets, o mapa de programas MIDI e as configurações de FX loop/switching que estão no TriAxis agora serão apagados e trocados pelo conteúdo do arquivo abaixo. Não há como desfazer pelo equipamento." />
+            </StackPanel>
+        </Border>
+
+        <Grid Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="110" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Style="{StaticResource Label}" Text="Arquivo" />
+            <TextBlock Grid.Column="1" x:Name="FileText" Style="{StaticResource Mono}" />
+            <TextBlock Grid.Row="1" Style="{StaticResource Label}" Text="Tamanho" />
+            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SizeText" Style="{StaticResource Mono}" />
+            <TextBlock Grid.Row="2" Style="{StaticResource Label}" Text="SHA-256" />
+            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="HashText" Style="{StaticResource Mono}" />
+            <TextBlock Grid.Row="3" Style="{StaticResource Label}" Text="MIDI OUT" />
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="OutputText" Style="{StaticResource Mono}" />
+        </Grid>
+
+        <!-- Backup de segurança -->
+        <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="14">
+            <StackPanel>
+                <TextBlock Style="{StaticResource H2}" Text="Backup de segurança (recomendado)" Margin="0,0,0,6" />
+                <TextBlock x:Name="SafetyText" Style="{StaticResource Muted}"
+                           Text="Antes de restaurar, salve o estado atual do TriAxis. O backup será feito agora (pressione SHIFT + PRESET DOWN quando pedido) e você voltará a esta tela." />
+                <TextBlock x:Name="SafetyDoneText" Foreground="{StaticResource OkBrush}" TextWrapping="Wrap" Margin="0,6,0,0" Visibility="Collapsed" />
+                <Button x:Name="SafetyButton" Content="Fazer backup de segurança agora" HorizontalAlignment="Left" Margin="0,10,0,0" Click="SafetyButton_Click" />
+            </StackPanel>
+        </Border>
+
+        <!-- Avisos do arquivo -->
+        <Border x:Name="WarningsPanel" Style="{StaticResource StatusBanner}" Tag="Warning" Margin="0,0,0,12" Visibility="Collapsed">
+            <StackPanel>
+                <TextBlock Text="Avisos sobre o arquivo:" FontWeight="SemiBold" />
+                <TextBlock x:Name="WarningsText" TextWrapping="Wrap" Margin="0,4,0,6" />
+                <CheckBox x:Name="WarningsCheck" Content="Li os avisos e confirmo que este arquivo é um backup do meu TriAxis" Checked="OnInputChanged" Unchecked="OnInputChanged" />
+            </StackPanel>
+        </Border>
+
+        <!-- Etapa 1 -->
+        <TextBlock Style="{StaticResource H2}" Text="Etapa 1 de 2" Margin="0,4,0,4" />
+        <CheckBox x:Name="Step1Check" Checked="OnInputChanged" Unchecked="OnInputChanged">
+            <TextBlock TextWrapping="Wrap" Text="Entendo que a restauração substituirá a memória atual do TriAxis." />
+        </CheckBox>
+
+        <!-- Etapa 2 -->
+        <StackPanel x:Name="Step2Panel" IsEnabled="False" Margin="0,12,0,0">
+            <TextBlock Style="{StaticResource H2}" Text="Etapa 2 de 2" Margin="0,0,0,4" />
+            <TextBlock Style="{StaticResource Muted}" Text="Digite RESTAURAR (em maiúsculas) para liberar o envio:" />
+            <TextBox x:Name="PhraseBox" Margin="0,6,0,0" FontFamily="{StaticResource MonoFont}" FontSize="15" TextChanged="OnInputChanged" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Cancelar" IsCancel="True" IsDefault="True" Click="Cancel_Click" Padding="18,8" />
+            <Button x:Name="ConfirmButton" Content="Enviar ao TriAxis" Style="{StaticResource DangerButton}" IsEnabled="False" Click="Confirm_Click" Padding="18,8" Margin="0" />
+        </StackPanel>
+    </StackPanel>
+</Window>
