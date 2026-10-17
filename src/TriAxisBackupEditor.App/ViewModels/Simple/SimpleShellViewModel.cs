@@ -1,4 +1,4 @@
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Backup;
@@ -167,7 +167,7 @@ public sealed class SimpleShellViewModel : ObservableObject
 
     /// <summary>Backup mais recente (capturado ou editado) que ainda existe e está no formato do TriAxis.</summary>
     public BackupRecord? LatestBackup() =>
-        _library.Search(null).FirstOrDefault(r => r.FileExists && r.SizeBytes == TriAxisDumpLayout.TotalLength);
+        _library.Search(null).FirstOrDefault(r => r.FileExists && (r.SizeBytes == TriAxisDumpLayout.TotalLength || r.SizeBytes == TriAxisDumpLayout.WebEditorFileLength));
 
     public TriAxisDump? LatestDump()
     {
@@ -179,7 +179,7 @@ public sealed class SimpleShellViewModel : ObservableObject
 
         try
         {
-            return TriAxisDumpParser.TryParse(File.ReadAllBytes(latest.FilePath), out var dump, out _) ? dump : null;
+            return TriAxisDumpParser.TryParse(TriAxisDumpFile.Normalize(File.ReadAllBytes(latest.FilePath)).Data, out var dump, out _) ? dump : null;
         }
         catch (IOException)
         {

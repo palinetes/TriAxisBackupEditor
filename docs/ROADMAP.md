@@ -27,7 +27,7 @@ Prioridade absoluta, nesta ordem:
   1. confirmar determinismo (3 backups seguidos com hash idêntico);
   2. fazer os experimentos de uma alteração por vez de [SYSEX.md §4](SYSEX.md#4-plano-para-identificar-offsets-com-segurança) para cada parâmetro, modo, switch e mapa de programas;
   3. fazer a varredura de valores do knob para obter a tabela real;
-  4. investigar o byte `0x04` e o bloco de 1.622 bytes de controladores, começando pelas configurações globais de loops e saídas usadas com a Simul-Class 2:90 (roteiro na seção 11 do [manual](manual/index.html#290));
+  4. investigar o byte `0x04` e a região 995–1124 (mapa de programas não confirmado e 2 bytes desconhecidos), começando pelas configurações globais de loops e saídas usadas com a Simul-Class 2:90 (roteiro na seção 11 do [manual](manual/index.html#290));
   5. procurar um checksum (alterar 1 parâmetro e verificar se algum outro byte muda junto);
   6. adicionar os dumps reais como *fixtures* nos testes;
   7. trocar `TriAxisDumpLayout.IsPreliminary` para `false`.
@@ -37,9 +37,9 @@ Prioridade absoluta, nesta ordem:
 - ✅ Edição sobre **cópia** de um dump real; o resultado é sempre um arquivo novo (`TriAxis_Editado_...syx`).
 - ✅ Lista de alterações (antes → depois), copiar/colar/desfazer preset e matriz dos 90 presets.
 - ✅ Envio pelo mesmo fluxo de restauração (duas etapas + aviso de mapa preliminar).
-- ✅ Preservação bit a bit de cabeçalho, controladores, F7 e bits desconhecidos (coberta por testes).
+- ✅ Preservação bit a bit de cabeçalho, região final, F7 e bits desconhecidos (coberta por testes).
 - ⏳ Trocar o aviso de "mapa preliminar" por "validado" quando a fase 3 terminar.
-- ⏳ Edição de controladores/FX loop (bloco de 1.622 bytes), depois de mapeado.
+- ⏳ Edição do mapa de programas e das configurações de loops/saídas (região 995–1124), depois de mapeada.
 
 ## Fase 4b: Modo controle (pedaleira) ✅ (v1.0)
 - Program Change no canal configurado, com bancos estilo FCB1010 (4/5/8/10 pedais por banco), banco ▲▼ e programa ±1.

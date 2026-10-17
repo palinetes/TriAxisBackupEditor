@@ -122,7 +122,7 @@ TriAxis MIDI OUT/THRU ──► G-Major MIDI IN
    - grava `TriAxis_Backup_AAAA-MM-DD_HH-mm-ss.syx` **exatamente como recebido**;
    - relê o arquivo do disco e confere o **SHA-256**;
    - registra na biblioteca o nome, a data, o tamanho, o hash, a observação e o cabeçalho.
-6. Se o tamanho for diferente de **2.746 bytes**, o tamanho esperado pelo mapa preliminar, o arquivo é salvo mesmo assim e o programa avisa. Essa informação é preciosa para validar o mapa: anote o tamanho e veja [docs/SYSEX.md](docs/SYSEX.md).
+6. Se o tamanho for diferente de **1.126 bytes**, o tamanho do dump de um TriAxis real, o arquivo é salvo mesmo assim e o programa avisa. Essa informação é preciosa para validar o mapa: anote o tamanho e veja [docs/SYSEX.md](docs/SYSEX.md).
 
 Se a recepção for interrompida (timeout, cancelamento ou cabo solto), o que chegou é salvo **apenas** como `Incompletos\..._INCOMPLETO.syx.part`. Esse arquivo não entra na biblioteca e não pode ser restaurado.
 
@@ -181,7 +181,7 @@ Abaixo do painel:
 **Regras de segurança do editor:**
 - trabalha sobre uma **cópia em memória**: o `.syx` de origem nunca é alterado;
 - **Salvar como novo .syx** grava `TriAxis_Editado_AAAA-MM-DD_HH-mm-ss.syx` na biblioteca (origem "Editado");
-- só bytes de presets (5–994) e do mapa de programas (995–1122) mudam. Cabeçalho, bloco de controladores, `F7` e bits desconhecidos são preservados bit a bit, e há testes automáticos para isso;
+- só bytes de presets (5–994) mudam. Cabeçalho, região final (995–1124, onde a referência diz haver um mapa de programas, ainda não confirmado), `F7` e bits desconhecidos são preservados bit a bit, e há testes automáticos para isso;
 - **Enviar ao TriAxis...** salva (se preciso) e abre a aba **Restaurar**, com a confirmação em duas etapas. Arquivos do editor exigem também reconhecer o aviso de "mapa preliminar";
 - antes de confiar no editor, faça o teste de ida e volta do [plano de testes](docs/PLANO_DE_TESTES.md) (seção D) e os testes do editor (seção F).
 
@@ -220,7 +220,7 @@ Program Change, CC (dispara ao pressionar, ou seja, valor > 0) e notas podem ser
 | "A porta já está em uso por outro programa" | Feche DAW, MIDI-OX, editores de G-Major/FCB e outras instâncias deste programa. |
 | "Nenhum dado recebido" no backup | Confira se o cabo vai do **MIDI OUT do TriAxis ao MIDI IN da interface**. Confira se a porta MIDI IN selecionada é a da interface. Pressione SHIFT + PRESET DOWN dentro do prazo. |
 | Backup incompleto (sem F7) | Use um cabo/interface melhor, evite hubs USB, aumente o **timeout de recepção** em Configurações e repita. |
-| Backup com tamanho diferente de 2.746 bytes | O arquivo foi salvo sem alterações. Pode ser uma versão diferente de firmware/mapa. Faça 2 ou 3 backups seguidos e compare os hashes: se forem idênticos, a captura é confiável. |
+| Backup com tamanho diferente de 1.126 bytes | O arquivo foi salvo sem alterações. Pode ser uma versão diferente de firmware/mapa. Faça 2 ou 3 backups seguidos e compare os hashes: se forem idênticos, a captura é confiável. |
 | Display do TriAxis não pisca na restauração | Confira se o cabo vai do **MIDI OUT da interface ao MIDI IN do TriAxis**. Aumente o intervalo entre blocos (ex.: 40–50 ms) e/ou reduza o bloco para 64 bytes. Retire a FCB1010 da cadeia. |
 | Interface desconectada no meio | O programa avisa e não trava. Reconecte, selecione as portas de novo e repita a operação inteira. |
 | Quero ver o que aconteceu | Aba **Log**, ou o arquivo em `%LOCALAPPDATA%\TriAxisBackupEditor\logs`. Ele registra dispositivos, bytes recebidos/enviados, hashes e erros. |
@@ -318,6 +318,6 @@ Os testes cobrem:
 
 ## Referências e créditos
 
-- **markphilpot/triaxiseditor**, editor web publicado em triaxiseditor.com ([GitHub](https://github.com/markphilpot/triaxiseditor)), licença GPL-3.0. É uma página HTML/JS que abre e grava `.syx`, sem comunicação MIDI. Dele vêm o **mapa preliminar** do dump (2.746 bytes, 90 presets × 11 bytes, 128 programas, bloco de "controladores") e as tabelas de valores. O código deste projeto foi escrito do zero em C#: só os fatos do formato foram usados, com crédito e marcados como **não validados em hardware**. Se no futuro algum trecho de código daquele projeto for portado, a GPL-3.0 passará a valer para este código.
+- **markphilpot/triaxiseditor**, editor web publicado em triaxiseditor.com ([GitHub](https://github.com/markphilpot/triaxiseditor)), licença GPL-3.0. É uma página HTML/JS que abre e grava `.syx`, sem comunicação MIDI. Dele vêm o **mapa preliminar** dos presets (90 × 11 bytes, 128 programas) e as tabelas de valores. A referência supunha um dump de 2.746 bytes; um TriAxis real manda 1.126 (veja [docs/SYSEX.md](docs/SYSEX.md)), e os arquivos do editor web são esse dump seguido de zeros, que este programa também abre. O código deste projeto foi escrito do zero em C#: só os fatos do formato foram usados, com crédito e marcados como **não validados em hardware**. Se no futuro algum trecho de código daquele projeto for portado, a GPL-3.0 passará a valer para este código.
 - Mesa/Boogie, TriAxis e Simul-Class são marcas de seus respectivos donos. Este é um projeto independente, sem relação com o fabricante. O painel do editor é um desenho vetorial próprio; nenhuma foto ou logotipo do fabricante está embutido.
 - Desenvolvido por **@palinetes**.

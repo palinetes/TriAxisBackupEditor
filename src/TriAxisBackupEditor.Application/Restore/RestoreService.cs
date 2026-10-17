@@ -7,21 +7,31 @@ namespace TriAxisBackupEditor.Application.Restore;
 /// <summary>Arquivo lido e validado, pronto para a confirmação do usuário.</summary>
 public sealed class RestorePlan
 {
-    internal RestorePlan(string filePath, byte[] data, string sha256, SysExValidationResult validation)
+    internal RestorePlan(string filePath, byte[] data, string sha256, string fileSha256, SysExValidationResult validation, string? note)
     {
         FilePath = filePath;
         Data = data;
         Sha256 = sha256;
+        FileSha256 = fileSha256;
         Validation = validation;
+        Note = note;
     }
 
     public string FilePath { get; }
 
     public string FileName => Path.GetFileName(FilePath);
 
+    /// <summary>Bytes que serão enviados (a parte válida, se o arquivo veio do editor web).</summary>
     public byte[] Data { get; }
 
+    /// <summary>SHA-256 dos bytes enviados.</summary>
     public string Sha256 { get; }
+
+    /// <summary>SHA-256 do arquivo em disco, para detectar alteração antes do envio.</summary>
+    public string FileSha256 { get; }
+
+    /// <summary>Observação sobre a leitura (ex.: arquivo do editor web com enchimento).</summary>
+    public string? Note { get; }
 
     public SysExValidationResult Validation { get; }
 
@@ -76,16 +86,23 @@ public sealed class RestoreService
     public RestorePlan Prepare(string filePath)
     {
         var full = Path.GetFullPath(filePath);
-        var data = File.ReadAllBytes(full);
+        var raw = File.ReadAllBytes(full);
+        var content = TriAxisDumpFile.Normalize(raw);
+        var data = content.Data;
         var validation = _sysEx.Validate(data);
         var hash = _sysEx.ComputeSha256(data);
         _log.Info($"Restauração: arquivo \"{full}\" validado ({data.Length} bytes, SHA-256 {hash}). {validation.Summary}");
+        if (content.Note is not null)
+        {
+            _log.Info("Restauração: " + content.Note);
+        }
+
         foreach (var issue in validation.Issues)
         {
             _log.Warn("Restauração: " + issue);
         }
 
-        return new RestorePlan(full, data, hash, validation);
+        return new RestorePlan(full, data, hash, _sysEx.ComputeSha256(raw), validation, content.Note);
     }
 
     /// <summary>
@@ -120,11 +137,13 @@ public sealed class RestoreService
         }
 
         // Relê o arquivo: o que vai para o TriAxis é exatamente o que foi validado e confirmado.
-        var current = File.ReadAllBytes(plan.FilePath);
+        var raw = File.ReadAllBytes(plan.FilePath);
+        var rawHash = _sysEx.ComputeSha256(raw);
+        var current = TriAxisDumpFile.Normalize(raw).Data;
         var currentHash = _sysEx.ComputeSha256(current);
-        if (!string.Equals(currentHash, plan.Sha256, StringComparison.Ordinal))
+        if (!string.Equals(rawHash, plan.FileSha256, StringComparison.Ordinal) || !string.Equals(currentHash, plan.Sha256, StringComparison.Ordinal))
         {
-            _log.Warn($"Restauração bloqueada: \"{plan.FilePath}\" mudou após a validação (SHA-256 {currentHash}).");
+            _log.Warn($"Restauração bloqueada: \"{plan.FilePath}\" mudou após a validação (SHA-256 {rawHash}).");
             throw new RestoreBlockedException("Restauração bloqueada: o arquivo foi alterado depois da validação. Selecione-o novamente.");
         }
 

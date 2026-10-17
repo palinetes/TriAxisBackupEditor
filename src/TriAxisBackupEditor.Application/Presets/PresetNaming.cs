@@ -1,4 +1,4 @@
-using TriAxisBackupEditor.SysEx;
+﻿using TriAxisBackupEditor.SysEx;
 
 namespace TriAxisBackupEditor.Application.Presets;
 
@@ -18,7 +18,8 @@ public static class PresetNaming
     /// <summary>Preset (1–90) chamado por um programa (1–128), segundo o mapa do dump; null se desconhecido.</summary>
     public static int? PresetForProgram(int program, TriAxisDump? dump)
     {
-        if (dump is null || program < 1 || program > dump.ProgramMap.Count)
+        // Só usa o mapa quando ele parece um mapa de verdade (num TriAxis real a região não parecia).
+        if (dump is null || !dump.ProgramMapLooksValid || program < 1 || program > dump.ProgramMap.Count)
         {
             return null;
         }

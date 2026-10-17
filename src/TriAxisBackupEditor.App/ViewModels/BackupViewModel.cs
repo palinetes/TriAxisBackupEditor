@@ -106,7 +106,7 @@ public sealed class BackupViewModel : ObservableObject
         private set => SetProperty(ref _lastHash, value);
     }
 
-    public string ExpectedSizeText => $"Tamanho esperado (mapa preliminar): {TriAxisDumpLayout.TotalLength.ToString("N0", PtBr)} bytes";
+    public string ExpectedSizeText => $"Tamanho de um dump do TriAxis: {TriAxisDumpLayout.TotalLength.ToString("N0", PtBr)} bytes";
 
     public ICommand StartCommand { get; }
 

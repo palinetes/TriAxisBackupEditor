@@ -160,12 +160,12 @@
 <p><strong>Dica:</strong> guarde uma cópia da pasta de backups num pendrive ou na nuvem de vez em quando.</p>
 
 <h2 id="tocar">8. Tocar</h2>
-<figure><img src="img/simples_11_tocar.png" alt="Tocar"><figcaption>A pedaleira na tela. Cada pedal mostra o nome do timbre que ele chama.</figcaption></figure>
+<figure><img src="img/simples_11_tocar.png" alt="Tocar"><figcaption>A pedaleira na tela. Cada pedal mostra o número do programa que ele chama.</figcaption></figure>
 <ul>
   <li>Clique num pedal, ou aperte <kbd>1</kbd>…<kbd>9</kbd> e <kbd>0</kbd> no teclado, para trocar de programa. O LED do pedal ativo acende.</li>
   <li><strong>BANCO ▲▼</strong> (ou <kbd>↑</kbd> <kbd>↓</kbd>) troca o grupo de 10 programas: banco 0 tem os programas 1 a 10, banco 1 tem os 11 a 20, e assim por diante.</li>
   <li><kbd>←</kbd> <kbd>→</kbd> passam para o programa anterior ou o seguinte.</li>
-  <li><strong>Botão direito num pedal → Dar nome ao timbre deste pedal.</strong></li>
+  <li>Os pedais mostram o <strong>número do programa</strong>. O programa ainda não sabe ler, do backup, qual timbre cada programa chama no seu TriAxis; quando souber, os pedais passam a mostrar o nome do timbre.</li>
   <li>Trocar de programa não muda nenhum timbre: é como apertar as setas de PROGRAM/CHANNEL no TriAxis.</li>
 </ul>
 
@@ -215,6 +215,7 @@
   <tr><td>O TriAxis não troca de programa</td><td>Em <em>Tocar</em>, clique em <strong>"O TriAxis não troca de programa? Descobrir o problema"</strong>. O teste diz se é cabo ou número e acerta o número sozinho.</td></tr>
   <tr><td>Quero parar um backup que não está recebendo nada</td><td>Clique em <em>Cancelar</em> ou feche o programa. Esperar o TriAxis não muda nada no aparelho, então dá para interromper a qualquer momento. Só o <em>envio</em> ao TriAxis pede para esperar terminar.</td></tr>
   <tr><td>O display não piscou ao mandar timbres</td><td>Confira o cabo que entra no <strong>MIDI IN</strong> do TriAxis e tire a pedaleira da ligação. No modo avançado, aumente o intervalo de envio.</td></tr>
+  <tr><td>Tenho um arquivo <code>.syx</code> salvo no site triaxiseditor.com</td><td>Ele abre normalmente. Esse site grava o backup com um "enchimento" de zeros no fim (2.746 bytes); o programa usa só a parte que o TriAxis entende (1.126 bytes) e nunca altera o seu arquivo. Ao importar, ele guarda uma cópia limpa.</td></tr>
   <tr><td>"Não foi possível usar a interface"</td><td>Feche DAW e outros programas de música e tente de novo.</td></tr>
 </table>
 <p>Ao pedir ajuda, mande o arquivo de log, que fica em <code>%LOCALAPPDATA%\TriAxisBackupEditor\logs</code> (ou na aba Log do modo avançado).</p>

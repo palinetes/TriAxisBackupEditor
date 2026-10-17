@@ -1,6 +1,6 @@
 # SysEx do TriAxis: formato, mapa preliminar e plano de validação
 
-> **Status do mapa:** PRELIMINAR. Vem do editor web [markphilpot/triaxiseditor](https://github.com/markphilpot/triaxiseditor) (`js/triaxis.js`, GPL-3.0; mesmo código publicado em triaxiseditor.com) e **ainda não foi validado contra um TriAxis real** neste projeto. Ele é usado para **visualizar** e pelo **Editor**, que só trabalha sobre cópias e sempre gera arquivos novos. Confie no editor para um parâmetro somente depois de validá-lo pelo plano abaixo e pela seção F do [Plano de Testes](PLANO_DE_TESTES.md).
+> **Status do mapa:** PRELIMINAR nos parâmetros. Vem do editor web [markphilpot/triaxiseditor](https://github.com/markphilpot/triaxiseditor) (`js/triaxis.js`, GPL-3.0; mesmo código publicado em triaxiseditor.com). O **tamanho e a estrutura** do dump (1.126 bytes, 90 presets × 11 bytes) foram confirmados num TriAxis real em 2026-10-16. O **significado de cada byte** dos presets ainda não foi conferido parâmetro por parâmetro. Ele é usado para **visualizar** e pelo **Editor**, que só trabalha sobre cópias e sempre gera arquivos novos. Confie no editor para um parâmetro somente depois de validá-lo pelo plano abaixo e pela seção F do [Plano de Testes](PLANO_DE_TESTES.md).
 
 ## 1. O que é SysEx
 
@@ -28,7 +28,7 @@ Regras usadas pelo validador (`SysExValidator`):
 | Nenhum byte fora de mensagem | **Erro** (`FORA_SYSEX`) |
 | Bytes de tempo real `F8`–`FF` dentro do arquivo | **Erro** (um `.syx` não deveria contê-los) |
 | Cabeçalho `F0 00 00 4A 02` | Aviso (`CABECALHO`) |
-| Tamanho 2.746 bytes | Aviso (`TAMANHO`) |
+| Tamanho 1.126 bytes (dump de um TriAxis real) | Aviso (`TAMANHO`) |
 | Uma única mensagem | Aviso (`MULTIPLAS_MSG`) |
 
 Erros bloqueiam a restauração. Avisos exigem uma confirmação extra: o mapa preliminar pode estar errado, e um backup legítimo do seu TriAxis não deve ser impedido por ele.
@@ -41,21 +41,32 @@ O driver do Windows entrega SysEx longo em **pedaços do tamanho do buffer** (`M
 2. `SysExAssembler` recebe os fragmentos na ordem e reconstrói as mensagens `F0…F7`. Ele descarta bytes de tempo real intercalados (permitidos pela especificação MIDI) e aborta mensagens interrompidas por um byte de status.
 3. `BackupCaptureService` considera o dump completo só depois do `F7` **e** de 1,5 s de silêncio, para o caso de o equipamento mandar mais de uma mensagem.
 
-## 2. Estrutura esperada do dump (mapa preliminar)
+## 2. Estrutura do dump
 
-Um dump completo é enviado ao pressionar **SHIFT + PRESET DOWN** no painel. Pelo editor de referência, é **uma mensagem de 2.746 bytes**:
+Um dump completo é enviado ao pressionar **SHIFT + PRESET DOWN** no painel. Um TriAxis real (backups de 2026-10-16 e 2026-10-17, capturados por este programa) mandou **uma mensagem de 1.126 bytes**. Três backups seguidos deram o **mesmo SHA-256**, então o dump é determinístico:
 
-| Offset (hex) | Offset (dec) | Tamanho | Conteúdo |
-|---|---|---|---|
-| `0x0000` | 0 | 1 | `F0` início de SysEx |
-| `0x0001` | 1 | 3 | `00 00 4A`: ID estendido do fabricante, segundo a referência |
-| `0x0004` | 4 | 1 | `02`: significado desconhecido (modelo? versão? canal?) |
-| `0x0005`–`0x03E2` | 5–994 | 990 | **90 presets × 11 bytes** |
-| `0x03E3`–`0x0462` | 995–1122 | 128 | **Mapa programa→preset**: 1 byte por Program Change 1–128, com o índice do preset 0–89 |
-| `0x0463`–`0x0AB8` | 1123–2744 | 1622 | **"Controladores"**: FX loop/switching/MIDI. Bloco opaco: a referência apenas o preserva. |
-| `0x0AB9` | 2745 | 1 | `F7` fim |
+| Offset (hex) | Offset (dec) | Tamanho | Conteúdo | Status |
+|---|---|---|---|---|
+| `0x0000` | 0 | 1 | `F0` início de SysEx | confirmado |
+| `0x0001` | 1 | 3 | `00 00 4A`: ID estendido do fabricante | confirmado |
+| `0x0004` | 4 | 1 | `02`: significado desconhecido (modelo? versão? canal?) | confirmado o valor |
+| `0x0005`–`0x03E2` | 5–994 | 990 | **90 presets × 11 bytes** | tamanho confirmado; parâmetros, ver abaixo |
+| `0x03E3`–`0x0462` | 995–1122 | 128 | Segundo a referência, **mapa programa→preset** (1 byte por programa 1–128) | **não confirmado** |
+| `0x0463`–`0x0464` | 1123–1124 | 2 | Desconhecido (no aparelho real: `01 00`) | desconhecido |
+| `0x0465` | 1125 | 1 | `F7` fim | confirmado |
 
-Não há checksum conhecido. Se ele existir, provavelmente está dentro do bloco de controladores ou perto do fim. **Ainda não foi confirmado.**
+**Região 995–1124:** no aparelho real ela tinha `14` seguido de zeros e `01 00`. Isso não parece um mapa de programas (seria "o programa 1 chama o preset 21 e todos os outros chamam o preset 1"). Por isso o programa **preserva esses bytes como estão**, mas não os edita nem os usa para dar nome aos pedais até que um experimento confirme o significado (`TriAxisDump.ProgramMapLooksValid` exige pelo menos 10 valores diferentes, todos menores que 90).
+
+Não há checksum conhecido.
+
+### Arquivos do editor web (2.746 bytes)
+
+O editor web de referência supunha um dump de 2.746 bytes, com um bloco de 1.622 bytes de "controladores" depois do mapa de programas. Os arquivos que ele grava são, na verdade, **o dump real de 1.126 bytes, seguido de 1.619 zeros e de outro `F7`**. Um arquivo assim não é SysEx válido do jeito que está (o primeiro `F7` aparece no meio).
+
+`TriAxisDumpFile.Normalize` reconhece **somente esse caso exato**: 2.746 bytes, cabeçalho certo, `F7` no offset 1125, todo o resto zero e `F7` no fim. Aí usa os primeiros 1.126 bytes. O arquivo em disco nunca é alterado:
+- **Abrir, visualizar, comparar e enviar** usam os 1.126 bytes. O envio confere de novo o hash do arquivo e o dos 1.126 bytes antes de mandar.
+- **Importar para a biblioteca** cria uma cópia nova `<nome>_dump-TriAxis.syx` com os 1.126 bytes e mantém o original intocado.
+- Qualquer byte diferente de zero no enchimento faz o arquivo ser tratado como está, e o validador o bloqueia.
 
 ### Os 11 bytes de cada preset (segundo a referência)
 
@@ -83,7 +94,7 @@ O que esse mapa **ainda não explica** e precisa ser verificado:
 - a tabela não tem 8.5 nem 9.5, e as posições abaixo de 3.0 são esparsas. Será que a resolução real é maior?
 - o byte de modo usa um padrão de bits incomum: `7F` = Lead 2 Red, enquanto os outros têm um bit zerado;
 - o significado do byte `0x04` (`02`);
-- o conteúdo dos 1.622 bytes de "controladores".
+- o conteúdo da região 995–1124 (mapa de programas? configurações de loops e saídas?).
 
 O parser (`TriAxisDumpParser`) **não adivinha**: valores fora das tabelas aparecem como `? (0xNN)`, e o preset fica marcado como "valores desconhecidos".
 
@@ -100,7 +111,7 @@ O parser (`TriAxisDumpParser`) **não adivinha**: valores fora das tabelas apare
 Regras seguidas pelo editor (`TriAxisDumpEditor`), já implementadas e cobertas por testes:
 1. Partir **sempre de uma cópia** de um dump real capturado, nunca gerar um dump do zero.
 2. Alterar **somente** bytes de offsets validados e com valores das tabelas validadas.
-3. Preservar o bloco de controladores e qualquer byte desconhecido **bit a bit**.
+3. Preservar a região 995–1124 e qualquer byte desconhecido **bit a bit**.
 4. Validar o resultado com `SysExValidator` e mostrar ao usuário um diff (`DumpComparer`) antes de restaurar.
 5. Se for descoberto um checksum, recalculá-lo e cobri-lo com testes que usem dumps reais.
 
@@ -122,7 +133,7 @@ O método é **mudar uma coisa por vez e comparar dumps**. Nada é enviado ao Tr
 4. **Varredura de valores do knob.** Para um parâmetro, grave o mesmo preset em todas as posições possíveis (0, 1, 2, 3, 3.5 … 10, mais as intermediárias que o painel permitir) e monte a tabela real de valor→display.
 5. **Modo e switches.** Repita para cada LED de modo e para FX loop, SW1–SW4.
 6. **Mapa de programas.** Mude no TriAxis o preset associado ao Program Change N e confirme que só o byte `995 + (N−1)` muda.
-7. **Bloco de controladores.** Altere uma configuração de FX loop/switching/MIDI por vez e anote quais offsets do bloco `1123–2744` mudam. Só então dê nomes a eles.
+7. **Região final (995–1124).** Mude a atribuição de um programa MIDI (ex.: programa 2 → preset 5) e, em outro experimento, uma configuração de loop/saída. Anote quais offsets da região `995–1124` mudam. Só então dê nomes a eles.
 8. **Restauração de ida e volta (essencial antes de qualquer edição):**
    1. backup A;
    2. altere vários presets à mão;

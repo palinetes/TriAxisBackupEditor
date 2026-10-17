@@ -5,7 +5,30 @@ namespace TriAxisBackupEditor.Tests;
 
 internal static class TestDumps
 {
-    /// <summary>Dump sintético que segue o mapa preliminar (2746 bytes, cabeçalho F0 00 00 4A 02).</summary>
+    /// <summary>
+    /// Dump com a forma de um TriAxis real (1126 bytes): cabeçalho, 90 presets e região final
+    /// (como no aparelho real: <c>14</c>, zeros e <c>01 00</c>), seguida de F7.
+    /// </summary>
+    public static byte[] CreateRealShapedDump()
+    {
+        var data = CreateTriAxisDump();
+        Array.Clear(data, TriAxisDumpLayout.ProgramsOffset, TriAxisDumpLayout.ProgramCount);
+        data[TriAxisDumpLayout.ProgramsOffset] = 0x14;
+        data[TriAxisDumpLayout.TrailerOffset] = 0x01;
+        data[TriAxisDumpLayout.TrailerOffset + 1] = 0x00;
+        return data;
+    }
+
+    /// <summary>Arquivo como o salvo pelo editor web: dump real + 1619 zeros + F7 (2746 bytes).</summary>
+    public static byte[] PadLikeWebEditor(byte[] dump)
+    {
+        var file = new byte[TriAxisDumpLayout.WebEditorFileLength];
+        dump.CopyTo(file, 0);
+        file[^1] = SysExConstants.End;
+        return file;
+    }
+
+    /// <summary>Dump sintético no formato do TriAxis (1126 bytes, cabeçalho F0 00 00 4A 02), com mapa de programas 1:1.</summary>
     public static byte[] CreateTriAxisDump(byte seed = 0)
     {
         var data = new byte[TriAxisDumpLayout.TotalLength];
@@ -28,6 +51,8 @@ internal static class TestDumps
             data[TriAxisDumpLayout.ProgramsOffset + p] = (byte)(p % TriAxisDumpLayout.PresetCount);
         }
 
+        data[TriAxisDumpLayout.TrailerOffset] = 0x01;
+        data[TriAxisDumpLayout.TrailerOffset + 1] = 0x00;
         data[^1] = SysExConstants.End;
         return data;
     }

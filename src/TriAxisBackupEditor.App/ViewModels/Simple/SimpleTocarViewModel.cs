@@ -1,4 +1,4 @@
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Presets;
@@ -63,7 +63,7 @@ public sealed class SimpleTocarViewModel : SimplePage
         var preset = PresetNaming.PresetForProgram(program, _dump);
         if (preset is null)
         {
-            _dialogs.ShowInfo("Dar nome", "Para dar nomes aos timbres, guarde primeiro a memória do TriAxis (página Backup).");
+            _dialogs.ShowInfo("Dar nome", "Ainda não sei qual timbre cada programa chama no seu TriAxis, então os pedais mostram o número do programa. Dê nomes aos timbres em Meus timbres.");
             return;
         }
 

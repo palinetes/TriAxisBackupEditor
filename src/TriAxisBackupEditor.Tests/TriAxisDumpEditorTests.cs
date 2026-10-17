@@ -1,4 +1,4 @@
-using TriAxisBackupEditor.Application.Backup;
+﻿using TriAxisBackupEditor.Application.Backup;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
@@ -19,7 +19,7 @@ public class TriAxisDumpEditorTests
         Assert.Equal(before.Length, after.Length);
         for (var i = 0; i < before.Length; i++)
         {
-            if (i >= TriAxisDumpLayout.PresetsOffset && i < TriAxisDumpLayout.ControllersOffset)
+            if (i >= TriAxisDumpLayout.PresetsOffset && i < TriAxisDumpLayout.TrailerOffset)
             {
                 continue;
             }
@@ -33,7 +33,7 @@ public class TriAxisDumpEditorTests
     {
         Assert.False(TriAxisDumpEditor.TryCreate(new byte[] { 0xF0, 0x43, 0x01, 0xF7 }, out var editor, out var reason));
         Assert.Null(editor);
-        Assert.Contains("2746", reason);
+        Assert.Contains("1126", reason);
     }
 
     [Fact]

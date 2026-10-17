@@ -314,7 +314,7 @@
                             <Button Style="{StaticResource PanelArrow}" Command="{Binding ProgramNextCommand}" ToolTip="Próximo Program Change">
                                 <Path Data="{StaticResource ArrowRight}" Fill="#FFE0E0E0" />
                             </Button>
-                            <ToggleButton Style="{StaticResource PanelKey}" Width="58" Height="26" Margin="4,0,0,0" IsChecked="{Binding AssignMode}"
+                            <ToggleButton Style="{StaticResource PanelKey}" Width="58" Height="26" Margin="4,0,0,0" IsChecked="{Binding AssignMode}" IsEnabled="{Binding CanAssignPrograms}" ToolTipService.ShowOnDisabled="True"
                                           ToolTip="PGM/CH — ligado: as setas de PRESET definem qual preset este Program Change chama">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="6" Height="6" Margin="0,0,3,0" VerticalAlignment="Center">

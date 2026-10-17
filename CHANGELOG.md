@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.0-beta.2 (2026-10-17)
+
+Correção: **backups não abriam**.
+
+### O que mudou
+- O programa agora usa o tamanho real do dump do TriAxis: **1.126 bytes**, confirmado num aparelho real (3 backups seguidos, todos idênticos). A versão anterior esperava 2.746 bytes, tamanho que vinha do editor web de referência, e por isso recusava backups verdadeiros no editor, no modo simples e na visualização.
+- **Arquivos salvos no site triaxiseditor.com** (2.746 bytes: o dump real seguido de zeros) agora abrem, podem ser comparados e enviados. O programa usa só os 1.126 bytes que o TriAxis entende e **nunca altera o arquivo original**. Ao importar, guarda uma cópia limpa ao lado.
+- A região depois dos presets, que a referência chamava de "mapa de programas", não parece ser isso no aparelho real. Ela é **preservada byte a byte**, mas não é editada. Na pedaleira, os pedais mostram o **número do programa** até isso ser confirmado.
+
+### Atenção (beta)
+- O significado de cada byte dos presets ainda está sendo conferido em aparelhos reais. Guarde seus backups e confira o resultado no TriAxis.
+- Encontrou um problema? Abra uma **issue** contando o que fez, o que esperava e o que aconteceu. Se puder, anexe o log de `%LOCALAPPDATA%\TriAxisBackupEditor\logs`.
+
+Por **@palinetes** · Licença MIT
+
 ## v1.0.0-beta.1 (2026-10-17)
 
 Primeira versão pública, **em teste**. Backup, restauração, edição e controle MIDI do Mesa/Boogie TriAxis no Windows 10/11, sem precisar entender de MIDI.

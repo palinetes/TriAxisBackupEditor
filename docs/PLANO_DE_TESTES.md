@@ -25,14 +25,14 @@ Objetivo: provar, na ordem, que (1) a captura não corrompe o dump, (2) o arquiv
 | # | Passo | Resultado esperado |
 |---|---|---|
 | B1 | **Fazer backup** → SHIFT + PRESET DOWN | Barra avança; termina em "Backup salvo"; arquivo `TriAxis_Backup_...syx` |
-| B2 | Anotar tamanho e cabeçalho | **Esperado pelo mapa: 2.746 bytes, `F0 00 00 4A 02`**. Se diferente, anote: é a informação mais importante deste plano |
+| B2 | Anotar tamanho e cabeçalho | **Esperado: 1.126 bytes, `F0 00 00 4A 02`** (confirmado num TriAxis real em 2026-10-16). Se diferente, anote: é a informação mais importante deste plano |
 | B3 | Repetir B1 duas vezes sem tocar no TriAxis | **3 hashes SHA-256 idênticos** (Biblioteca → Comparar → IDÊNTICOS) |
 | B4 | Repetir B1 com intervalos e cabos diferentes (se tiver) | Mesmo hash |
 | B5 | Fazer backup e **não** pressionar nada | Após 60 s, "Nenhum dado recebido", sem arquivo na biblioteca |
 | B6 | Iniciar backup e clicar **Cancelar** antes do dump | "Backup cancelado", nada salvo |
 | B7 | Puxar o cabo MIDI no meio do dump | Após 10 s, "BACKUP INCOMPLETO"; arquivo só em `Incompletos\*.syx.part`; não aparece na biblioteca |
 | B8 | Pasta de destino sem permissão (ex.: `C:\Windows`) | Mensagem clara; com a captura completa, o dump é salvo na pasta alternativa |
-| B9 | Abrir o backup em **Visualizar dump** | Hex + ASCII; com 2.746 bytes, tabela de 90 presets |
+| B9 | Abrir o backup em **Visualizar dump** | Hex + ASCII; com 1.126 bytes, tabela de 90 presets. Um arquivo de 2.746 bytes do editor web também abre (aviso de que só os primeiros 1.126 bytes contam) |
 | B10 | Conferir 3 presets na tabela contra o painel do TriAxis | Valores batem? Anote divergências (validação do mapa) |
 
 ## C. Restauração: segurança (bloqueios)

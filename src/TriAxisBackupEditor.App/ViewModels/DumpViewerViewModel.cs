@@ -90,23 +90,32 @@ public sealed class DumpViewerViewModel : ObservableObject
         HashText = _sysEx.ComputeSha256(data);
         HeaderText = HexFormatter.ToHex(data.AsSpan(0, Math.Min(16, data.Length)));
 
-        var validation = _sysEx.Validate(data);
-        ValidationSummary = validation.Summary;
+        // Arquivos do editor web: valida e interpreta a parte válida; o hex continua mostrando o arquivo inteiro.
+        var content = TriAxisDumpFile.Normalize(data);
+        var validation = _sysEx.Validate(content.Data);
+        ValidationSummary = content.WasPadded ? "Arquivo do editor web: a parte válida (dump do TriAxis) está íntegra." : validation.Summary;
         ValidationKind = validation.HasErrors ? StatusKind.Error : validation.HasWarnings ? StatusKind.Warning : StatusKind.Ok;
-        Issues = validation.Issues.Select(i => i.ToString()).ToList();
+        var issues = validation.Issues.Select(i => i.ToString()).ToList();
+        if (content.Note is not null)
+        {
+            issues.Insert(0, content.Note);
+        }
+
+        Issues = issues;
 
         HexText = data.Length <= MaxHexBytes
             ? _sysEx.FormatHexDump(data)
             : _sysEx.FormatHexDump(data[..MaxHexBytes]) + $"\n... exibindo os primeiros {MaxHexBytes:N0} bytes de {data.Length:N0}.";
 
-        if (_sysEx.TryParseDump(data, out var dump, out var reason))
+        if (_sysEx.TryParseDump(content.Data, out var dump, out var reason))
         {
             Presets = dump!.Presets;
             Programs = dump.ProgramMap;
             HasParsedDump = true;
             var unknown = dump.Presets.Count(p => p.HasUnknownValues);
-            ParseMessage = $"{dump.Presets.Count} presets e {dump.ProgramMap.Count} programas MIDI interpretados pelo mapa preliminar." +
-                           (unknown > 0 ? $" {unknown} preset(s) têm valores fora das tabelas conhecidas (marcados com ?)." : string.Empty);
+            ParseMessage = $"{dump.Presets.Count} presets interpretados." +
+                           (unknown > 0 ? $" {unknown} preset(s) têm valores fora das tabelas conhecidas (marcados com ?)." : string.Empty) +
+                           (dump.ProgramMapLooksValid ? string.Empty : " A aba Programas MIDI mostra os bytes crus: neste arquivo eles não parecem um mapa programa → timbre (em estudo).");
         }
         else
         {

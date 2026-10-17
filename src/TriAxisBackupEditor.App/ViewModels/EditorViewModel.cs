@@ -73,6 +73,7 @@ public sealed class EditorViewModel : ObservableObject
     private int _currentPreset = 1;
     private int _currentProgram = 1;
     private bool _assignMode;
+    private bool _programMapValid;
     private byte[]? _clipboard;
     private int _clipboardFrom;
     private IReadOnlyList<TriAxisPresetView> _presets = Array.Empty<TriAxisPresetView>();
@@ -156,6 +157,11 @@ public sealed class EditorViewModel : ObservableObject
                 return string.Empty;
             }
 
+            if (!_programMapValid)
+            {
+                return $"Program Change {_currentProgram} · ligação programa → timbre ainda não confirmada neste TriAxis";
+            }
+
             var mapped = _editor.GetProgramPreset(_currentProgram);
             return mapped is int p
                 ? $"Program Change {_currentProgram} → preset {p:00}"
@@ -163,12 +169,22 @@ public sealed class EditorViewModel : ObservableObject
         }
     }
 
+    /// <summary>A ligação programa → timbre pode ser editada (só quando o mapa do arquivo parece válido).</summary>
+    public bool CanAssignPrograms => _programMapValid;
+
     /// <summary>PGM/CH: com o modo ligado, as setas de PRESET mudam o preset associado ao programa atual.</summary>
     public bool AssignMode
     {
         get => _assignMode;
         set
         {
+            if (value && !_programMapValid)
+            {
+                StatusText = "A ligação programa → timbre deste TriAxis ainda não foi confirmada; por segurança ela não pode ser editada.";
+                OnPropertyChanged();
+                return;
+            }
+
             if (SetProperty(ref _assignMode, value))
             {
                 StatusText = value
@@ -316,10 +332,10 @@ public sealed class EditorViewModel : ObservableObject
             return false;
         }
 
-        byte[] data;
+        TriAxisFileContent content;
         try
         {
-            data = File.ReadAllBytes(path);
+            content = TriAxisDumpFile.Normalize(File.ReadAllBytes(path));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -327,7 +343,7 @@ public sealed class EditorViewModel : ObservableObject
             return false;
         }
 
-        if (!TriAxisDumpEditor.TryCreate(data, out var editor, out var reason))
+        if (!TriAxisDumpEditor.TryCreate(content.Data, out var editor, out var reason))
         {
             _dialogs.ShowError("Editor", reason + "\n\nO editor só abre dumps completos capturados do TriAxis.");
             return false;
@@ -338,8 +354,10 @@ public sealed class EditorViewModel : ObservableObject
         _currentPreset = 1;
         _currentProgram = 1;
         AssignMode = false;
-        _log.Info($"Editor: aberto \"{path}\" (cópia em memória; o arquivo não será alterado).");
-        StatusText = $"Editando uma cópia de {Path.GetFileName(path)}. Use ◄ ► (ou a roda do mouse / clique no display) para mudar valores.";
+        _log.Info($"Editor: aberto \"{path}\" (cópia em memória; o arquivo não será alterado)." + (content.Note is null ? string.Empty : " " + content.Note));
+        StatusText = content.WasPadded
+            ? $"Editando uma cópia de {Path.GetFileName(path)} (arquivo do editor web: usando a parte válida de {TriAxisDumpLayout.TotalLength} bytes)."
+            : $"Editando uma cópia de {Path.GetFileName(path)}. Use ◄ ► (ou a roda do mouse / clique no display) para mudar valores.";
         RefreshAll();
         return true;
     }
@@ -429,7 +447,7 @@ public sealed class EditorViewModel : ObservableObject
         }
 
         _currentProgram = Wrap(_currentProgram + delta, TriAxisDumpLayout.ProgramCount);
-        if (_editor.GetProgramPreset(_currentProgram) is int mapped)
+        if (_programMapValid && _editor.GetProgramPreset(_currentProgram) is int mapped)
         {
             _currentPreset = mapped;
         }
@@ -657,6 +675,9 @@ public sealed class EditorViewModel : ObservableObject
 
         var bytes = _editor.ToArray();
         Presets = TriAxisDumpParser.TryParse(bytes, out var dump, out _) ? dump!.Presets : Array.Empty<TriAxisPresetView>();
+        // O mapa só é confiável se parecer um mapa de verdade no arquivo ORIGINAL (não muda com as edições).
+        _programMapValid = TriAxisDumpParser.TryParse(_editor.OriginalBytes(), out var original, out _) && original!.ProgramMapLooksValid;
+        OnPropertyChanged(nameof(CanAssignPrograms));
         ChangesText = DescribeChanges(_editor.GetChanges());
         OnPropertyChanged(nameof(IsModified));
     }
@@ -696,7 +717,7 @@ public sealed class EditorViewModel : ObservableObject
             return $"Preset {preset:00} · {name}: {Value(before)} → {Value(after)}";
         }
 
-        if (d.Offset >= TriAxisDumpLayout.ProgramsOffset && d.Offset < TriAxisDumpLayout.ControllersOffset)
+        if (d.Offset >= TriAxisDumpLayout.ProgramsOffset && d.Offset < TriAxisDumpLayout.TrailerOffset)
         {
             var program = d.Offset - TriAxisDumpLayout.ProgramsOffset + 1;
             return $"Program Change {program:000}: preset {before + 1:00} → {after + 1:00}";

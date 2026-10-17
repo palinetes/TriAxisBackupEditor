@@ -3,7 +3,7 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.0.0</Version>
+    <Version>1.0.0-beta.2</Version>
     <Company>TriAxis Backup &amp; Editor</Company>
     <Product>TriAxis Backup &amp; Editor</Product>
     <Copyright>Uso pessoal. Sem telemetria, sem internet.</Copyright>

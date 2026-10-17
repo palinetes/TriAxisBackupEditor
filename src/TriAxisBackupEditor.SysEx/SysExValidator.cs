@@ -1,4 +1,4 @@
-namespace TriAxisBackupEditor.SysEx;
+﻿namespace TriAxisBackupEditor.SysEx;
 
 /// <summary>
 /// Valida um buffer (arquivo .syx ou captura) antes de qualquer transmissão.
@@ -108,7 +108,7 @@ public static class SysExValidator
             if (messages.Count > 1)
             {
                 Add(IssueSeverity.Warning, "MULTIPLAS_MSG",
-                    $"O arquivo contém {messages.Count} mensagens SysEx. O mapa preliminar do TriAxis espera uma única mensagem.");
+                    $"O arquivo contém {messages.Count} mensagens SysEx. O TriAxis envia uma única mensagem.");
             }
 
             if (!TriAxisDumpLayout.HasExpectedHeader(data))
@@ -120,7 +120,7 @@ public static class SysExValidator
             if (data.Length != TriAxisDumpLayout.TotalLength)
             {
                 Add(IssueSeverity.Warning, "TAMANHO",
-                    $"Tamanho {data.Length} bytes diferente do esperado pelo mapa preliminar ({TriAxisDumpLayout.TotalLength} bytes).");
+                    $"Tamanho {data.Length} bytes diferente do dump de um TriAxis ({TriAxisDumpLayout.TotalLength} bytes).");
             }
 
             matchesLayout = messages.Count == 1

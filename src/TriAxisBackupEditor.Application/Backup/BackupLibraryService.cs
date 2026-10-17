@@ -108,10 +108,20 @@ public sealed class BackupLibraryService
     public IReadOnlyList<BackupRecord> Search(string? term) =>
         string.IsNullOrWhiteSpace(term) ? _repository.GetAll() : _repository.Search(term);
 
-    /// <summary>Importa um .syx existente. Arquivos fora da pasta de backups são copiados para ela.</summary>
+    /// <summary>
+    /// Importa um .syx existente. Arquivos fora da pasta de backups são copiados para ela.
+    /// Arquivos do editor web (dump + zeros) viram um arquivo NOVO só com a parte válida; o original não muda.
+    /// </summary>
     public BackupRecord Import(string sourcePath, string backupFolder, string notes)
     {
-        var data = File.ReadAllBytes(sourcePath);
+        var raw = File.ReadAllBytes(sourcePath);
+        var content = TriAxisDumpFile.Normalize(raw);
+        if (content.WasPadded)
+        {
+            return ImportPadded(sourcePath, content, backupFolder, notes);
+        }
+
+        var data = raw;
         var validation = _sysEx.Validate(data);
         if (validation.HasErrors)
         {
@@ -145,6 +155,31 @@ public sealed class BackupLibraryService
         });
 
         _log.Info($"Importado: \"{sourcePath}\" → \"{path}\" (SHA-256 {hash}).");
+        return record;
+    }
+
+    private BackupRecord ImportPadded(string sourcePath, TriAxisFileContent content, string backupFolder, string notes)
+    {
+        var data = content.Data;
+        var hash = _sysEx.ComputeSha256(data);
+        var stem = Path.GetFileNameWithoutExtension(sourcePath);
+        var path = BackupFileStore.WriteNew(backupFolder, BackupFileNamer.SanitizeFileName(stem + "_dump-TriAxis"), data);
+        VerifyWrittenFile(path, hash);
+
+        var note = string.IsNullOrWhiteSpace(notes) ? $"Importado do editor web ({Path.GetFileName(sourcePath)})" : notes.Trim();
+        var record = _repository.Add(new BackupRecord
+        {
+            FileName = Path.GetFileName(path),
+            FilePath = path,
+            CreatedAt = File.GetLastWriteTime(sourcePath),
+            SizeBytes = data.Length,
+            Sha256 = hash,
+            Notes = note,
+            Origin = BackupOrigins.Imported,
+            HeaderHex = HeaderOf(data)
+        });
+
+        _log.Info($"Importado (arquivo do editor web, {TriAxisDumpLayout.WebEditorFileLength} → {data.Length} bytes): \"{sourcePath}\" → \"{path}\" (SHA-256 {hash}).");
         return record;
     }
 
@@ -210,7 +245,9 @@ public sealed class BackupLibraryService
     {
         EnsureFile(a);
         EnsureFile(b);
-        var comparison = _sysEx.Compare(File.ReadAllBytes(a.FilePath), File.ReadAllBytes(b.FilePath));
+        var comparison = _sysEx.Compare(
+            TriAxisDumpFile.Normalize(File.ReadAllBytes(a.FilePath)).Data,
+            TriAxisDumpFile.Normalize(File.ReadAllBytes(b.FilePath)).Data);
         _log.Info($"Comparação: \"{a.FileName}\" × \"{b.FileName}\": {(comparison.Identical ? "idênticos" : $"{comparison.DifferenceCount} bytes diferentes")}.");
         return comparison;
     }

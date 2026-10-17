@@ -25,18 +25,27 @@ public sealed record TriAxisProgramMapping(int Program, int PresetIndex, string 
 
 public sealed class TriAxisDump
 {
-    public TriAxisDump(IReadOnlyList<TriAxisPresetView> presets, IReadOnlyList<TriAxisProgramMapping> programMap, int controllersLength)
+    public TriAxisDump(IReadOnlyList<TriAxisPresetView> presets, IReadOnlyList<TriAxisProgramMapping> programMap, int trailerLength)
     {
         Presets = presets;
         ProgramMap = programMap;
-        ControllersLength = controllersLength;
+        TrailerLength = trailerLength;
     }
 
     public IReadOnlyList<TriAxisPresetView> Presets { get; }
 
     public IReadOnlyList<TriAxisProgramMapping> ProgramMap { get; }
 
-    public int ControllersLength { get; }
+    public int TrailerLength { get; }
+
+    /// <summary>
+    /// O suposto mapa de programas parece real? Num TriAxis de verdade, a região tinha só 2 valores diferentes,
+    /// o que não combina com um mapa programa→preset. Só usamos o mapa quando ele tem variedade suficiente.
+    /// </summary>
+    public bool ProgramMapLooksValid =>
+        ProgramMap.Count > 0
+        && ProgramMap.All(p => p.PresetIndex < TriAxisDumpLayout.PresetCount)
+        && ProgramMap.Select(p => p.PresetIndex).Distinct().Count() >= 10;
 
     public bool IsPreliminary => TriAxisDumpLayout.IsPreliminary;
 }
@@ -64,7 +73,7 @@ public static class TriAxisDumpParser
 
         if (!validation.MatchesTriAxisLayout)
         {
-            reason = $"O arquivo não corresponde ao mapa preliminar (esperado: 1 mensagem, {TriAxisDumpLayout.TotalLength} bytes, cabeçalho {HexFormatter.ToHex(TriAxisDumpLayout.ExpectedHeader)}).";
+            reason = $"O arquivo não corresponde ao formato do TriAxis (esperado: 1 mensagem, {TriAxisDumpLayout.TotalLength} bytes, cabeçalho {HexFormatter.ToHex(TriAxisDumpLayout.ExpectedHeader)}).";
             return false;
         }
 
@@ -83,7 +92,7 @@ public static class TriAxisDumpParser
             programs.Add(new TriAxisProgramMapping(p + 1, value, display));
         }
 
-        dump = new TriAxisDump(presets, programs, TriAxisDumpLayout.ControllersLength);
+        dump = new TriAxisDump(presets, programs, TriAxisDumpLayout.TrailerLength);
         reason = string.Empty;
         return true;
     }
