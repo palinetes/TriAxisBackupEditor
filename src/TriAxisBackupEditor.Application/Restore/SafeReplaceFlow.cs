@@ -1,4 +1,5 @@
 using TriAxisBackupEditor.Storage;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Restore;
 
@@ -38,8 +39,8 @@ public sealed class SafeReplaceFlow
     public string? BlockReason => IsAllowed
         ? null
         : !Plan.CanRestore
-            ? "Este arquivo está danificado ou incompleto e não pode ser enviado."
-            : "Este arquivo não parece um backup completo do TriAxis. Se tiver certeza, use o modo avançado.";
+            ? Tr("Este arquivo está danificado ou incompleto e não pode ser enviado.")
+            : Tr("Este arquivo não parece um backup completo do TriAxis. Se tiver certeza, use o modo avançado.");
 
     public void AcceptWarning()
     {
@@ -56,12 +57,12 @@ public sealed class SafeReplaceFlow
         EnsureAllowed();
         if (Step != SafeReplaceStep.SafetyBackup)
         {
-            throw new InvalidOperationException("Aceite o aviso antes de fazer o backup de segurança.");
+            throw new InvalidOperationException(Tr("Aceite o aviso antes de fazer o backup de segurança."));
         }
 
         if (!File.Exists(record.FilePath))
         {
-            throw new InvalidOperationException("O backup de segurança não foi encontrado no disco.");
+            throw new InvalidOperationException(Tr("O backup de segurança não foi encontrado no disco."));
         }
 
         SafetyBackup = record;
@@ -74,7 +75,7 @@ public sealed class SafeReplaceFlow
         EnsureAllowed();
         if (Step != SafeReplaceStep.ReadyToReplace)
         {
-            throw new RestoreBlockedException("Envio bloqueado: faça primeiro o backup de segurança do estado atual do TriAxis.");
+            throw new RestoreBlockedException(Tr("Envio bloqueado: faça primeiro o backup de segurança do estado atual do TriAxis."));
         }
 
         return new RestoreConfirmation

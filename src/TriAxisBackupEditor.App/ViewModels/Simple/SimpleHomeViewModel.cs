@@ -1,10 +1,11 @@
 using System.Globalization;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
 public sealed class SimpleHomeViewModel : SimplePage
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
     private readonly AppState _state;
     private string _lastBackupText = string.Empty;
     private bool _hasBackup;
@@ -15,7 +16,7 @@ public sealed class SimpleHomeViewModel : SimplePage
         _state = state;
     }
 
-    public override string Title => "Início";
+    public override string Title => Tr("Início");
 
     public string LastBackupText
     {
@@ -36,16 +37,16 @@ public sealed class SimpleHomeViewModel : SimplePage
         var latest = Shell.LatestBackup();
         HasBackup = latest is not null;
         LastBackupText = latest is null
-            ? "Você ainda não tem nenhum backup. Comece guardando a memória do seu TriAxis."
-            : $"Último backup: {Friendly(latest.CreatedAt)}" + (string.IsNullOrWhiteSpace(latest.Notes) ? string.Empty : $" · \"{latest.Notes}\"");
+            ? Tr("Você ainda não tem nenhum backup. Comece guardando a memória do seu TriAxis.")
+            : TrF($"Último backup: {Friendly(latest.CreatedAt)}") + (string.IsNullOrWhiteSpace(latest.Notes) ? string.Empty : TrF($" · \"{latest.Notes}\""));
         OnPropertyChanged(nameof(IsConnected));
     }
 
     public static string Friendly(DateTime when)
     {
-        var day = when.Date == DateTime.Today ? "hoje"
-            : when.Date == DateTime.Today.AddDays(-1) ? "ontem"
-            : when.ToString("dd/MM/yyyy", PtBr);
-        return $"{day} às {when:HH:mm}";
+        var day = when.Date == DateTime.Today ? Tr("hoje")
+            : when.Date == DateTime.Today.AddDays(-1) ? Tr("ontem")
+            : when.ToString(Tr("dd/MM/yyyy"), PtBr);
+        return TrF($"{day} às {when:HH:mm}");
     }
 }

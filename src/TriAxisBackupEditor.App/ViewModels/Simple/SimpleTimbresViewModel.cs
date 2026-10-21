@@ -6,6 +6,7 @@ using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Backup;
 using TriAxisBackupEditor.Application.Presets;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -61,9 +62,13 @@ public sealed class SimpleTimbresViewModel : SimplePage
         MakeBackupCommand = new RelayCommand(() => Shell.Navigate(Shell.Backup));
     }
 
-    public override string Title => "Meus timbres";
+    public override string Title => Tr("Meus timbres");
 
     public EditorViewModel Editor { get; }
+
+    public string ModifiedText => Editor.IsModified
+        ? Tr("Você fez mudanças que ainda não foram para o TriAxis.")
+        : Tr("Os timbres na tela são iguais aos do último backup.");
 
     public ObservableCollection<TimbreRow> Rows { get; } = new();
 
@@ -107,6 +112,11 @@ public sealed class SimpleTimbresViewModel : SimplePage
 
     private void OnEditorChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(EditorViewModel.IsModified))
+        {
+            OnPropertyChanged(nameof(ModifiedText));
+        }
+
         if (e.PropertyName is nameof(EditorViewModel.CurrentPreset) or nameof(EditorViewModel.HasDump))
         {
             SyncSelection();
@@ -141,7 +151,7 @@ public sealed class SimpleTimbresViewModel : SimplePage
     {
         var number = Editor.CurrentPreset;
         var current = PresetNaming.NameFor(number, _state.Settings.PresetNames) ?? string.Empty;
-        var name = _dialogs.PromptText("Dar nome ao timbre", $"Nome do timbre {number:00} (ex.: Base limpa, Solo):", current);
+        var name = _dialogs.PromptText(Tr("Dar nome ao timbre"), TrF($"Nome do timbre {number:00} (ex.: Base limpa, Solo):"), current);
         if (name is null)
         {
             return;
@@ -165,6 +175,6 @@ public sealed class SimpleTimbresViewModel : SimplePage
             return;
         }
 
-        Shell.StartSafeSend(path, "os timbres que estão na tela", this);
+        Shell.StartSafeSend(path, Tr("os timbres que estão na tela"), this);
     }
 }

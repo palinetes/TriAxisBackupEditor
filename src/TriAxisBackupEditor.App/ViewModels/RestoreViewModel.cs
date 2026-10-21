@@ -7,12 +7,13 @@ using TriAxisBackupEditor.Application.Restore;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
 public sealed class RestoreViewModel : ObservableObject
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
 
     private readonly AppState _state;
     private readonly RestoreService _restore;
@@ -26,7 +27,7 @@ public sealed class RestoreViewModel : ObservableObject
     private bool _isSending;
     private double _progressPercent;
     private string _progressText = string.Empty;
-    private string _statusText = "Selecione um arquivo .syx para restaurar.";
+    private string _statusText = Tr("Selecione um arquivo .syx para restaurar.");
     private StatusKind _statusKind = StatusKind.Idle;
     private bool _showDisplayCheck;
 
@@ -51,7 +52,7 @@ public sealed class RestoreViewModel : ObservableObject
 
     public bool HasFile => _plan is not null;
 
-    public string SizeText => _plan is null ? string.Empty : _plan.Data.Length.ToString("N0", PtBr) + " bytes";
+    public string SizeText => _plan is null ? string.Empty : _plan.Data.Length.ToString("N0", PtBr) + Tr(" bytes");
 
     public string HashText => _plan?.Sha256 ?? string.Empty;
 
@@ -168,13 +169,13 @@ public sealed class RestoreViewModel : ObservableObject
             if (_plan.CanRestore)
             {
                 SetStatus(_plan.Validation.HasWarnings
-                        ? "Arquivo válido, com avisos. A restauração exigirá que você reconheça os avisos."
-                        : "Arquivo válido. Pronto para restaurar.",
+                        ? Tr("Arquivo válido, com avisos. A restauração exigirá que você reconheça os avisos.")
+                        : Tr("Arquivo válido. Pronto para restaurar."),
                     _plan.Validation.HasWarnings ? StatusKind.Warning : StatusKind.Ok);
             }
             else
             {
-                SetStatus("Arquivo inválido: a restauração está bloqueada. Veja os problemas abaixo.", StatusKind.Error);
+                SetStatus(Tr("Arquivo inválido: a restauração está bloqueada. Veja os problemas abaixo."), StatusKind.Error);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -182,7 +183,7 @@ public sealed class RestoreViewModel : ObservableObject
             _plan = null;
             FilePath = path;
             Issues = Array.Empty<string>();
-            SetStatus("Não foi possível ler o arquivo: " + ex.Message, StatusKind.Error);
+            SetStatus(Tr("Não foi possível ler o arquivo: ") + ex.Message, StatusKind.Error);
         }
 
         RaiseFileProperties();
@@ -207,7 +208,7 @@ public sealed class RestoreViewModel : ObservableObject
         var output = _state.SelectedOutput;
         if (output is null)
         {
-            _dialogs.ShowWarning("Restaurar", "Selecione o MIDI OUT conectado ao MIDI IN do TriAxis na aba Conexão.");
+            _dialogs.ShowWarning("Restaurar", Tr("Selecione o MIDI OUT conectado ao MIDI IN do TriAxis na aba Conexão."));
             return;
         }
 
@@ -221,11 +222,11 @@ public sealed class RestoreViewModel : ObservableObject
         var confirmation = await AskConfirmationAsync(plan, output);
         if (confirmation is null)
         {
-            SetStatus("Restauração cancelada. Nada foi enviado ao TriAxis.", StatusKind.Idle);
+            SetStatus(Tr("Restauração cancelada. Nada foi enviado ao TriAxis."), StatusKind.Idle);
             return;
         }
 
-        if (!_state.TryBeginOperation("Restauração"))
+        if (!_state.TryBeginOperation(Tr("Restauração")))
         {
             return;
         }
@@ -237,11 +238,11 @@ public sealed class RestoreViewModel : ObservableObject
         CommandManager.InvalidateRequerySuggested();
         try
         {
-            SetStatus("Enviando ao TriAxis... não desligue o equipamento nem desconecte o cabo.", StatusKind.Warning);
+            SetStatus(Tr("Enviando ao TriAxis... não desligue o equipamento nem desconecte o cabo."), StatusKind.Warning);
             var progress = new Progress<TransmitProgress>(p =>
             {
                 ProgressPercent = p.Percent;
-                ProgressText = $"{p.BytesSent.ToString("N0", PtBr)} de {p.TotalBytes.ToString("N0", PtBr)} bytes";
+                ProgressText = TrF($"{p.BytesSent.ToString("N0", PtBr)} de {p.TotalBytes.ToString("N0", PtBr)} bytes");
             });
 
             var result = await _restore.RestoreAsync(plan, confirmation, output, new TransmitOptions(ChunkSize, ChunkDelayMs), progress, _cts.Token);
@@ -250,11 +251,11 @@ public sealed class RestoreViewModel : ObservableObject
             {
                 SetStatus(result.Message, StatusKind.Ok);
                 ShowDisplayCheck = true;
-                _state.StatusText = "Restauração enviada: " + plan.FileName;
-                _dialogs.ShowInfo("Envio concluído",
-                    $"{plan.FileName} foi enviado ({result.BytesSent.ToString("N0", PtBr)} bytes).\n\n" +
-                    "Confira agora se o display do TriAxis piscou, confirmando o recebimento.\n" +
-                    "Se não piscou: verifique o cabo (interface MIDI OUT → TriAxis MIDI IN) e tente com um intervalo maior entre blocos.");
+                _state.StatusText = Tr("Restauração enviada: ") + plan.FileName;
+                _dialogs.ShowInfo(Tr("Envio concluído"),
+                    TrF($"{plan.FileName} foi enviado ({result.BytesSent.ToString("N0", PtBr)} bytes).\n\n") +
+                    Tr("Confira agora se o display do TriAxis piscou, confirmando o recebimento.\n") +
+                    Tr("Se não piscou: verifique o cabo (interface MIDI OUT → TriAxis MIDI IN) e tente com um intervalo maior entre blocos."));
             }
             else
             {
@@ -264,14 +265,14 @@ public sealed class RestoreViewModel : ObservableObject
         catch (RestoreBlockedException ex)
         {
             SetStatus(ex.Message, StatusKind.Error);
-            _dialogs.ShowError("Restauração bloqueada", ex.Message);
+            _dialogs.ShowError(Tr("Restauração bloqueada"), ex.Message);
         }
         catch (MidiException ex)
         {
-            SetStatus("Falha MIDI: " + ex.Message, StatusKind.Error);
+            SetStatus(Tr("Falha MIDI: ") + ex.Message, StatusKind.Error);
             _log.Error("Restauração: falha MIDI.", ex);
-            _dialogs.ShowError("Falha na restauração",
-                ex.Message + "\n\nO envio pode ter sido parcial. Não desligue o TriAxis: corrija a conexão e repita a restauração completa.");
+            _dialogs.ShowError(Tr("Falha na restauração"),
+                ex.Message + Tr("\n\nO envio pode ter sido parcial. Não desligue o TriAxis: corrija a conexão e repita a restauração completa."));
         }
         finally
         {
@@ -303,7 +304,7 @@ public sealed class RestoreViewModel : ObservableObject
             switch (answer.Outcome)
             {
                 case RestoreDialogOutcome.SafetyBackupRequested:
-                    var record = await _backup.RunBackupAsync($"Backup de segurança antes de restaurar {plan.FileName}");
+                    var record = await _backup.RunBackupAsync(TrF($"Backup de segurança antes de restaurar {plan.FileName}"));
                     if (record is not null)
                     {
                         safetyBackupPath = record.FilePath;
@@ -330,8 +331,8 @@ public sealed class RestoreViewModel : ObservableObject
         var warnings = plan.Validation.Issues.Where(i => i.Severity == IssueSeverity.Warning).Select(i => i.Message).ToList();
         if (BackupFileNamer.IsEditedName(plan.FilePath))
         {
-            warnings.Add("Este arquivo foi gerado pelo Editor a partir do mapa SysEx PRELIMINAR (não validado em hardware). " +
-                         "Tenha à mão o backup original para voltar atrás se algo não soar como esperado.");
+            warnings.Add(Tr("Este arquivo foi gerado pelo Editor a partir do mapa SysEx PRELIMINAR (não validado em hardware). ") +
+                         Tr("Tenha à mão o backup original para voltar atrás se algo não soar como esperado."));
         }
 
         return warnings;

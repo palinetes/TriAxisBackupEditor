@@ -3,6 +3,7 @@ using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Presets;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -25,7 +26,7 @@ public sealed class SimpleTocarViewModel : SimplePage
         RenamePedalCommand = new RelayCommandWithParameter<PedalViewModel>(RenamePedal);
     }
 
-    public override string Title => "Tocar";
+    public override string Title => Tr("Tocar");
 
     public ControlViewModel Control { get; }
 
@@ -63,12 +64,12 @@ public sealed class SimpleTocarViewModel : SimplePage
         var preset = PresetNaming.PresetForProgram(program, _dump);
         if (preset is null)
         {
-            _dialogs.ShowInfo("Dar nome", "Ainda não sei qual timbre cada programa chama no seu TriAxis, então os pedais mostram o número do programa. Dê nomes aos timbres em Meus timbres.");
+            _dialogs.ShowInfo(Tr("Dar nome"), Tr("Ainda não sei qual timbre cada programa chama no seu TriAxis, então os pedais mostram o número do programa. Dê nomes aos timbres em Meus timbres."));
             return;
         }
 
         var current = PresetNaming.NameFor(preset.Value, _state.Settings.PresetNames) ?? string.Empty;
-        var name = _dialogs.PromptText("Dar nome ao timbre", $"Este pedal chama o timbre {preset.Value:00}. Nome (ex.: Base limpa, Solo):", current);
+        var name = _dialogs.PromptText(Tr("Dar nome ao timbre"), TrF($"Este pedal chama o timbre {preset.Value:00}. Nome (ex.: Base limpa, Solo):"), current);
         if (name is null)
         {
             return;

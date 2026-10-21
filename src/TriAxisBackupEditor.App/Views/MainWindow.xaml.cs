@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TriAxisBackupEditor.App.ViewModels;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.Views;
 
@@ -12,6 +13,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        TriAxisBackupEditor.App.Services.UiTranslator.Attach(this);
         DataContextChanged += OnDataContextChanged;
     }
 
@@ -34,8 +36,8 @@ public partial class MainWindow : Window
         {
             // Só o envio ao TriAxis chega aqui: fechar no meio deixaria o aparelho com dados parciais.
             MessageBox.Show(this,
-                "O programa está mandando dados para o TriAxis agora. Espere alguns segundos até terminar e feche de novo.",
-                "Envio em andamento", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Tr("O programa está mandando dados para o TriAxis agora. Espere alguns segundos até terminar e feche de novo."),
+                Tr("Envio em andamento"), MessageBoxButton.OK, MessageBoxImage.Warning);
             e.Cancel = true;
             return;
         }

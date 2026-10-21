@@ -7,6 +7,7 @@ using TriAxisBackupEditor.Application.Control;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.Storage;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
@@ -25,14 +26,14 @@ public sealed class PedalViewModel : ObservableObject
 
     public int? Program => _owner.ProgramForPedal(Number);
 
-    public string ProgramText => Program is int p ? $"PROGRAMA {p}" : "—";
+    public string ProgramText => Program is int p ? TrF($"PROGRAMA {p}") : "—";
 
     /// <summary>Nome do timbre chamado por este pedal (modo simples); senão "Programa N".</summary>
-    public string DisplayName => Program is int p ? _owner.PedalNameProvider?.Invoke(p) ?? $"Programa {p}" : "—";
+    public string DisplayName => Program is int p ? _owner.PedalNameProvider?.Invoke(p) ?? TrF($"Programa {p}") : "—";
 
     public bool IsLit => Program is int p && p == _owner.CurrentProgram;
 
-    public string KeyHint => Number == 10 ? "tecla 0" : $"tecla {Number}";
+    public string KeyHint => Number == 10 ? Tr("tecla 0") : TrF($"tecla {Number}");
 
     public ICommand PressCommand { get; }
 
@@ -68,9 +69,13 @@ public sealed class CcButtonViewModel : ObservableObject
         {
             _setting.Label = value ?? string.Empty;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(DisplayLabel));
             _owner.SaveSettings();
         }
     }
+
+    /// <summary>Nome no idioma da tela (os nomes de fábrica "Botão 1..4" são traduzidos; nomes do usuário ficam como estão).</summary>
+    public string DisplayLabel => Tr(_setting.Label);
 
     public int Controller
     {
@@ -115,8 +120,16 @@ public sealed class BindingViewModel : ObservableObject
     public bool IsLearning
     {
         get => _isLearning;
-        set => SetProperty(ref _isLearning, value);
+        set
+        {
+            if (SetProperty(ref _isLearning, value))
+            {
+                OnPropertyChanged(nameof(LearnText));
+            }
+        }
     }
+
+    public string LearnText => IsLearning ? Tr("Aguardando...") : Tr("Aprender");
 
     public ICommand LearnCommand { get; }
 
@@ -151,7 +164,7 @@ public sealed class ControlViewModel : ObservableObject
     private IReadOnlyList<InputOption> _inputOptions = Array.Empty<InputOption>();
     private InputOption? _selectedInput;
     private BindingViewModel? _learning;
-    private string _statusText = "Ative o modo controle para usar o programa como pedaleira MIDI do TriAxis.";
+    private string _statusText = Tr("Ative o modo controle para usar o programa como pedaleira MIDI do TriAxis.");
     private StatusKind _statusKind = StatusKind.Idle;
     private string _lastInput = "—";
     private string _lastSent = "—";
@@ -180,7 +193,7 @@ public sealed class ControlViewModel : ObservableObject
         RefreshInputsCommand = new RelayCommand(RefreshInputOptions, () => !IsActive);
 
         _service.InputReceived += (_, message) => _dispatcher.BeginInvoke(() => OnInput(message));
-        _service.ErrorOccurred += (_, error) => _dispatcher.BeginInvoke(() => SetStatus("Entrada de controle: " + error, StatusKind.Warning));
+        _service.ErrorOccurred += (_, error) => _dispatcher.BeginInvoke(() => SetStatus(Tr("Entrada de controle: ") + error, StatusKind.Warning));
     }
 
     public bool IsActive
@@ -197,7 +210,7 @@ public sealed class ControlViewModel : ObservableObject
         }
     }
 
-    public string ActiveButtonText => IsActive ? "Desativar modo controle" : "Ativar modo controle";
+    public string ActiveButtonText => IsActive ? Tr("Desativar modo controle") : Tr("Ativar modo controle");
 
     /// <summary>Canal, entrada e tamanho de banco só mudam com o modo desligado.</summary>
     public bool CanEditSetup => !IsActive;
@@ -281,7 +294,7 @@ public sealed class ControlViewModel : ObservableObject
         {
             var first = _banks.ProgramFor(1);
             var last = Enumerable.Range(1, _banks.BankSize).Select(p => _banks.ProgramFor(p)).LastOrDefault(p => p is not null);
-            return $"Banco {_banks.Bank} de {_banks.BankCount - 1}: programas {first}–{last}";
+            return TrF($"Banco {_banks.Bank} de {_banks.BankCount - 1}: programas {first}–{last}");
         }
     }
 
@@ -377,7 +390,7 @@ public sealed class ControlViewModel : ObservableObject
             {
                 if (pedal <= _banks.BankSize && _banks.ProgramFor(pedal) is int program)
                 {
-                    SendProgram(program, $"pedal {pedal}");
+                    SendProgram(program, TrF($"pedal {pedal}"));
                 }
 
                 return;
@@ -389,7 +402,7 @@ public sealed class ControlViewModel : ObservableObject
                 var on = !button.IsOn;
                 _service.SendControlChange(Channel, button.Controller, on ? 127 : 0);
                 button.IsOn = on;
-                LastSent = $"CC {button.Controller} = {(on ? 127 : 0)} (canal {Channel}) — {button.Label}";
+                LastSent = TrF($"CC {button.Controller} = {(on ? 127 : 0)} (canal {Channel}) — {button.Label}");
                 return;
             }
 
@@ -404,10 +417,10 @@ public sealed class ControlViewModel : ObservableObject
                     RefreshPanel();
                     break;
                 case ControlAction.ProgramUp:
-                    SendProgram(_currentProgram is int up ? (up % BankNavigator.MaxProgram) + 1 : 1, "programa +1");
+                    SendProgram(_currentProgram is int up ? (up % BankNavigator.MaxProgram) + 1 : 1, Tr("programa +1"));
                     break;
                 case ControlAction.ProgramDown:
-                    SendProgram(_currentProgram is int down ? ((down + BankNavigator.MaxProgram - 2) % BankNavigator.MaxProgram) + 1 : 1, "programa −1");
+                    SendProgram(_currentProgram is int down ? ((down + BankNavigator.MaxProgram - 2) % BankNavigator.MaxProgram) + 1 : 1, Tr("programa −1"));
                     break;
             }
         }
@@ -415,7 +428,7 @@ public sealed class ControlViewModel : ObservableObject
         {
             _log.Error("Modo controle: falha ao enviar.", ex);
             Deactivate();
-            SetStatus("Falha ao enviar (a interface foi desconectada?). Modo controle desativado: " + ex.Message, StatusKind.Error);
+            SetStatus(Tr("Falha ao enviar (a interface foi desconectada?). Modo controle desativado: ") + ex.Message, StatusKind.Error);
         }
     }
 
@@ -428,7 +441,7 @@ public sealed class ControlViewModel : ObservableObject
 
         _learning = binding;
         binding.IsLearning = true;
-        SetStatus($"Aprendendo \"{binding.Label}\": pise no pedal / mexa no controle da entrada MIDI agora.", StatusKind.Warning);
+        SetStatus(TrF($"Aprendendo \"{binding.Label}\": pise no pedal / mexa no controle da entrada MIDI agora."), StatusKind.Warning);
     }
 
     public void ClearBinding(BindingViewModel binding)
@@ -477,8 +490,8 @@ public sealed class ControlViewModel : ObservableObject
         }
 
         _state.EndOperation();
-        SetStatus("Modo controle desativado. Portas MIDI liberadas para backup e restauração.", StatusKind.Idle);
-        _state.StatusText = "Modo controle desativado.";
+        SetStatus(Tr("Modo controle desativado. Portas MIDI liberadas para backup e restauração."), StatusKind.Idle);
+        _state.StatusText = Tr("Modo controle desativado.");
     }
 
     private void ToggleActive()
@@ -492,7 +505,7 @@ public sealed class ControlViewModel : ObservableObject
         var output = _state.SelectedOutput;
         if (output is null)
         {
-            _dialogs.ShowWarning("Modo controle", "Selecione o MIDI OUT conectado ao MIDI IN do TriAxis na aba Conexão.");
+            _dialogs.ShowWarning(Tr("Modo controle"), Tr("Selecione o MIDI OUT conectado ao MIDI IN do TriAxis na aba Conexão."));
             return;
         }
 
@@ -505,14 +518,14 @@ public sealed class ControlViewModel : ObservableObject
         {
             _service.Start(output, _selectedInput?.Device);
             IsActive = true;
-            SetStatus($"Modo controle ATIVO no canal {Channel}. Use os pedais, o teclado (1–0, ↑ ↓, ← →) ou a entrada MIDI.", StatusKind.Ok);
-            _state.StatusText = "Modo controle ativo: backup e restauração ficam bloqueados enquanto ele estiver ligado.";
+            SetStatus(TrF($"Modo controle ATIVO no canal {Channel}. Use os pedais, o teclado (1–0, ↑ ↓, ← →) ou a entrada MIDI."), StatusKind.Ok);
+            _state.StatusText = Tr("Modo controle ativo: backup e restauração ficam bloqueados enquanto ele estiver ligado.");
         }
         catch (MidiException ex)
         {
             _state.EndOperation();
             SetStatus(ex.Message, StatusKind.Error);
-            _dialogs.ShowError("Modo controle", ex.Message);
+            _dialogs.ShowError(Tr("Modo controle"), ex.Message);
         }
 
         RefreshPanel();
@@ -527,7 +540,7 @@ public sealed class ControlViewModel : ObservableObject
             _banks.ShowProgram(program);
         }
 
-        LastSent = $"Program Change {program} (canal {Channel}) — {source}";
+        LastSent = TrF($"Program Change {program} (canal {Channel}) — {source}");
         RefreshPanel();
     }
 
@@ -555,7 +568,7 @@ public sealed class ControlViewModel : ObservableObject
                 b.Refresh();
             }
 
-            SetStatus($"\"{_learning.Label}\" agora responde a {trigger}.", StatusKind.Ok);
+            SetStatus(TrF($"\"{_learning.Label}\" agora responde a {trigger}."), StatusKind.Ok);
             _learning.IsLearning = false;
             _learning = null;
             return;
@@ -569,20 +582,20 @@ public sealed class ControlViewModel : ObservableObject
         {
             try
             {
-                SendProgram(message.Number + 1, "repassado da entrada");
+                SendProgram(message.Number + 1, Tr("repassado da entrada"));
             }
             catch (MidiException ex)
             {
                 _log.Error("Modo controle: falha ao repassar.", ex);
                 Deactivate();
-                SetStatus("Falha ao enviar: " + ex.Message, StatusKind.Error);
+                SetStatus(Tr("Falha ao enviar: ") + ex.Message, StatusKind.Error);
             }
         }
     }
 
     private void RefreshInputOptions()
     {
-        var options = new List<InputOption> { new(null, "(nenhuma — só tela e teclado)") };
+        var options = new List<InputOption> { new(null, Tr("(nenhuma — só tela e teclado)")) };
         options.AddRange(_connection.Inputs.Select(d => new InputOption(d, d.DisplayName)));
         InputOptions = options;
         SelectedInput = options.FirstOrDefault(o => o.Device?.Key == _state.Settings.ControlInputDeviceKey) ?? options[0];

@@ -59,14 +59,12 @@
 
                     <Border Background="{StaticResource PanelBrush}" CornerRadius="12" Padding="26,22" Margin="0,16,0,0">
                         <StackPanel>
-                            <TextBlock FontSize="16" TextWrapping="Wrap">
+                            <TextBlock FontSize="16" TextWrapping="Wrap" Text="{Binding ModifiedText}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="Os timbres na tela são iguais aos do último backup." />
                                         <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Editor.IsModified}" Value="True">
-                                                <Setter Property="Text" Value="Você fez mudanças que ainda não foram para o TriAxis." />
                                                 <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>

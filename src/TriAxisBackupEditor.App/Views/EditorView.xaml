@@ -40,7 +40,7 @@
                 <StackPanel>
                     <TextBlock Style="{StaticResource H2}" Text="{Binding CurrentPreset, StringFormat='Preset {0:00}'}" />
                     <TextBlock Style="{StaticResource Muted}" Text="{Binding ProgramInfo}" />
-                    <TextBlock Style="{StaticResource Muted}" Text="{Binding ModeText, StringFormat='Modo: {0}'}" />
+                    <TextBlock Style="{StaticResource Muted}"><Run Text="Modo: " /><Run Text="{Binding ModeText, Mode=OneWay}" /></TextBlock>
                     <TextBlock Style="{StaticResource Muted}" Text="{Binding SwitchSummary}" Margin="0,0,0,10"
                                ToolTip="Dê nomes às saídas em Configurações → Saídas e loops" />
                     <WrapPanel>

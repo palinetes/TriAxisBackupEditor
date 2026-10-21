@@ -1,5 +1,7 @@
 # TriAxis Backup & Editor
 
+**Português** · [English](README.en.md)
+
 Aplicativo Windows (C# / .NET 8 / WPF) para o Mesa/Boogie TriAxis. Ele faz:
 - **backup e restauração da memória via MIDI SysEx**;
 - uma **biblioteca local** de backups;
@@ -7,12 +9,14 @@ Aplicativo Windows (C# / .NET 8 / WPF) para o Mesa/Boogie TriAxis. Ele faz:
 - um **editor visual** no estilo do painel do TriAxis;
 - um **modo controle** que transforma o PC numa pedaleira MIDI (canais/programas, bancos, botões CC e entradas MIDI aprendidas).
 
-O editor usa o mapa SysEx **preliminar**, ainda não validado em hardware. Ele sempre gera um arquivo novo e nunca altera o backup original (veja [docs/SYSEX.md](docs/SYSEX.md)).
+O editor usa um mapa SysEx **preliminar**, cuja ordem de parâmetros foi conferida com os presets de fábrica do manual oficial, mas ainda não cada valor em todos os aparelhos. Ele sempre gera um arquivo novo e nunca altera o backup original (veja [docs/SYSEX.md](docs/SYSEX.md)).
 
 **Download:** baixe o `TriAxisBackupEditor.exe` na página [Releases](https://github.com/palinetes/TriAxisBackupEditor/releases). É um arquivo único, sem instalação, para Windows 10/11 64 bits.
 Esta é uma **versão beta**: está sendo testada com o TriAxis real. Encontrou um problema ou tem uma ideia? Abra uma [issue](https://github.com/palinetes/TriAxisBackupEditor/issues).
 
-**Autor:** @palinetes · **Licença:** [MIT](LICENSE) · **Manual do usuário:** [docs/manual/index.html](docs/manual/index.html), também dentro do programa (botão **Manual** ou tecla **F1**, funciona sem internet).
+**Autor:** @palinetes · **Licença:** [MIT](LICENSE) · **Manual do usuário:** [docs/manual/index.html](docs/manual/index.html) ([English](docs/manual/index.en.html)), também dentro do programa (botão **Manual** ou tecla **F1**, funciona sem internet).
+
+**Idioma:** o programa é bilíngue (português / inglês). Na primeira vez usa o idioma do Windows e dá para trocar no topo da janela. Os documentos técnicos de `docs/` (SYSEX, ROADMAP, plano de testes) estão em português.
 
 ## Modo simples e modo avançado
 
@@ -23,11 +27,11 @@ O programa tem uma chave **Simples | Avançado** no topo.
     1. escolher o aparelho (entrada e saída juntas);
     2. ver o desenho dos cabos;
     3. fazer o **primeiro backup**, que também testa a ligação (se nada chegar, ele manda inverter os plugues);
-    4. fazer o **teste de envio**, que acerta o "número do TriAxis" (o canal) sem usar a palavra canal.
+    4. descobrir o **número do TriAxis** (o canal): **escutando o TriAxis** (você aperta uma seta de PROGRAM no painel dele e ele avisa o número) ou pelo **teste de envio**.
   - **Tela inicial** com três caminhos:
     - **Meus timbres:** o painel do TriAxis, mais os 90 timbres com **nomes** dados pelo usuário;
     - **Backup:** guardar a memória ou devolver um backup;
-    - **Tocar:** pedaleira na tela, em que cada pedal mostra o nome do timbre.
+    - **Tocar:** pedaleira na tela, em que cada pedal mostra o número do programa.
   - **Mandar para o TriAxis** em 3 passos: aviso, **backup de segurança obrigatório** e "Sim, substituir". Depois, o programa pergunta se o display piscou.
 - **Modo avançado:** as abas descritas abaixo (Conexão, Controle, Backup, Restaurar, Biblioteca, Editor, Visualizar, Configurações, Log), para quem usa MIDI de verdade (ex.: RME + FCB1010).
 
@@ -42,6 +46,8 @@ As proteções são as mesmas nos dois modos. O modo avançado mantém a confirm
 > - **não envia nada ao TriAxis ao abrir**: listar portas e testar a conexão não transmite bytes.
 >
 > Mesmo assim, guarde cópias dos seus `.syx` fora do computador (pendrive ou nuvem).
+>
+> **Dica do manual do TriAxis:** os presets de fábrica 1–20 são carregados de novo toda vez que o aparelho é ligado, a não ser que você desative isso no painel (SHIFT uma vez, depois LOOP).
 
 ---
 
@@ -87,7 +93,7 @@ Onde o programa guarda os dados (tudo local):
 1. Conecte a interface USB. Interfaces *class compliant* (Roland UM-ONE, M-Audio Uno, ESI, iConnectivity etc.) são instaladas sozinhas pelo Windows.
 2. Se o fabricante oferecer um driver próprio (por exemplo, o modo "advanced driver" da UM-ONE), prefira-o: costuma lidar melhor com SysEx longo.
 3. Abra o programa, vá em **Conexão** e confira se a interface aparece em **MIDI IN** e **MIDI OUT**. A lista se atualiza sozinha a cada 3 segundos.
-4. **Evite cabos USB-MIDI genéricos muito baratos.** Muitos perdem ou corrompem SysEx longo. O dump do TriAxis tem cerca de 2,7 KB numa única mensagem.
+4. **Evite cabos USB-MIDI genéricos muito baratos.** Muitos perdem ou corrompem SysEx longo. O dump do TriAxis tem cerca de 1,1 KB (1.126 bytes) numa única mensagem.
 5. Feche outros programas que usem MIDI (DAW, MIDI-OX, editores de G-Major/pedaleira). O driver padrão do Windows não deixa dois programas abrirem a mesma porta.
 
 ## Ligação: TriAxis, FCB1010 e G-Major
@@ -164,8 +170,8 @@ A aba **Editor** recria a frente do TriAxis, desenhada do zero em vetor (inspira
 | Elemento | Como usar |
 |---|---|
 | **PRESET** (display vermelho, ◄ ►) | Escolhe o preset em edição (1–90). A roda do mouse sobre o display também muda. |
-| **PROGRAM / CHANNEL** (display verde, ◄ ►) | Navega pelos Program Change 1–128 e mostra o preset associado. |
-| **PGM/CH** | Ligado (LED vermelho): as setas de PRESET escolhem **qual preset o Program Change atual chama**. |
+| **PROGRAM / CHANNEL** (display verde, ◄ ►) | Navega pelos Program Change 1–128 e mostra o preset associado (só quando o mapa de programas do backup parece válido). |
+| **PGM/CH** | Ligado (LED vermelho): as setas de PRESET escolhem **qual preset o Program Change atual chama**. Fica desativado enquanto o mapa de programas não for confirmado. |
 | **GAIN … DYNAMIC VOICE** | ◄ ►, roda do mouse, ou clique no display para escolher numa lista (0.0 … 10). Um ponto âmbar marca o que mudou. |
 | **Matriz de LEDs RHY / LD1 / LD2** | Clique no LED do modo (Rhythm G/Y, Lead 1 G/Y/R, Lead 2 G/Y/R). |
 | **SW 1–4 e FX LOOP** | Clique para ligar/desligar. Os nomes dados em *Configurações → Saídas e loops* (ex.: funções da Simul-Class 2:90) aparecem nas dicas dos LEDs e no cartão do preset. |
@@ -187,7 +193,12 @@ Abaixo do painel:
 
 ## Modo controle (pedaleira)
 
-A aba **Controle** transforma o programa num controlador MIDI do TriAxis. O modo envia **apenas Program Change e Control Change**: troca de programa/canal e acionamentos. **Nada é gravado na memória do TriAxis.**
+A aba **Controle** transforma o programa num controlador MIDI do TriAxis. O modo envia **apenas Program Change e Control Change**. **Nada é gravado na memória do TriAxis.**
+
+Segundo o manual oficial do TriAxis:
+- **Program Change é o jeito de trocar de timbre.** O aparelho tem 128 *programas* (posições MIDI) que apontam para os 90 *presets*; cada preset guarda o modo (canal Rhythm/Lead), o FX Loop e os switches 1–4.
+- **Control Change não troca canal, FX Loop nem switches.** Só move os nove botões de timbre (Gain, Treble...), num número de controle que você atribui a cada preset no painel (SHIFT três vezes).
+- O **MIDI OUT** do aparelho manda um Program Change quando você usa as teclas de PROGRAM do painel. É assim que o assistente consegue *escutar* o canal.
 
 1. Em **Conexão**, selecione o **MIDI OUT** ligado ao **MIDI IN do TriAxis**.
 2. Em **Controle**, escolha:
@@ -221,6 +232,8 @@ Program Change, CC (dispara ao pressionar, ou seja, valor > 0) e notas podem ser
 | "Nenhum dado recebido" no backup | Confira se o cabo vai do **MIDI OUT do TriAxis ao MIDI IN da interface**. Confira se a porta MIDI IN selecionada é a da interface. Pressione SHIFT + PRESET DOWN dentro do prazo. |
 | Backup incompleto (sem F7) | Use um cabo/interface melhor, evite hubs USB, aumente o **timeout de recepção** em Configurações e repita. |
 | Backup com tamanho diferente de 1.126 bytes | O arquivo foi salvo sem alterações. Pode ser uma versão diferente de firmware/mapa. Faça 2 ou 3 backups seguidos e compare os hashes: se forem idênticos, a captura é confiável. |
+| O TriAxis não troca de programa | No assistente (passo 4), clique em **Escutar o TriAxis** e aperte uma seta de PROGRAM no painel dele. Se não ouvir nada, confira o cabo; se ouvir, ele mostra o canal. |
+| Meus timbres 1–20 voltam aos de fábrica ao ligar | O TriAxis recarrega os presets de fábrica 1–20 ao ser ligado. Aperte SHIFT e depois LOOP no painel para desativar. |
 | Display do TriAxis não pisca na restauração | Confira se o cabo vai do **MIDI OUT da interface ao MIDI IN do TriAxis**. Aumente o intervalo entre blocos (ex.: 40–50 ms) e/ou reduza o bloco para 64 bytes. Retire a FCB1010 da cadeia. |
 | Interface desconectada no meio | O programa avisa e não trava. Reconecte, selecione as portas de novo e repita a operação inteira. |
 | Quero ver o que aconteceu | Aba **Log**, ou o arquivo em `%LOCALAPPDATA%\TriAxisBackupEditor\logs`. Ele registra dispositivos, bytes recebidos/enviados, hashes e erros. |
@@ -271,13 +284,14 @@ TriAxisBackupEditor/
 │  ├─ TriAxisBackupEditor.Midi/         IMidiDeviceService + implementação WinMM (winmm.dll)
 │  ├─ TriAxisBackupEditor.SysEx/        Validação, remontagem, hash, hex, mapa preliminar, editor de dump
 │  ├─ TriAxisBackupEditor.Storage/      SQLite (IBackupRepository), arquivos, configurações, CSV
-│  └─ TriAxisBackupEditor.Tests/        128 testes xUnit
+│  └─ TriAxisBackupEditor.Tests/        testes xUnit
 ├─ docs/
+│  ├─ manual/             Manual do usuário (português e inglês)
 │  ├─ SYSEX.md            Formato, mapa preliminar, plano de validação de offsets
 │  ├─ ROADMAP.md          Fases 1–7
 │  └─ PLANO_DE_TESTES.md  Roteiro de testes com o TriAxis real
 ├─ publish.ps1
-├─ README.md
+├─ README.md / README.en.md
 └─ TriAxisBackupEditor.sln
 ```
 
@@ -288,6 +302,7 @@ Interfaces principais:
 | `IMidiDeviceService` | Midi | Lista portas e abre IN/OUT (abrir nunca envia bytes) |
 | `TriAxisDumpEditor` | SysEx | Edita uma cópia do dump, só nas regiões mapeadas |
 | `ControlSurfaceService` | Application | Modo controle: Program Change/CC e entrada de controle |
+| `TriAxisListener` | Application | Escuta o MIDI OUT do TriAxis até um Program Change (descobre o canal) |
 | `ITriAxisSysExService` | SysEx | Valida, interpreta (mapa preliminar), compara, gera hash e hex |
 | `IBackupRepository` | Storage | Metadados no SQLite |
 
@@ -301,20 +316,21 @@ Os testes cobrem:
 - captura com timeout, cancelamento e dados parciais;
 - SQLite, biblioteca, CSV e parser;
 - **editor de dump** (só regiões editáveis mudam, original intacto, bits desconhecidos preservados, 500 edições aleatórias continuam válidas);
-- **modo controle** (codificação de Program Change/CC, bancos estilo FCB1010, MIDI learn, nunca envia SysEx);
+- o **formato real do dump (1.126 bytes)** e os arquivos do editor web (dump + zeros);
+- **modo controle** (codificação de Program Change/CC, bancos estilo FCB1010, MIDI learn, nunca envia SysEx) e o **ouvinte do TriAxis**;
 - **modo simples**: pareamento automático de entrada/saída pelo nome, envio seguro que exige backup de segurança antes de liberar a substituição, nomes dos timbres nos pedais;
 - enumeração real das portas WinMM.
 
 ## Decisões técnicas
 
 - **MIDI via WinMM nativo, em vez de DryWetMidi.** A especificação pedia DryWetMidi "ou outra biblioteca madura". Optei pela própria API MIDI do Windows (`winmm.dll`, presente do Windows 95 ao 11) por dois motivos:
-  1. **Recepção:** é preciso controlar os buffers de SysEx. O padrão do DryWetMidi é 2 KB, menor que o dump de cerca de 2,7 KB. Aqui são 16 buffers de 4 KB, e o `SysExAssembler` remonta qualquer fragmentação.
+  1. **Recepção:** é preciso controlar os buffers de SysEx. Aqui são 16 buffers de 4 KB, e o `SysExAssembler` remonta qualquer fragmentação.
   2. **Envio:** é preciso mandar **trechos crus** de um SysEx em blocos com intervalo (`midiOutLongMsg` por bloco, esperando `MHDR_DONE` antes de liberar a memória). Bibliotecas de alto nível enviam o evento inteiro de uma vez.
 
   Tudo fica atrás de `IMidiDeviceService`. Trocar por outra biblioteca é uma nova implementação, sem mexer no resto.
 - **Nada é alterado no dump.** A captura guarda as mensagens `F0…F7` na ordem de chegada. A única filtragem é a exigida pela especificação MIDI: bytes de tempo real (`F8`–`FF`) intercalados não fazem parte do SysEx e são descartados. A contagem aparece no log e num aviso.
 - **Nunca sobrescrever.** Arquivos novos usam `FileMode.CreateNew`. Nomes repetidos ganham `_2`, `_3`. Renomear não substitui. Excluir manda para a Lixeira.
-- **Sem requisição de dump por padrão.** Não há comando de *dump request* documentado para o TriAxis. Existe uma opção avançada para enviar uma mensagem informada pelo usuário, desligada e com aviso.
+- **Sem requisição de dump por padrão.** Não há comando de *dump request* documentado para o TriAxis. O aparelho manda o dump quando se aperta SHIFT + PRESET DOWN. Existe uma opção avançada para enviar uma mensagem informada pelo usuário, desligada e com aviso.
 
 ## Referências e créditos
 

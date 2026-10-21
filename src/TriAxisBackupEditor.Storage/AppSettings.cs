@@ -63,6 +63,9 @@ public sealed class AppSettings
 
     // ---------------- Interface ----------------
 
+    /// <summary>"auto" (idioma do Windows), "pt" ou "en".</summary>
+    public string Language { get; set; } = "auto";
+
     public const string SimpleMode = "Simple";
     public const string AdvancedMode = "Advanced";
 
@@ -99,6 +102,8 @@ public sealed class AppSettings
         {
             UiMode = SimpleMode;
         }
+
+        Language = Language?.Trim().ToLowerInvariant() is "pt" or "en" ? Language.Trim().ToLowerInvariant() : "auto";
 
         PresetNames ??= new List<string>();
         while (PresetNames.Count < 90)

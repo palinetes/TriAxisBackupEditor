@@ -7,12 +7,13 @@ using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Backup;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
 public sealed class BackupRow
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
 
     public BackupRow(BackupRecord record)
     {
@@ -24,7 +25,7 @@ public sealed class BackupRow
 
     public string FileName => Record.FileName;
 
-    public string DateText => Record.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss", PtBr);
+    public string DateText => Record.CreatedAt.ToString(Tr("dd/MM/yyyy HH:mm:ss"), PtBr);
 
     public string SizeText => Record.SizeBytes.ToString("N0", PtBr);
 
@@ -34,11 +35,11 @@ public sealed class BackupRow
 
     public string Notes => Record.Notes;
 
-    public string Origin => Record.Origin;
+    public string Origin => Tr(Record.Origin);
 
     public bool Exists { get; }
 
-    public string StatusText => Exists ? "OK" : "Arquivo ausente";
+    public string StatusText => Exists ? "OK" : Tr("Arquivo ausente");
 }
 
 public sealed class LibraryViewModel : ObservableObject
@@ -49,7 +50,7 @@ public sealed class LibraryViewModel : ObservableObject
     private string _searchText = string.Empty;
     private BackupRow? _selected;
     private IReadOnlyList<BackupRow> _selection = Array.Empty<BackupRow>();
-    private string _comparisonText = "Selecione dois backups (Ctrl+clique) e clique em \"Comparar\".";
+    private string _comparisonText = Tr("Selecione dois backups (Ctrl+clique) e clique em \"Comparar\".");
     private string _countText = string.Empty;
 
     public LibraryViewModel(AppState state, BackupLibraryService library, IDialogService dialogs)
@@ -151,7 +152,7 @@ public sealed class LibraryViewModel : ObservableObject
         }
 
         Selected = Items.FirstOrDefault(r => r.Record.Id == selectedId);
-        CountText = Items.Count == 1 ? "1 backup" : $"{Items.Count} backups";
+        CountText = Items.Count == 1 ? Tr("1 backup") : TrF($"{Items.Count} backups");
     }
 
     private void Import()
@@ -162,7 +163,7 @@ public sealed class LibraryViewModel : ObservableObject
             return;
         }
 
-        var notes = _dialogs.PromptText("Importar backup", "Observação (opcional):", string.Empty);
+        var notes = _dialogs.PromptText(Tr("Importar backup"), Tr("Observação (opcional):"), string.Empty);
         if (notes is null)
         {
             return;
@@ -173,11 +174,11 @@ public sealed class LibraryViewModel : ObservableObject
             var record = _library.Import(path, _state.Settings.BackupFolder, notes);
             Refresh();
             Selected = Items.FirstOrDefault(r => r.Record.Id == record.Id);
-            _state.StatusText = "Importado: " + record.FileName;
+            _state.StatusText = Tr("Importado: ") + record.FileName;
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException)
         {
-            _dialogs.ShowError("Importar", ex.Message);
+            _dialogs.ShowError(Tr("Importar"), ex.Message);
         }
     }
 
@@ -193,13 +194,13 @@ public sealed class LibraryViewModel : ObservableObject
         var copy = _library.Duplicate(Selected!.Record);
         Refresh();
         Selected = Items.FirstOrDefault(r => r.Record.Id == copy.Id);
-        _state.StatusText = "Duplicado: " + copy.FileName;
+        _state.StatusText = Tr("Duplicado: ") + copy.FileName;
     }
 
     private void Rename()
     {
         var current = Selected!.Record;
-        var newName = _dialogs.PromptText("Renomear backup", "Novo nome do arquivo (.syx):", Path.GetFileNameWithoutExtension(current.FileName));
+        var newName = _dialogs.PromptText(Tr("Renomear backup"), Tr("Novo nome do arquivo (.syx):"), Path.GetFileNameWithoutExtension(current.FileName));
         if (string.IsNullOrWhiteSpace(newName))
         {
             return;
@@ -213,14 +214,14 @@ public sealed class LibraryViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is IOException or ArgumentException or UnauthorizedAccessException)
         {
-            _dialogs.ShowError("Renomear", ex.Message);
+            _dialogs.ShowError(Tr("Renomear"), ex.Message);
         }
     }
 
     private void EditNotes()
     {
         var current = Selected!.Record;
-        var notes = _dialogs.PromptText("Observação", "Observação deste backup:", current.Notes);
+        var notes = _dialogs.PromptText(Tr("Observação"), Tr("Observação deste backup:"), current.Notes);
         if (notes is null)
         {
             return;
@@ -233,11 +234,11 @@ public sealed class LibraryViewModel : ObservableObject
     private void Delete()
     {
         var record = Selected!.Record;
-        var answer = _dialogs.AskYesNoCancel("Excluir backup",
-            $"Excluir \"{record.FileName}\"?\n\n" +
-            "Sim — remove da biblioteca e envia o arquivo para a Lixeira do Windows (recuperável).\n" +
-            "Não — remove só da biblioteca e mantém o arquivo no disco.\n" +
-            "Cancelar — não faz nada.");
+        var answer = _dialogs.AskYesNoCancel(Tr("Excluir backup"),
+            TrF($"Excluir \"{record.FileName}\"?\n\n") +
+            Tr("Sim — remove da biblioteca e envia o arquivo para a Lixeira do Windows (recuperável).\n") +
+            Tr("Não — remove só da biblioteca e mantém o arquivo no disco.\n") +
+            Tr("Cancelar — não faz nada."));
         if (answer is null)
         {
             return;
@@ -247,11 +248,11 @@ public sealed class LibraryViewModel : ObservableObject
         {
             _library.Delete(record, moveFileToRecycleBin: answer.Value);
             Refresh();
-            _state.StatusText = answer.Value ? "Backup enviado para a Lixeira: " + record.FileName : "Backup removido da biblioteca: " + record.FileName;
+            _state.StatusText = answer.Value ? Tr("Backup enviado para a Lixeira: ") + record.FileName : Tr("Backup removido da biblioteca: ") + record.FileName;
         }
         catch (IOException ex)
         {
-            _dialogs.ShowError("Excluir", ex.Message);
+            _dialogs.ShowError(Tr("Excluir"), ex.Message);
         }
     }
 
@@ -264,7 +265,7 @@ public sealed class LibraryViewModel : ObservableObject
         }
 
         _library.ExportCsv(Items.Select(r => r.Record), path);
-        _state.StatusText = "Biblioteca exportada: " + path;
+        _state.StatusText = Tr("Biblioteca exportada: ") + path;
     }
 
     private void Compare()
@@ -274,28 +275,28 @@ public sealed class LibraryViewModel : ObservableObject
         var result = _library.Compare(a, b);
 
         var sb = new StringBuilder();
-        sb.AppendLine($"A: {a.FileName}");
-        sb.AppendLine($"   {result.LengthA} bytes · SHA-256 {result.HashA}");
-        sb.AppendLine($"B: {b.FileName}");
-        sb.AppendLine($"   {result.LengthB} bytes · SHA-256 {result.HashB}");
+        sb.AppendLine(TrF($"A: {a.FileName}"));
+        sb.AppendLine(TrF($"   {result.LengthA} bytes · SHA-256 {result.HashA}"));
+        sb.AppendLine(TrF($"B: {b.FileName}"));
+        sb.AppendLine(TrF($"   {result.LengthB} bytes · SHA-256 {result.HashB}"));
         sb.AppendLine();
 
         if (result.Identical)
         {
-            sb.AppendLine("RESULTADO: IDÊNTICOS (mesmo hash SHA-256).");
+            sb.AppendLine(Tr("RESULTADO: IDÊNTICOS (mesmo hash SHA-256)."));
         }
         else
         {
-            sb.AppendLine($"RESULTADO: DIFERENTES — {result.DifferenceCount} byte(s) diferem.");
+            sb.AppendLine(TrF($"RESULTADO: DIFERENTES — {result.DifferenceCount} byte(s) diferem."));
             if (result.UsesTriAxisLayout)
             {
                 sb.AppendLine(result.ChangedPresets.Count > 0
-                    ? "Presets com diferenças (mapa preliminar, não validado): " + string.Join(", ", result.ChangedPresets.Select(p => p.ToString("00")))
-                    : "Nenhuma diferença na região de presets (mapa preliminar).");
+                    ? Tr("Presets com diferenças (mapa preliminar, não validado): ") + string.Join(", ", result.ChangedPresets.Select(p => p.ToString("00")))
+                    : Tr("Nenhuma diferença na região de presets (mapa preliminar)."));
             }
 
             sb.AppendLine();
-            sb.AppendLine("Offset  A  → B   Região" + (result.UsesTriAxisLayout ? " (mapa preliminar)" : string.Empty));
+            sb.AppendLine(Tr("Offset  A  → B   Região") + (result.UsesTriAxisLayout ? Tr(" (mapa preliminar)") : string.Empty));
             foreach (var d in result.Differences)
             {
                 sb.AppendLine(d.ToString());
@@ -303,7 +304,7 @@ public sealed class LibraryViewModel : ObservableObject
 
             if (result.DifferencesTruncated)
             {
-                sb.AppendLine($"... e mais {result.DifferenceCount - result.Differences.Count} diferenças.");
+                sb.AppendLine(TrF($"... e mais {result.DifferenceCount - result.Differences.Count} diferenças."));
             }
         }
 

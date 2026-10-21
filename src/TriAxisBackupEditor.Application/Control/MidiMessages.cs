@@ -1,3 +1,4 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.Application.Control;
 
 public enum MidiMessageKind
@@ -14,11 +15,11 @@ public readonly record struct ShortMessage(MidiMessageKind Kind, int Channel, in
 {
     public override string ToString() => Kind switch
     {
-        MidiMessageKind.ProgramChange => $"Program Change {Number + 1} (canal {Channel})",
-        MidiMessageKind.ControlChange => $"CC {Number} = {Value} (canal {Channel})",
-        MidiMessageKind.NoteOn => $"Note On {Number} vel {Value} (canal {Channel})",
-        MidiMessageKind.NoteOff => $"Note Off {Number} (canal {Channel})",
-        _ => "Outra mensagem"
+        MidiMessageKind.ProgramChange => TrF($"Program Change {Number + 1} (canal {Channel})"),
+        MidiMessageKind.ControlChange => TrF($"CC {Number} = {Value} (canal {Channel})"),
+        MidiMessageKind.NoteOn => TrF($"Note On {Number} vel {Value} (canal {Channel})"),
+        MidiMessageKind.NoteOff => TrF($"Note Off {Number} (canal {Channel})"),
+        _ => Tr("Outra mensagem")
     };
 }
 

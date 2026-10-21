@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Restore;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.Views;
 
@@ -16,9 +17,10 @@ public partial class RestoreConfirmWindow : Window
     public RestoreConfirmWindow(RestoreDialogContext context)
     {
         InitializeComponent();
+        TriAxisBackupEditor.App.Services.UiTranslator.Attach(this);
 
         FileText.Text = context.FileName;
-        SizeText.Text = context.SizeBytes.ToString("N0", new CultureInfo("pt-BR")) + " bytes";
+        SizeText.Text = context.SizeBytes.ToString("N0", new CultureInfo("pt-BR")) + Tr(" bytes");
         HashText.Text = context.Sha256;
         OutputText.Text = context.OutputDevice;
 
@@ -31,15 +33,15 @@ public partial class RestoreConfirmWindow : Window
 
         if (context.SafetyBackupPath is not null)
         {
-            SafetyDoneText.Text = "✔ Backup de segurança salvo: " + context.SafetyBackupPath;
+            SafetyDoneText.Text = Tr("✔ Backup de segurança salvo: ") + context.SafetyBackupPath;
             SafetyDoneText.Visibility = Visibility.Visible;
-            SafetyButton.Content = "Fazer outro backup de segurança";
+            SafetyButton.Content = Tr("Fazer outro backup de segurança");
         }
 
         if (!context.CanMakeSafetyBackup)
         {
             SafetyButton.IsEnabled = false;
-            SafetyText.Text = "Para fazer o backup de segurança, selecione também o MIDI IN na aba Conexão.";
+            SafetyText.Text = Tr("Para fazer o backup de segurança, selecione também o MIDI IN na aba Conexão.");
         }
     }
 

@@ -13,6 +13,7 @@ using TriAxisBackupEditor.Application.Restore;
 using TriAxisBackupEditor.Midi.WinMm;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App;
 
@@ -26,12 +27,7 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
-        var culture = new CultureInfo("pt-BR");
-        CultureInfo.DefaultThreadCurrentCulture = culture;
-        CultureInfo.DefaultThreadCurrentUICulture = culture;
-        Thread.CurrentThread.CurrentCulture = culture;
-        Thread.CurrentThread.CurrentUICulture = culture;
-        FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
+        ApplyCulture(new CultureInfo("pt-BR"), overrideXmlLanguage: false);
 
         var dialogs = new DialogService();
         try
@@ -41,6 +37,7 @@ public partial class App : System.Windows.Application
 
             var settingsStore = new SettingsStore(paths);
             var settings = settingsStore.Load();
+            ApplyLanguage(settings);
             var log = new FileTechLog(paths.LogsFolder, settings.LoggingEnabled);
             _log = log;
             log.Info($"Iniciando TriAxis Backup & Editor {typeof(App).Assembly.GetName().Version} em {Environment.OSVersion}.");
@@ -88,7 +85,7 @@ public partial class App : System.Windows.Application
         catch (Exception ex)
         {
             _log?.Error("Falha ao iniciar.", ex);
-            dialogs.ShowError("TriAxis Backup & Editor", "Não foi possível iniciar o programa:\n\n" + ex.Message);
+            dialogs.ShowError(Tr("TriAxis Backup & Editor"), Tr("Não foi possível iniciar o programa:\n\n") + ex.Message);
             Shutdown(1);
         }
     }
@@ -98,6 +95,33 @@ public partial class App : System.Windows.Application
         _connection?.Stop();
         _log?.Info("Programa encerrado.");
         base.OnExit(e);
+        if (RestartRequested && Environment.ProcessPath is { } exe)
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe) { UseShellExecute = true });
+        }
+    }
+
+    /// <summary>Ao fechar, abre o programa de novo (usado ao trocar de idioma).</summary>
+    public static bool RestartRequested { get; set; }
+
+    /// <summary>Define o idioma (configuração ou idioma do Windows), a cultura dos números/datas e o tradutor das telas.</summary>
+    private static void ApplyLanguage(AppSettings settings)
+    {
+        var language = Resolve(settings.Language, CultureInfo.InstalledUICulture);
+        SetLanguage(language);
+        ApplyCulture(new CultureInfo(language == TriAxisBackupEditor.Localization.AppLanguage.English ? "en-US" : "pt-BR"), overrideXmlLanguage: true);
+    }
+
+    private static void ApplyCulture(CultureInfo culture, bool overrideXmlLanguage)
+    {
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        Thread.CurrentThread.CurrentCulture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
+        if (overrideXmlLanguage)
+        {
+            FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
+        }
     }
 
     private void InstallErrorHandlers(ITechLog log, IDialogService dialogs)
@@ -105,13 +129,13 @@ public partial class App : System.Windows.Application
         AsyncRelayCommand.UnhandledError = ex =>
         {
             log.Error("Erro em comando.", ex);
-            dialogs.ShowError("Erro", ex.Message);
+            dialogs.ShowError(Tr("Erro"), ex.Message);
         };
 
         DispatcherUnhandledException += (_, args) =>
         {
             log.Error("Erro não tratado na interface.", args.Exception);
-            dialogs.ShowError("Erro inesperado", args.Exception.Message + "\n\nOs detalhes foram registrados no log.");
+            dialogs.ShowError(Tr("Erro inesperado"), args.Exception.Message + Tr("\n\nOs detalhes foram registrados no log."));
             args.Handled = true;
         };
 

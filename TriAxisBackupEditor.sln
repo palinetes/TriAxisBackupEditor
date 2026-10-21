@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.App", "src\TriAxisBackupEditor.App\TriAxisBackupEditor.App.csproj", "{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriAxisBackupEditor.Localization", "src\TriAxisBackupEditor.Localization\TriAxisBackupEditor.Localization.csproj", "{6035DE36-FF4F-4796-88DE-C29BDFF5B238}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6035DE36-FF4F-4796-88DE-C29BDFF5B238}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6035DE36-FF4F-4796-88DE-C29BDFF5B238}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6035DE36-FF4F-4796-88DE-C29BDFF5B238}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6035DE36-FF4F-4796-88DE-C29BDFF5B238}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6CB472C5-3377-419E-84B7-A2D74709F114} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
@@ -58,5 +64,6 @@ Global
 		{261DB962-2ABA-4A97-8BC9-14D17CDA4E90} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
 		{286634A3-8F24-4C72-80B5-3714E475CD3E} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
 		{E5BFB068-BF1B-405F-BCA3-DA08551E0DDC} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
+		{6035DE36-FF4F-4796-88DE-C29BDFF5B238} = {41C834D8-CDCE-43FC-9AEA-D401AE241D19}
 	EndGlobalSection
 EndGlobal

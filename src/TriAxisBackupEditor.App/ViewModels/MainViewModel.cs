@@ -1,6 +1,8 @@
 ﻿using TriAxisBackupEditor.App.Mvvm;
+using TriAxisBackupEditor.Localization;
 using TriAxisBackupEditor.Storage;
 using SimpleShell = TriAxisBackupEditor.App.ViewModels.Simple.SimpleShellViewModel;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
@@ -106,7 +108,7 @@ public sealed class MainViewModel : ObservableObject
 
         if (State.IsBusy && State.BusyOperation != ControlViewModel.OperationName)
         {
-            State.StatusText = $"Aguarde: {State.BusyOperation} em andamento.";
+            State.StatusText = TrF($"Aguarde: {State.BusyOperationDisplay} em andamento.");
             RaiseModeChanged();
             return;
         }
@@ -117,7 +119,7 @@ public sealed class MainViewModel : ObservableObject
         }
         else if (!Simple.TryLeave())
         {
-            State.StatusText = "Aguarde a operação atual terminar para trocar de modo.";
+            State.StatusText = Tr("Aguarde a operação atual terminar para trocar de modo.");
             RaiseModeChanged();
             return;
         }
@@ -142,16 +144,54 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(IsAdvancedMode));
     }
 
-    public string Title => "TriAxis Backup & Editor 1.0 — por @palinetes";
+    public string Title => Tr("TriAxis Backup & Editor 1.0 — por @palinetes");
 
     /// <summary>Abre o manual do usuário (embutido no programa) no navegador padrão. Também pela tecla F1.</summary>
     public System.Windows.Input.ICommand OpenManualCommand => _openManualCommand ??= new RelayCommand(() =>
     {
         Services.ManualService.Open(State.Paths.DataFolder);
-        State.StatusText = "Manual aberto no navegador.";
+        State.StatusText = Tr("Manual aberto no navegador.");
     });
 
     private System.Windows.Input.ICommand? _openManualCommand;
+
+    /// <summary>Idioma da interface: o texto da tela é trocado no início do programa, então mudar pede para reiniciar.</summary>
+    public System.Windows.Input.ICommand SetLanguageCommand => _setLanguageCommand ??= new RelayCommandWithParameter<string>(SetLanguage);
+
+    private System.Windows.Input.ICommand? _setLanguageCommand;
+
+    public bool IsEnglishUi => Localizer.IsEnglish;
+
+    public bool IsPortugueseUi => !Localizer.IsEnglish;
+
+    private void SetLanguage(string? code)
+    {
+        var wantsEnglish = code == "en";
+        if (wantsEnglish == Localizer.IsEnglish)
+        {
+            return;
+        }
+
+        if (State.IsBusy)
+        {
+            State.StatusText = TrF($"Aguarde: {State.BusyOperationDisplay} em andamento.");
+            return;
+        }
+
+        State.Settings.Language = wantsEnglish ? "en" : "pt";
+        State.SaveSettings();
+
+        // As frases já mostradas só mudam ao reabrir: oferece reiniciar agora.
+        var restartText = wantsEnglish
+            ? "Idioma alterado para English. Para aplicar, o programa precisa abrir de novo. Reiniciar agora?"
+            : "Language changed to Português. To apply it, the program has to start again. Restart now?";
+        var restart = Simple.Dialogs.Confirm(wantsEnglish ? "Language / Idioma" : "Idioma / Language", restartText);
+        if (restart)
+        {
+            TriAxisBackupEditor.App.App.RestartRequested = true;
+            System.Windows.Application.Current.Shutdown();
+        }
+    }
 
     public AppState State { get; }
 

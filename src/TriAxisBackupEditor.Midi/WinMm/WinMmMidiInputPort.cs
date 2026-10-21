@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Midi.WinMm;
 
@@ -29,10 +30,10 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
     {
         Device = device;
         _callback = OnMidiIn;
-        _worker = new Thread(WorkerLoop) { IsBackground = true, Name = "MIDI IN " + device.DisplayName };
+        _worker = new Thread(WorkerLoop) { IsBackground = true, Name = Tr("MIDI IN ") + device.DisplayName };
 
         var result = NativeMethods.midiInOpen(out _handle, deviceId, _callback, IntPtr.Zero, NativeMethods.CALLBACK_FUNCTION);
-        WinMmErrors.Check(result, "abrir a entrada MIDI", device);
+        WinMmErrors.Check(result, Tr("abrir a entrada MIDI"), device);
 
         try
         {
@@ -42,7 +43,7 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
             }
 
             _worker.Start();
-            WinMmErrors.Check(NativeMethods.midiInStart(_handle), "iniciar a entrada MIDI", device);
+            WinMmErrors.Check(NativeMethods.midiInStart(_handle), Tr("iniciar a entrada MIDI"), device);
         }
         catch
         {
@@ -107,7 +108,7 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
 
         if (leaked)
         {
-            ErrorOccurred?.Invoke(this, new MidiErrorEventArgs("Alguns buffers MIDI não puderam ser liberados pelo driver."));
+            ErrorOccurred?.Invoke(this, new MidiErrorEventArgs(Tr("Alguns buffers MIDI não puderam ser liberados pelo driver.")));
         }
 
         GC.KeepAlive(_callback);
@@ -125,14 +126,14 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
         {
             Marshal.FreeHGlobal(data);
             Marshal.FreeHGlobal(header);
-            throw WinMmErrors.Create(result, "preparar buffer de SysEx em", Device);
+            throw WinMmErrors.Create(result, Tr("preparar buffer de SysEx em"), Device);
         }
 
         _headers.Add(header);
         result = NativeMethods.midiInAddBuffer(_handle, header, (uint)NativeMethods.MidiHdrSize);
         if (result != NativeMethods.MMSYSERR_NOERROR)
         {
-            throw WinMmErrors.Create(result, "registrar buffer de SysEx em", Device);
+            throw WinMmErrors.Create(result, Tr("registrar buffer de SysEx em"), Device);
         }
     }
 
@@ -239,7 +240,7 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
 
                         if (!closing)
                         {
-                            ErrorOccurred?.Invoke(this, new MidiErrorEventArgs("A entrada MIDI foi fechada pelo driver (interface desconectada?)."));
+                            ErrorOccurred?.Invoke(this, new MidiErrorEventArgs(Tr("A entrada MIDI foi fechada pelo driver (interface desconectada?).")));
                         }
 
                         break;
@@ -249,7 +250,7 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
             {
                 try
                 {
-                    ErrorOccurred?.Invoke(this, new MidiErrorEventArgs("Erro ao processar dados MIDI: " + ex.Message));
+                    ErrorOccurred?.Invoke(this, new MidiErrorEventArgs(Tr("Erro ao processar dados MIDI: ") + ex.Message));
                 }
                 catch
                 {
@@ -275,7 +276,7 @@ internal sealed class WinMmMidiInputPort : IMidiInputPort
         if (result != NativeMethods.MMSYSERR_NOERROR)
         {
             ErrorOccurred?.Invoke(this, new MidiErrorEventArgs(
-                "Não foi possível devolver o buffer de SysEx ao driver: " + WinMmErrors.Describe(result, MidiDirection.Input)));
+                Tr("Não foi possível devolver o buffer de SysEx ao driver: ") + WinMmErrors.Describe(result, MidiDirection.Input)));
         }
     }
 

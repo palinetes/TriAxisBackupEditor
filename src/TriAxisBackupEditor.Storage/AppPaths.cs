@@ -19,8 +19,16 @@ public sealed class AppPaths
 
     public string LogsFolder => Path.Combine(DataFolder, "logs");
 
+    /// <summary>Variável de ambiente que troca a pasta de dados (cópia portátil, testes, capturas de tela do manual).</summary>
+    public const string DataFolderVariable = "TRIAXIS_DATA_DIR";
+
     public static AppPaths CreateDefault()
     {
+        if (Environment.GetEnvironmentVariable(DataFolderVariable) is { Length: > 0 } custom)
+        {
+            return new AppPaths(custom, Path.Combine(custom, "Backups"));
+        }
+
         var data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TriAxisBackupEditor");
         var backups = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TriAxis Backups");
         return new AppPaths(data, backups);

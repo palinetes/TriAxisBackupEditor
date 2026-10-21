@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Storage;
 
@@ -23,7 +24,7 @@ public static class BackupFileStore
 
     public static string Duplicate(string sourcePath)
     {
-        var folder = Path.GetDirectoryName(sourcePath) ?? throw new IOException("Caminho inválido.");
+        var folder = Path.GetDirectoryName(sourcePath) ?? throw new IOException(Tr("Caminho inválido."));
         var stem = Path.GetFileNameWithoutExtension(sourcePath);
         var target = BackupFileNamer.GetUniquePath(folder, stem + "_copia" + BackupFileNamer.Extension);
         File.Copy(sourcePath, target, overwrite: false);
@@ -41,7 +42,7 @@ public static class BackupFileStore
 
     public static string Rename(string path, string newFileName)
     {
-        var folder = Path.GetDirectoryName(path) ?? throw new IOException("Caminho inválido.");
+        var folder = Path.GetDirectoryName(path) ?? throw new IOException(Tr("Caminho inválido."));
         var target = Path.Combine(folder, BackupFileNamer.SanitizeFileName(newFileName));
         if (string.Equals(target, path, StringComparison.OrdinalIgnoreCase))
         {
@@ -56,7 +57,7 @@ public static class BackupFileStore
 
         if (File.Exists(target))
         {
-            throw new IOException($"Já existe um arquivo chamado \"{Path.GetFileName(target)}\". Escolha outro nome.");
+            throw new IOException(TrF($"Já existe um arquivo chamado \"{Path.GetFileName(target)}\". Escolha outro nome."));
         }
 
         File.Move(path, target, overwrite: false);
@@ -70,12 +71,12 @@ public static class CsvExporter
     {
         // Ponto e vírgula + BOM: abre direto no Excel em português.
         var sb = new StringBuilder();
-        sb.AppendLine("Nome;Data;Tamanho (bytes);SHA-256;Firmware;Origem;Observação;Caminho");
+        sb.AppendLine(Tr("Nome;Data;Tamanho (bytes);SHA-256;Firmware;Origem;Observação;Caminho"));
         foreach (var r in records)
         {
             sb.AppendJoin(';',
                 Escape(r.FileName),
-                Escape(r.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)),
+                Escape(r.CreatedAt.ToString(Tr("dd/MM/yyyy HH:mm:ss"), CultureInfo.InvariantCulture)),
                 r.SizeBytes.ToString(CultureInfo.InvariantCulture),
                 Escape(r.Sha256),
                 Escape(r.Firmware ?? string.Empty),

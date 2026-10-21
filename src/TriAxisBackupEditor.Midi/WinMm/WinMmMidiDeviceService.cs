@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Midi.WinMm;
 
@@ -53,9 +54,9 @@ public sealed class WinMmMidiDeviceService : IMidiDeviceService
         var match = devices.FirstOrDefault(d => d.SameDeviceAs(wanted));
         if (match is null)
         {
-            var kind = wanted.Direction == MidiDirection.Input ? "MIDI IN" : "MIDI OUT";
+            var kind = wanted.Direction == MidiDirection.Input ? Tr("MIDI IN") : Tr("MIDI OUT");
             throw new MidiException(
-                $"A porta {kind} \"{wanted.DisplayName}\" não foi encontrada. Verifique se a interface USB está conectada e clique em \"Atualizar dispositivos\".");
+                TrF($"A porta {kind} \"{wanted.DisplayName}\" não foi encontrada. Verifique se a interface USB está conectada e clique em \"Atualizar dispositivos\"."));
         }
 
         return match;
@@ -67,7 +68,7 @@ public sealed class WinMmMidiDeviceService : IMidiDeviceService
         var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
         for (var i = 0; i < names.Count; i++)
         {
-            var name = string.IsNullOrWhiteSpace(names[i]) ? $"Dispositivo {i}" : names[i]!.Trim();
+            var name = string.IsNullOrWhiteSpace(names[i]) ? TrF($"Dispositivo {i}") : names[i]!.Trim();
             occurrences.TryGetValue(name, out var n);
             occurrences[name] = n + 1;
             result.Add(new MidiDeviceInfo(direction, i, name, n));

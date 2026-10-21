@@ -1,4 +1,5 @@
 ﻿using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Presets;
 
@@ -13,7 +14,7 @@ public static class PresetNaming
 
     /// <summary>"Timbre 07" ou "07 · Base limpa".</summary>
     public static string PresetLabel(int preset, IReadOnlyList<string> names) =>
-        NameFor(preset, names) is { } name ? $"{preset:00} · {name}" : $"Timbre {preset:00}";
+        NameFor(preset, names) is { } name ? TrF($"{preset:00} · {name}") : TrF($"Timbre {preset:00}");
 
     /// <summary>Preset (1–90) chamado por um programa (1–128), segundo o mapa do dump; null se desconhecido.</summary>
     public static int? PresetForProgram(int program, TriAxisDump? dump)
@@ -34,9 +35,9 @@ public static class PresetNaming
         var preset = PresetForProgram(program, dump);
         if (preset is null)
         {
-            return $"Programa {program}";
+            return TrF($"Programa {program}");
         }
 
-        return NameFor(preset.Value, names) ?? $"Timbre {preset.Value:00}";
+        return NameFor(preset.Value, names) ?? TrF($"Timbre {preset.Value:00}");
     }
 }

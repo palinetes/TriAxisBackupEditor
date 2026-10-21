@@ -1,6 +1,7 @@
 using System.Windows;
 using Microsoft.Win32;
 using TriAxisBackupEditor.App.Views;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.Services;
 
@@ -58,8 +59,8 @@ public sealed class DialogService : IDialogService
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Selecionar arquivo SysEx",
-            Filter = "Arquivos SysEx (*.syx)|*.syx|Todos os arquivos (*.*)|*.*",
+            Title = Tr("Selecionar arquivo SysEx"),
+            Filter = Tr("Arquivos SysEx (*.syx)|*.syx|Todos os arquivos (*.*)|*.*"),
             CheckFileExists = true,
             InitialDirectory = ExistingFolder(initialFolder)
         };
@@ -70,7 +71,7 @@ public sealed class DialogService : IDialogService
     {
         var dialog = new OpenFolderDialog
         {
-            Title = "Escolher pasta de backups",
+            Title = Tr("Escolher pasta de backups"),
             InitialDirectory = ExistingFolder(initialFolder)
         };
         return dialog.ShowDialog() == true ? dialog.FolderName : null;
@@ -80,8 +81,8 @@ public sealed class DialogService : IDialogService
     {
         var dialog = new SaveFileDialog
         {
-            Title = "Exportar biblioteca",
-            Filter = "CSV (*.csv)|*.csv",
+            Title = Tr("Exportar biblioteca"),
+            Filter = Tr("CSV (*.csv)|*.csv"),
             FileName = defaultName,
             OverwritePrompt = true,
             InitialDirectory = ExistingFolder(initialFolder)

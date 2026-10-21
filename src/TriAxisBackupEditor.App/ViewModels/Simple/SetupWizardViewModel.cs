@@ -6,6 +6,7 @@ using TriAxisBackupEditor.Application.Connection;
 using TriAxisBackupEditor.Application.Control;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -51,7 +52,7 @@ public sealed class SetupWizardViewModel : SimplePage
         _listener = new TriAxisListener(midi);
         _channel = state.Settings.ControlMidiChannel;
 
-        FirstBackup = shell.NewCaptureCard("Primeiro backup (assistente)");
+        FirstBackup = shell.NewCaptureCard(Tr("Primeiro backup (assistente)"));
         FirstBackup.Completed += (_, _) => CommandManager.InvalidateRequerySuggested();
 
         _deviceTimer = new DispatcherTimer(TimeSpan.FromSeconds(2), DispatcherPriority.Background, (_, _) => RefreshDevices(), Dispatcher.CurrentDispatcher);
@@ -66,7 +67,7 @@ public sealed class SetupWizardViewModel : SimplePage
         NoCommand = new RelayCommand(() => AnswerTest(false), () => TestSent);
     }
 
-    public override string Title => "Ligar o TriAxis ao computador";
+    public override string Title => Tr("Ligar o TriAxis ao computador");
 
     public override bool CanLeave => !FirstBackup.IsRunning;
 
@@ -95,7 +96,7 @@ public sealed class SetupWizardViewModel : SimplePage
 
     public int StepNumber => (int)Step;
 
-    public string NextText => Step == WizardStep.SendTest ? "Concluir" : "Próximo";
+    public string NextText => Step == WizardStep.SendTest ? Tr("Concluir") : Tr("Próximo");
 
     // ---- Passo 1: aparelho ----
 
@@ -170,9 +171,9 @@ public sealed class SetupWizardViewModel : SimplePage
 
     public string SendTestText => _finder.State switch
     {
-        ChannelFinderState.TestingAll => "Testar a ligação",
-        ChannelFinderState.Narrowing => "Próximo teste",
-        _ => "Testar de novo"
+        ChannelFinderState.TestingAll => Tr("Testar a ligação"),
+        ChannelFinderState.Narrowing => Tr("Próximo teste"),
+        _ => Tr("Testar de novo")
     };
 
     public string TestMessage
@@ -288,7 +289,7 @@ public sealed class SetupWizardViewModel : SimplePage
         var output = _state.SelectedOutput;
         if (output is null)
         {
-            TestMessage = "Volte ao passo 1 e escolha o aparelho.";
+            TestMessage = Tr("Volte ao passo 1 e escolha o aparelho.");
             return;
         }
 
@@ -307,14 +308,14 @@ public sealed class SetupWizardViewModel : SimplePage
             }
 
             _log.Info($"Assistente: teste de envio — programa {_testProgram} nos canais {string.Join(",", channels)}.");
-            TestMessage = $"Mandei o programa {_testProgram}. O display PROGRAM/CHANNEL do TriAxis mudou para {_testProgram}?";
+            TestMessage = TrF($"Mandei o programa {_testProgram}. O display PROGRAM/CHANNEL do TriAxis mudou para {_testProgram}?");
             TestSent = true;
             _testProgram = _testProgram == 2 ? 1 : 2;
             RaiseTestState();
         }
         catch (MidiException ex)
         {
-            TestMessage = "Não consegui usar a interface: " + ex.Message + " Feche outros programas de música e tente de novo.";
+            TestMessage = Tr("Não consegui usar a interface: ") + ex.Message + Tr(" Feche outros programas de música e tente de novo.");
         }
     }
 
@@ -326,24 +327,24 @@ public sealed class SetupWizardViewModel : SimplePage
         {
             case ChannelFinderState.Found:
                 Channel = _finder.FoundChannel!.Value;
-                TestMessage = $"Pronto! Seu TriAxis está no número {Channel}. Clique em Concluir.";
+                TestMessage = TrF($"Pronto! Seu TriAxis está no número {Channel}. Clique em Concluir.");
                 _log.Info($"Assistente: TriAxis encontrado no canal {Channel}.");
                 break;
 
             case ChannelFinderState.NoResponse:
-                TestMessage = "O TriAxis não reagiu a nenhum número, então o problema está na ligação, não no número. Confira:\n" +
-                              "• O cabo sai do MIDI OUT da interface e entra no conector MIDI IN do TriAxis?\n" +
-                              "• Em cabo USB-MIDI: troque os dois plugues de lugar.\n" +
-                              "• Placa de áudio (ex.: RME): o cabo está no conector MIDI da porta escolhida no passo 1?\n" +
-                              "• Tem uma pedaleira (ex.: FCB1010) no meio do caminho? Ligue a interface direto no TriAxis.\n" +
-                              "Depois clique em Testar de novo.";
+                TestMessage = Tr("O TriAxis não reagiu a nenhum número, então o problema está na ligação, não no número. Confira:\n") +
+                              Tr("• O cabo sai do MIDI OUT da interface e entra no conector MIDI IN do TriAxis?\n") +
+                              Tr("• Em cabo USB-MIDI: troque os dois plugues de lugar.\n") +
+                              Tr("• Placa de áudio (ex.: RME): o cabo está no conector MIDI da porta escolhida no passo 1?\n") +
+                              Tr("• Tem uma pedaleira (ex.: FCB1010) no meio do caminho? Ligue a interface direto no TriAxis.\n") +
+                              Tr("Depois clique em Testar de novo.");
                 _log.Warn("Assistente: TriAxis não reagiu à troca de programa em nenhum canal.");
                 break;
 
             default:
                 TestMessage = _finder.QuestionsAsked == 1
-                    ? "Ótimo, a ligação funciona! Agora vou descobrir o número do seu TriAxis: no máximo 4 testes rápidos. Clique em Próximo teste."
-                    : "Anotado. Clique em Próximo teste.";
+                    ? Tr("Ótimo, a ligação funciona! Agora vou descobrir o número do seu TriAxis: no máximo 4 testes rápidos. Clique em Próximo teste.")
+                    : Tr("Anotado. Clique em Próximo teste.");
                 break;
         }
 
@@ -359,13 +360,13 @@ public sealed class SetupWizardViewModel : SimplePage
         var input = _state.SelectedInput;
         if (input is null)
         {
-            TestMessage = "Volte ao passo 1 e escolha o aparelho.";
+            TestMessage = Tr("Volte ao passo 1 e escolha o aparelho.");
             return;
         }
 
         _listenCts = new CancellationTokenSource();
         var source = _listenCts;
-        if (!_state.TryBeginOperation("Escutando o TriAxis", () => source.Cancel()))
+        if (!_state.TryBeginOperation(Tr("Escutando o TriAxis"), () => source.Cancel()))
         {
             _listenCts = null;
             return;
@@ -373,7 +374,7 @@ public sealed class SetupWizardViewModel : SimplePage
 
         IsListening = true;
         TestSent = false;
-        TestMessage = "Estou escutando por 30 segundos. No painel do TriAxis, aperte uma das setas ◀ ▶ embaixo da janela PROGRAM/CHANNEL (ou a seta de PRESET).";
+        TestMessage = Tr("Estou escutando por 30 segundos. No painel do TriAxis, aperte uma das setas ◀ ▶ embaixo da janela PROGRAM/CHANNEL (ou a seta de PRESET).");
         _log.Info("Assistente: escutando o MIDI OUT do TriAxis (aguardando um Program Change).");
         try
         {
@@ -381,23 +382,23 @@ public sealed class SetupWizardViewModel : SimplePage
             if (message is { } heard)
             {
                 Channel = heard.Channel;
-                TestMessage = $"Ouvi o TriAxis! Ele mandou a troca de programa no número {heard.Channel}. Já deixei esse número guardado: clique em Concluir.";
+                TestMessage = TrF($"Ouvi o TriAxis! Ele mandou a troca de programa no número {heard.Channel}. Já deixei esse número guardado: clique em Concluir.");
                 _log.Info($"Assistente: o TriAxis anunciou Program Change (valor {heard.Number}) no canal {heard.Channel}.");
                 _finder.Restart();
                 RaiseTestState();
             }
             else if (!_leaving)
             {
-                TestMessage = "Não ouvi nada. Confira:\n" +
-                              "• O cabo do MIDI OUT do TriAxis chega no MIDI IN da interface? (é o mesmo do backup)\n" +
-                              "• Aperte as setas de PROGRAM no painel do TriAxis, com ele ligado.\n" +
-                              "Se preferir, use o botão Testar a ligação abaixo.";
+                TestMessage = Tr("Não ouvi nada. Confira:\n") +
+                              Tr("• O cabo do MIDI OUT do TriAxis chega no MIDI IN da interface? (é o mesmo do backup)\n") +
+                              Tr("• Aperte as setas de PROGRAM no painel do TriAxis, com ele ligado.\n") +
+                              Tr("Se preferir, use o botão Testar a ligação abaixo.");
                 _log.Warn("Assistente: nenhum Program Change ouvido do TriAxis.");
             }
         }
         catch (MidiException ex)
         {
-            TestMessage = "Não consegui usar a interface: " + ex.Message + " Feche outros programas de música e tente de novo.";
+            TestMessage = Tr("Não consegui usar a interface: ") + ex.Message + Tr(" Feche outros programas de música e tente de novo.");
         }
         finally
         {
@@ -414,7 +415,7 @@ public sealed class SetupWizardViewModel : SimplePage
     public void StartAtSendTest()
     {
         Step = WizardStep.SendTest;
-        TestMessage = "Vamos descobrir por que o TriAxis não troca de programa. Clique em Testar a ligação e olhe o display PROGRAM/CHANNEL.";
+        TestMessage = Tr("Vamos descobrir por que o TriAxis não troca de programa. Clique em Testar a ligação e olhe o display PROGRAM/CHANNEL.");
     }
 
     public bool IsChannelFound => _finder.State == ChannelFinderState.Found;

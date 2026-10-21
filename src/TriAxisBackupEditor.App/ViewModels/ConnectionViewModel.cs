@@ -5,6 +5,7 @@ using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.Application.Connection;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
@@ -26,7 +27,7 @@ public sealed class ConnectionViewModel : ObservableObject
     private IReadOnlyList<MidiDeviceInfo> _inputs = Array.Empty<MidiDeviceInfo>();
     private IReadOnlyList<MidiDeviceInfo> _outputs = Array.Empty<MidiDeviceInfo>();
     private bool _updatingLists;
-    private string _connectionStatus = "Nenhuma porta selecionada.";
+    private string _connectionStatus = Tr("Nenhuma porta selecionada.");
     private StatusKind _connectionStatusKind = StatusKind.Idle;
     private string _testResult = string.Empty;
 
@@ -139,7 +140,7 @@ public sealed class ConnectionViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ConnectionStatus = "Erro ao listar dispositivos MIDI: " + ex.Message;
+            ConnectionStatus = Tr("Erro ao listar dispositivos MIDI: ") + ex.Message;
             ConnectionStatusKind = StatusKind.Error;
             _log.Error("Erro ao listar dispositivos MIDI.", ex);
             return;
@@ -172,13 +173,13 @@ public sealed class ConnectionViewModel : ObservableObject
             if (changed)
             {
                 _log.Info($"Dispositivos MIDI: {inputs.Count} entrada(s) [{string.Join(", ", inputs.Select(d => d.DisplayName))}], " +
-                          $"{outputs.Count} saída(s) [{string.Join(", ", outputs.Select(d => d.DisplayName))}].");
+                          TrF($"{outputs.Count} saída(s) [{string.Join(", ", outputs.Select(d => d.DisplayName))}]."));
             }
 
             if (lostIn || lostOut)
             {
-                var message = "Interface MIDI desconectada: " + string.Join(" e ", new[] { lostIn ? "MIDI IN" : null, lostOut ? "MIDI OUT" : null }.Where(s => s is not null)) +
-                              " não está mais disponível. Reconecte e selecione novamente.";
+                var message = Tr("Interface MIDI desconectada: ") + string.Join(Tr(" e "), new[] { lostIn ? Tr("MIDI IN") : null, lostOut ? Tr("MIDI OUT") : null }.Where(s => s is not null)) +
+                              Tr(" não está mais disponível. Reconecte e selecione novamente.");
                 _log.Warn(message);
                 _state.StatusText = message;
             }
@@ -191,48 +192,48 @@ public sealed class ConnectionViewModel : ObservableObject
     {
         if (Inputs.Count == 0 && Outputs.Count == 0)
         {
-            ConnectionStatus = "Nenhuma interface MIDI encontrada. Conecte a interface USB e aguarde a instalação do driver.";
+            ConnectionStatus = Tr("Nenhuma interface MIDI encontrada. Conecte a interface USB e aguarde a instalação do driver.");
             ConnectionStatusKind = StatusKind.Error;
         }
         else if (_state.SelectedInput is null || _state.SelectedOutput is null)
         {
-            ConnectionStatus = "Selecione o MIDI IN e o MIDI OUT conectados ao TriAxis.";
+            ConnectionStatus = Tr("Selecione o MIDI IN e o MIDI OUT conectados ao TriAxis.");
             ConnectionStatusKind = StatusKind.Warning;
         }
         else
         {
-            ConnectionStatus = $"Pronto: IN \"{_state.SelectedInput.DisplayName}\" · OUT \"{_state.SelectedOutput.DisplayName}\".";
+            ConnectionStatus = TrF($"Pronto: IN \"{_state.SelectedInput.DisplayName}\" · OUT \"{_state.SelectedOutput.DisplayName}\".");
             ConnectionStatusKind = StatusKind.Ok;
         }
     }
 
     private async Task TestAsync()
     {
-        if (!_state.TryBeginOperation("Teste de conexão", () => { }))
+        if (!_state.TryBeginOperation(Tr("Teste de conexão"), () => { }))
         {
             return;
         }
 
         try
         {
-            TestResult = "Testando... abrindo portas e escutando a entrada por 5 segundos. Mude de preset no TriAxis ou pise na pedaleira para ver mensagens chegando.";
+            TestResult = Tr("Testando... abrindo portas e escutando a entrada por 5 segundos. Mude de preset no TriAxis ou pise na pedaleira para ver mensagens chegando.");
             var result = await _tester.TestAsync(_state.SelectedInput, _state.SelectedOutput, TimeSpan.FromSeconds(5), CancellationToken.None);
 
             var lines = new List<string>
             {
-                result.InputOk ? "✔ MIDI IN aberto com sucesso." : "✖ MIDI IN: " + result.InputError,
-                result.OutputOk ? "✔ MIDI OUT aberto com sucesso (nenhum byte enviado)." : "✖ MIDI OUT: " + result.OutputError
+                result.InputOk ? Tr("✔ MIDI IN aberto com sucesso.") : Tr("✖ MIDI IN: ") + result.InputError,
+                result.OutputOk ? Tr("✔ MIDI OUT aberto com sucesso (nenhum byte enviado).") : Tr("✖ MIDI OUT: ") + result.OutputError
             };
 
             if (result.InputOk)
             {
                 lines.Add(result.ShortMessages + result.SysExBytes > 0
-                    ? $"✔ Recebidas {result.ShortMessages} mensagem(ns) MIDI e {result.SysExBytes} byte(s) de SysEx. Última: {result.LastShortMessage}"
-                    : "• Nenhuma mensagem recebida durante a escuta (normal se nada foi tocado/alterado).");
+                    ? TrF($"✔ Recebidas {result.ShortMessages} mensagem(ns) MIDI e {result.SysExBytes} byte(s) de SysEx. Última: {result.LastShortMessage}")
+                    : Tr("• Nenhuma mensagem recebida durante a escuta (normal se nada foi tocado/alterado)."));
             }
 
             TestResult = string.Join(Environment.NewLine, lines);
-            _state.StatusText = result.Success ? "Teste de conexão concluído: portas OK." : "Teste de conexão encontrou problemas. Veja a aba Conexão.";
+            _state.StatusText = result.Success ? Tr("Teste de conexão concluído: portas OK.") : Tr("Teste de conexão encontrou problemas. Veja a aba Conexão.");
         }
         finally
         {

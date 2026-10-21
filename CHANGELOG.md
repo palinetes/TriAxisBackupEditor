@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.0.0-beta.4 (2026-10-20)
+
+**Português · English** — o programa agora é bilíngue / the program is now bilingual.
+
+### Português
+- **Idioma:** o programa fala **português e inglês**. Na primeira vez ele usa o idioma do Windows; dá para trocar a qualquer momento pela chave **PT | EN** no topo da janela (o programa reinicia para aplicar). Todas as telas, mensagens, avisos e o manual (F1) existem nos dois idiomas. A palavra que se digita para liberar o envio no modo avançado acompanha o idioma (`RESTAURAR` / `RESTORE`).
+- **Documentação em inglês:** `README.en.md` e `docs/manual/index.en.html`.
+- **Imagens do manual refeitas** com o programa atual (o passo 4 do assistente já mostra o novo botão *Escutar o TriAxis*).
+- O log técnico continua em português (é para suporte).
+
+### English
+- **Language:** the program speaks **Portuguese and English**. On first run it uses the Windows language; you can switch at any time with the **PT | EN** switch at the top of the window (the program restarts to apply it). Every screen, message, warning and the manual (F1) exist in both languages. The word typed to enable sending in advanced mode follows the language (`RESTAURAR` / `RESTORE`).
+- **English documentation:** `README.en.md` and `docs/manual/index.en.html`.
+- **Manual screenshots redone** with the current program (wizard step 4 now shows the new *Listen to the TriAxis* button).
+- The technical log stays in Portuguese (it is meant for support).
+
+Por **@palinetes** · Licença MIT / MIT License
+
 ## v1.0.0-beta.3 (2026-10-20)
 
 Correções no **controle** e na descoberta do número (canal) do TriAxis, a partir do manual oficial.

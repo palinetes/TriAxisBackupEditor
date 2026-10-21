@@ -2,6 +2,7 @@ using System.Diagnostics;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Backup;
 
@@ -108,7 +109,7 @@ public sealed class BackupCaptureService
         IMidiInputPort? input = null;
         try
         {
-            Report(CapturePhase.Opening, $"Abrindo MIDI IN \"{options.Input.DisplayName}\"...");
+            Report(CapturePhase.Opening, TrF($"Abrindo MIDI IN \"{options.Input.DisplayName}\"..."));
             _log.Info($"Backup: abrindo MIDI IN \"{options.Input.DisplayName}\" (MIDI OUT selecionado: \"{options.Output.DisplayName}\").");
 
             input = _midi.OpenInput(options.Input);
@@ -139,15 +140,15 @@ public sealed class BackupCaptureService
             }
 
             var waitingMessage = options.RequestMessage is { Length: > 0 }
-                ? "Requisição enviada. Aguardando o dump do TriAxis..."
-                : "Aguardando o dump. Pressione SHIFT + PRESET DOWN no painel do TriAxis.";
+                ? Tr("Requisição enviada. Aguardando o dump do TriAxis...")
+                : Tr("Aguardando o dump. Pressione SHIFT + PRESET DOWN no painel do TriAxis.");
             Report(CapturePhase.WaitingForDump, waitingMessage);
 
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    return Finish(CaptureStatus.Cancelled, "Backup cancelado pelo usuário.");
+                    return Finish(CaptureStatus.Cancelled, Tr("Backup cancelado pelo usuário."));
                 }
 
                 try
@@ -156,7 +157,7 @@ public sealed class BackupCaptureService
                 }
                 catch (OperationCanceledException)
                 {
-                    return Finish(CaptureStatus.Cancelled, "Backup cancelado pelo usuário.");
+                    return Finish(CaptureStatus.Cancelled, Tr("Backup cancelado pelo usuário."));
                 }
 
                 bool hasStarted, inMessage;
@@ -175,7 +176,7 @@ public sealed class BackupCaptureService
                     if (clock.Elapsed > options.StartTimeout)
                     {
                         return Finish(CaptureStatus.NoDataReceived,
-                            $"Nenhum dado recebido em {options.StartTimeout.TotalSeconds:0} s. Verifique o cabo MIDI (TriAxis MIDI OUT → interface MIDI IN) e pressione SHIFT + PRESET DOWN.");
+                            TrF($"Nenhum dado recebido em {options.StartTimeout.TotalSeconds:0} s. Verifique o cabo MIDI (TriAxis MIDI OUT → interface MIDI IN) e pressione SHIFT + PRESET DOWN."));
                     }
 
                     continue;
@@ -183,26 +184,26 @@ public sealed class BackupCaptureService
 
                 if (completedCount > 0 && !inMessage)
                 {
-                    Report(CapturePhase.Finishing, "F7 recebido. Confirmando fim do dump...");
+                    Report(CapturePhase.Finishing, Tr("F7 recebido. Confirmando fim do dump..."));
                     if (idle >= options.PostDumpIdle)
                     {
-                        return Finish(CaptureStatus.Completed, "Dump recebido com sucesso.");
+                        return Finish(CaptureStatus.Completed, Tr("Dump recebido com sucesso."));
                     }
 
                     continue;
                 }
 
-                Report(CapturePhase.Receiving, "Recebendo dump...");
+                Report(CapturePhase.Receiving, Tr("Recebendo dump..."));
                 if (idle > options.ReceiveTimeout)
                 {
                     return Finish(CaptureStatus.Incomplete,
-                        $"A recepção parou há mais de {options.ReceiveTimeout.TotalSeconds:0} s sem o byte final F7. O backup está incompleto.");
+                        TrF($"A recepção parou há mais de {options.ReceiveTimeout.TotalSeconds:0} s sem o byte final F7. O backup está incompleto."));
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            return Finish(CaptureStatus.Cancelled, "Backup cancelado pelo usuário.");
+            return Finish(CaptureStatus.Cancelled, Tr("Backup cancelado pelo usuário."));
         }
         catch (MidiException ex)
         {
@@ -242,7 +243,7 @@ public sealed class BackupCaptureService
             };
 
             _log.Info($"Backup: fim ({status}). {message} Bytes recebidos: {bytes}; mensagens completas: {count}; " +
-                      $"tempo real descartado: {result.RealTimeBytesDiscarded}; bytes fora de SysEx: {result.StrayBytesDiscarded}.");
+                      TrF($"tempo real descartado: {result.RealTimeBytesDiscarded}; bytes fora de SysEx: {result.StrayBytesDiscarded}."));
             if (status == CaptureStatus.Completed)
             {
                 _log.Info($"Backup: SHA-256 dos dados recebidos = {SysExHash.Sha256Hex(data)}");

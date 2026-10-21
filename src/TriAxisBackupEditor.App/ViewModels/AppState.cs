@@ -2,6 +2,7 @@ using System.Diagnostics;
 using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.Storage;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
@@ -12,7 +13,7 @@ public sealed class AppState : ObservableObject
     private MidiDeviceInfo? _selectedOutput;
     private bool _isBusy;
     private string _busyOperation = string.Empty;
-    private string _statusText = "Pronto. Nenhum dado é enviado ao TriAxis sem uma ação sua.";
+    private string _statusText = Tr("Pronto. Nenhum dado é enviado ao TriAxis sem uma ação sua.");
     private AppSettings _settings;
 
     public AppState(AppSettings settings, SettingsStore settingsStore, AppPaths paths)
@@ -68,8 +69,17 @@ public sealed class AppState : ObservableObject
     public string BusyOperation
     {
         get => _busyOperation;
-        private set => SetProperty(ref _busyOperation, value);
+        private set
+        {
+            if (SetProperty(ref _busyOperation, value))
+            {
+                OnPropertyChanged(nameof(BusyOperationDisplay));
+            }
+        }
     }
+
+    /// <summary>Nome da operação no idioma da tela (<see cref="BusyOperation"/> guarda o texto-fonte para comparações).</summary>
+    public string BusyOperationDisplay => Tr(_busyOperation);
 
     public string StatusText
     {
@@ -116,7 +126,7 @@ public sealed class AppState : ObservableObject
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            StatusText = "Não foi possível salvar as configurações: " + ex.Message;
+            StatusText = Tr("Não foi possível salvar as configurações: ") + ex.Message;
         }
     }
 
@@ -132,7 +142,7 @@ public sealed class AppState : ObservableObject
         }
         else
         {
-            throw new DirectoryNotFoundException($"\"{path}\" não existe.");
+            throw new DirectoryNotFoundException(TrF($"\"{path}\" não existe."));
         }
     }
 }

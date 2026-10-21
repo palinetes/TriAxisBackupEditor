@@ -58,7 +58,7 @@
 <div class="wrap">
 <nav>
   <div class="brand"><b>TRIAXIS</b> Backup &amp; Editor</div>
-  <div class="by">Manual do usuário · v1.0 · por @palinetes</div>
+  <div class="by">Manual do usuário · v1.0 · por @palinetes<br><a href="index.en.html" style="display:inline;padding:0">English</a></div>
   <a href="#inicio">1. Antes de começar</a>
   <a href="#modos">2. Modo simples e avançado</a>
   <a href="#assistente">3. Primeira vez: o assistente</a>
@@ -192,19 +192,19 @@
 <table>
   <tr><th>O quê</th><th>Onde fica</th><th>No programa</th></tr>
   <tr><td>FX LOOP e SW1–SW4 ligados/desligados <em>em cada timbre</em></td><td>Dentro de cada timbre</td><td>Editável no painel (LEDs SW e FX LOOP). Dê nomes às saídas em <em>Avançado → Configurações → Saídas e loops</em>.</td></tr>
-  <tr><td>Configuração <em>geral</em> de loops e saídas</td><td>Numa parte da memória ainda não decifrada</td><td>É guardada e devolvida intacta pelos backups, mas ainda não é editável. Use o roteiro abaixo para descobri-la.</td></tr>
+  <tr><td>Configuração <em>geral</em> de loops e saídas</td><td>Na região final da memória (posições 995 a 1124 do dump), ainda não decifrada</td><td>É guardada e devolvida intacta pelos backups, mas ainda não é editável. Use o roteiro abaixo para descobri-la.</td></tr>
 </table>
 <h3>Roteiro para descobrir a configuração geral (só faz backups)</h3>
 <ol class="steps">
   <li>Faça o backup <strong>A</strong> e escreva no nome qual é a configuração atual.</li>
   <li>No TriAxis, mude <strong>uma única</strong> configuração de loop ou saída, seguindo o manual do aparelho.</li>
   <li>Faça o backup <strong>B</strong> e escreva no nome o que mudou.</li>
-  <li>No <strong>modo avançado → Biblioteca</strong>, selecione A e B (<kbd>Ctrl</kbd>+clique), clique em <strong>Comparar</strong> e anote as posições <code>Controladores +N</code>.</li>
+  <li>No <strong>modo avançado → Biblioteca</strong>, selecione A e B (<kbd>Ctrl</kbd>+clique), clique em <strong>Comparar</strong> e anote as posições <code>Final +N</code> (a região depois dos presets).</li>
   <li>Volte a configuração ao valor original, faça o backup <strong>C</strong> e confira que C é idêntico a A.</li>
 </ol>
 <table>
   <tr><th>Configuração alterada</th><th>Antes → depois</th><th>Posição(ões)</th><th>Bytes A → B</th><th>C = A?</th></tr>
-  <tr><td>ex.: modo do loop</td><td>…</td><td>Controladores +…</td><td>… → …</td><td>sim/não</td></tr>
+  <tr><td>ex.: modo do loop</td><td>…</td><td>Final +…</td><td>… → …</td><td>sim/não</td></tr>
 </table>
 
 <h2 id="problemas">11. Se algo não funcionar</h2>

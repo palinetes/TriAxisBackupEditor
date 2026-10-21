@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Midi.WinMm;
 
@@ -19,7 +20,7 @@ internal sealed class WinMmMidiOutputPort : IMidiOutputPort
     {
         Device = device;
         var result = NativeMethods.midiOutOpen(out _handle, deviceId, IntPtr.Zero, IntPtr.Zero, NativeMethods.CALLBACK_NULL);
-        WinMmErrors.Check(result, "abrir a saída MIDI", device);
+        WinMmErrors.Check(result, Tr("abrir a saída MIDI"), device);
     }
 
     public MidiDeviceInfo Device { get; }
@@ -51,11 +52,11 @@ internal sealed class WinMmMidiOutputPort : IMidiOutputPort
                 Marshal.StructureToPtr(hdr, header, false);
 
                 var size = (uint)NativeMethods.MidiHdrSize;
-                WinMmErrors.Check(NativeMethods.midiOutPrepareHeader(_handle, header, size), "preparar envio para", Device);
+                WinMmErrors.Check(NativeMethods.midiOutPrepareHeader(_handle, header, size), Tr("preparar envio para"), Device);
 
                 try
                 {
-                    WinMmErrors.Check(NativeMethods.midiOutLongMsg(_handle, header, size), "enviar SysEx para", Device);
+                    WinMmErrors.Check(NativeMethods.midiOutLongMsg(_handle, header, size), Tr("enviar SysEx para"), Device);
                     WaitUntilDone(header, timeout);
                 }
                 finally
@@ -79,7 +80,7 @@ internal sealed class WinMmMidiOutputPort : IMidiOutputPort
         lock (_sync)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            WinMmErrors.Check(NativeMethods.midiOutShortMsg(_handle, message), "enviar mensagem MIDI para", Device);
+            WinMmErrors.Check(NativeMethods.midiOutShortMsg(_handle, message), Tr("enviar mensagem MIDI para"), Device);
         }
     }
 
@@ -110,7 +111,7 @@ internal sealed class WinMmMidiOutputPort : IMidiOutputPort
             if (sw.Elapsed > timeout)
             {
                 throw new MidiException(
-                    $"A interface \"{Device.DisplayName}\" não concluiu o envio em {timeout.TotalSeconds:0} s. Verifique o cabo/driver.");
+                    TrF($"A interface \"{Device.DisplayName}\" não concluiu o envio em {timeout.TotalSeconds:0} s. Verifique o cabo/driver."));
             }
 
             Thread.Sleep(1);

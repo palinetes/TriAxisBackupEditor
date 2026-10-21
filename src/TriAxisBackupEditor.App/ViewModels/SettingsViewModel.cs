@@ -7,6 +7,7 @@ using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
@@ -78,15 +79,15 @@ public sealed class SettingsViewModel : ObservableObject
             }
             catch (FormatException ex)
             {
-                _dialogs.ShowError("Requisição de dump", ex.Message);
+                _dialogs.ShowError(Tr("Requisição de dump"), ex.Message);
                 return;
             }
 
             if (!_state.Settings.DumpRequestEnabled &&
-                !_dialogs.Confirm("Requisição de dump",
-                    "Não existe comando de requisição de dump documentado para o TriAxis neste projeto.\n" +
-                    "Com esta opção, a mensagem informada será ENVIADA ao TriAxis no início de cada backup.\n\n" +
-                    "Use apenas uma mensagem de fonte confiável. Ativar mesmo assim?"))
+                !_dialogs.Confirm(Tr("Requisição de dump"),
+                    Tr("Não existe comando de requisição de dump documentado para o TriAxis neste projeto.\n") +
+                    Tr("Com esta opção, a mensagem informada será ENVIADA ao TriAxis no início de cada backup.\n\n") +
+                    Tr("Use apenas uma mensagem de fonte confiável. Ativar mesmo assim?")))
             {
                 return;
             }
@@ -108,10 +109,10 @@ public sealed class SettingsViewModel : ObservableObject
         _state.SaveSettings();
         _log.FileLoggingEnabled = saved.LoggingEnabled;
         _log.Info($"Configurações salvas: blocos {saved.ChunkSize} bytes, intervalo {saved.ChunkDelayMs} ms, início {saved.StartTimeoutSeconds} s, " +
-                  $"recepção {saved.ReceiveTimeoutSeconds} s, log em arquivo {(saved.LoggingEnabled ? "ligado" : "desligado")}, " +
-                  $"requisição {(saved.DumpRequestEnabled ? "ATIVADA" : "desativada")}.");
+                  TrF($"recepção {saved.ReceiveTimeoutSeconds} s, log em arquivo {(saved.LoggingEnabled ? Tr("ligado") : Tr("desligado"))}, ") +
+                  TrF($"requisição {(saved.DumpRequestEnabled ? Tr("ATIVADA") : Tr("desativada"))}."));
         Edit = saved.Clone();
-        Message = "Configurações salvas.";
+        Message = Tr("Configurações salvas.");
         SettingsSaved?.Invoke(this, EventArgs.Empty);
     }
 
@@ -119,7 +120,7 @@ public sealed class SettingsViewModel : ObservableObject
     {
         var defaults = new AppSettings { BackupFolder = Edit.BackupFolder }.Normalize(_state.Paths.DefaultBackupFolder);
         Edit = defaults;
-        Message = "Valores padrão carregados. Clique em Salvar para aplicar.";
+        Message = Tr("Valores padrão carregados. Clique em Salvar para aplicar.");
     }
 
     private void ChooseFolder()

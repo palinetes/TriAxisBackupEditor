@@ -1,9 +1,10 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.SysEx;
 
 public sealed record ByteDifference(int Offset, byte? A, byte? B, string Region)
 {
     public override string ToString() =>
-        $"0x{Offset:X4}  {(A is byte a ? a.ToString("X2") : "--")} → {(B is byte b ? b.ToString("X2") : "--")}  {Region}";
+        TrF($"0x{Offset:X4}  {(A is byte a ? a.ToString("X2") : "--")} → {(B is byte b ? b.ToString("X2") : "--")}  {Region}");
 }
 
 public sealed class DumpComparison

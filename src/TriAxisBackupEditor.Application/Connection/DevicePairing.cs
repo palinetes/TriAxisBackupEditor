@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using TriAxisBackupEditor.Midi;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Connection;
 
@@ -63,7 +64,7 @@ public static partial class DevicePairing
             name = trimmed;
         }
 
-        return input.Occurrence == 0 ? name : $"{name} ({input.Occurrence + 1})";
+        return input.Occurrence == 0 ? name : TrF($"{name} ({input.Occurrence + 1})");
     }
 
     [GeneratedRegex(@"\bmidi(in|out)\d*\b")]

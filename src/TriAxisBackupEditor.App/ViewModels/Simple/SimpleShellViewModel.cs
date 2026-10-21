@@ -7,6 +7,7 @@ using TriAxisBackupEditor.Application.Restore;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -131,7 +132,7 @@ public sealed class SimpleShellViewModel : ObservableObject
 
         if (!CurrentPage.CanLeave)
         {
-            Dialogs.ShowInfo("Aguarde", "Espere a operação atual terminar.");
+            Dialogs.ShowInfo("Aguarde", Tr("Espere a operação atual terminar."));
             return;
         }
 

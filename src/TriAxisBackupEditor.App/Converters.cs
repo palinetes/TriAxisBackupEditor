@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App;
 
@@ -82,12 +83,12 @@ public sealed class StepReachedConverter : IMultiValueConverter
 /// <summary>Formata bytes: 2746 → "2.746 bytes".</summary>
 public sealed class ByteSizeConverter : IValueConverter
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value switch
     {
-        long l => l.ToString("N0", PtBr) + " bytes",
-        int i => i.ToString("N0", PtBr) + " bytes",
+        long l => l.ToString("N0", PtBr) + Tr(" bytes"),
+        int i => i.ToString("N0", PtBr) + Tr(" bytes"),
         _ => string.Empty
     };
 

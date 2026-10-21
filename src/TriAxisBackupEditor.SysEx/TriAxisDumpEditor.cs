@@ -1,3 +1,4 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.SysEx;
 
 /// <summary>
@@ -29,14 +30,14 @@ public sealed class TriAxisDumpEditor
         var validation = SysExValidator.Validate(dump);
         if (validation.HasErrors)
         {
-            reason = "O arquivo não é um SysEx válido.";
+            reason = Tr("O arquivo não é um SysEx válido.");
             return false;
         }
 
         if (!validation.MatchesTriAxisLayout)
         {
-            reason = $"O editor exige um dump completo do TriAxis no formato do mapa ({TriAxisDumpLayout.TotalLength} bytes, cabeçalho {HexFormatter.ToHex(TriAxisDumpLayout.ExpectedHeader)}). " +
-                     $"Este arquivo tem {dump.Length} bytes.";
+            reason = TrF($"O editor exige um dump completo do TriAxis no formato do mapa ({TriAxisDumpLayout.TotalLength} bytes, cabeçalho {HexFormatter.ToHex(TriAxisDumpLayout.ExpectedHeader)}). ") +
+                     TrF($"Este arquivo tem {dump.Length} bytes.");
             return false;
         }
 

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TriAxisBackupEditor.SysEx\TriAxisBackupEditor.SysEx.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.Localization\TriAxisBackupEditor.Localization.csproj" />
   </ItemGroup>
 
 </Project>

@@ -118,7 +118,7 @@ public sealed class AsyncRelayCommand : ICommand
         }
         else
         {
-            System.Windows.MessageBox.Show(ex.Message, "Erro", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            System.Windows.MessageBox.Show(ex.Message, TriAxisBackupEditor.Localization.Localizer.Tr("Erro"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
     }
 }

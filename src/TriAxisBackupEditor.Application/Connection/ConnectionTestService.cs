@@ -1,5 +1,6 @@
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Connection;
 
@@ -43,7 +44,7 @@ public sealed class ConnectionTestService
         var outputOk = false;
         if (output is null)
         {
-            outputError = "Nenhuma porta MIDI OUT selecionada.";
+            outputError = Tr("Nenhuma porta MIDI OUT selecionada.");
         }
         else
         {
@@ -68,7 +69,7 @@ public sealed class ConnectionTestService
 
         if (input is null)
         {
-            inputError = "Nenhuma porta MIDI IN selecionada.";
+            inputError = Tr("Nenhuma porta MIDI IN selecionada.");
         }
         else
         {

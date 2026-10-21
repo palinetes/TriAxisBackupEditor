@@ -1,6 +1,7 @@
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Restore;
 
@@ -46,7 +47,8 @@ public sealed class RestorePlan
 /// </summary>
 public sealed class RestoreConfirmation
 {
-    public const string RequiredPhrase = "RESTAURAR";
+    /// <summary>A palavra a digitar muda com o idioma (RESTAURAR / RESTORE).</summary>
+    public static string RequiredPhrase => Tr("RESTAURAR");
 
     public bool OverwriteAcknowledged { get; init; }
 
@@ -122,18 +124,18 @@ public sealed class RestoreService
         if (confirmation is null || !confirmation.IsCompleteFor(plan.Validation))
         {
             _log.Warn("Restauração bloqueada: confirmação em duas etapas não concluída.");
-            throw new RestoreBlockedException("Restauração bloqueada: a confirmação em duas etapas não foi concluída.");
+            throw new RestoreBlockedException(Tr("Restauração bloqueada: a confirmação em duas etapas não foi concluída."));
         }
 
         if (!plan.CanRestore)
         {
             _log.Warn("Restauração bloqueada: arquivo inválido.");
-            throw new RestoreBlockedException("Restauração bloqueada: o arquivo não passou na validação SysEx.");
+            throw new RestoreBlockedException(Tr("Restauração bloqueada: o arquivo não passou na validação SysEx."));
         }
 
         if (output is null)
         {
-            throw new RestoreBlockedException("Selecione a porta MIDI OUT conectada ao MIDI IN do TriAxis.");
+            throw new RestoreBlockedException(Tr("Selecione a porta MIDI OUT conectada ao MIDI IN do TriAxis."));
         }
 
         // Relê o arquivo: o que vai para o TriAxis é exatamente o que foi validado e confirmado.
@@ -144,18 +146,18 @@ public sealed class RestoreService
         if (!string.Equals(rawHash, plan.FileSha256, StringComparison.Ordinal) || !string.Equals(currentHash, plan.Sha256, StringComparison.Ordinal))
         {
             _log.Warn($"Restauração bloqueada: \"{plan.FilePath}\" mudou após a validação (SHA-256 {rawHash}).");
-            throw new RestoreBlockedException("Restauração bloqueada: o arquivo foi alterado depois da validação. Selecione-o novamente.");
+            throw new RestoreBlockedException(Tr("Restauração bloqueada: o arquivo foi alterado depois da validação. Selecione-o novamente."));
         }
 
         var revalidation = _sysEx.Validate(current);
         if (!revalidation.IsTransmittable)
         {
-            throw new RestoreBlockedException("Restauração bloqueada: o arquivo não passou na validação SysEx.");
+            throw new RestoreBlockedException(Tr("Restauração bloqueada: o arquivo não passou na validação SysEx."));
         }
 
         if (cancellationToken.IsCancellationRequested)
         {
-            return new RestoreResult(TransmitStatus.CancelledBeforeStart, 0, "Restauração cancelada. Nada foi enviado.");
+            return new RestoreResult(TransmitStatus.CancelledBeforeStart, 0, Tr("Restauração cancelada. Nada foi enviado."));
         }
 
         _log.Info($"Restauração: abrindo MIDI OUT \"{output.DisplayName}\". Enviando \"{plan.FilePath}\" ({current.Length} bytes, SHA-256 {currentHash}).");
@@ -171,9 +173,9 @@ public sealed class RestoreService
 
         var message = status switch
         {
-            TransmitStatus.Completed => "Envio concluído. Confira se o display do TriAxis piscou, confirmando o recebimento.",
-            TransmitStatus.CancelledBeforeStart => "Restauração cancelada. Nada foi enviado.",
-            _ => "Restauração interrompida entre mensagens. Confira o TriAxis e repita a restauração completa."
+            TransmitStatus.Completed => Tr("Envio concluído. Confira se o display do TriAxis piscou, confirmando o recebimento."),
+            TransmitStatus.CancelledBeforeStart => Tr("Restauração cancelada. Nada foi enviado."),
+            _ => Tr("Restauração interrompida entre mensagens. Confira o TriAxis e repita a restauração completa.")
         };
 
         _log.Info($"Restauração: {status}. {sent} de {current.Length} bytes enviados.");

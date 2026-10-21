@@ -1,3 +1,4 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.SysEx;
 
 public enum IssueSeverity
@@ -11,8 +12,8 @@ public sealed record SysExIssue(IssueSeverity Severity, string Code, string Mess
 {
     public override string ToString()
     {
-        var prefix = Severity == IssueSeverity.Error ? "ERRO" : "AVISO";
-        return Offset is int o ? $"{prefix} [{Code}] @0x{o:X4}: {Message}" : $"{prefix} [{Code}]: {Message}";
+        var prefix = Severity == IssueSeverity.Error ? Tr("ERRO") : Tr("AVISO");
+        return Offset is int o ? TrF($"{prefix} [{Code}] @0x{o:X4}: {Message}") : TrF($"{prefix} [{Code}]: {Message}");
     }
 }
 
@@ -51,17 +52,17 @@ public sealed class SysExValidationResult
         {
             if (HasErrors)
             {
-                return "Arquivo inválido: o envio está bloqueado.";
+                return Tr("Arquivo inválido: o envio está bloqueado.");
             }
 
             if (HasWarnings)
             {
-                return "Estrutura SysEx válida, com avisos.";
+                return Tr("Estrutura SysEx válida, com avisos.");
             }
 
             return MatchesTriAxisLayout
-                ? "Dump SysEx válido e compatível com o mapa do TriAxis."
-                : "Estrutura SysEx válida.";
+                ? Tr("Dump SysEx válido e compatível com o mapa do TriAxis.")
+                : Tr("Estrutura SysEx válida.");
         }
     }
 }

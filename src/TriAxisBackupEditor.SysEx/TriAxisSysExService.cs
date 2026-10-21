@@ -1,3 +1,4 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.SysEx;
 
 /// <summary>Fachada da camada SysEx usada pela aplicação. Ponto de extensão para o parser real (docs/SYSEX.md).</summary>
@@ -38,7 +39,7 @@ public sealed class TriAxisSysExService : ITriAxisSysExService
         var validation = SysExValidator.Validate(bytes);
         if (validation.HasErrors || validation.Messages.Count != 1)
         {
-            throw new FormatException("A mensagem de requisição deve ser uma única mensagem SysEx completa (F0 ... F7) com dados 00–7F.");
+            throw new FormatException(Tr("A mensagem de requisição deve ser uma única mensagem SysEx completa (F0 ... F7) com dados 00–7F."));
         }
 
         return bytes;

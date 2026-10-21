@@ -1,4 +1,5 @@
-﻿namespace TriAxisBackupEditor.SysEx;
+﻿using static TriAxisBackupEditor.Localization.Localizer;
+namespace TriAxisBackupEditor.SysEx;
 
 /// <summary>Leitura somente-leitura de um preset segundo o mapa preliminar.</summary>
 public sealed record TriAxisPresetView(
@@ -67,13 +68,13 @@ public static class TriAxisDumpParser
         var validation = SysExValidator.Validate(data);
         if (validation.HasErrors)
         {
-            reason = "A estrutura SysEx é inválida.";
+            reason = Tr("A estrutura SysEx é inválida.");
             return false;
         }
 
         if (!validation.MatchesTriAxisLayout)
         {
-            reason = $"O arquivo não corresponde ao formato do TriAxis (esperado: 1 mensagem, {TriAxisDumpLayout.TotalLength} bytes, cabeçalho {HexFormatter.ToHex(TriAxisDumpLayout.ExpectedHeader)}).";
+            reason = TrF($"O arquivo não corresponde ao formato do TriAxis (esperado: 1 mensagem, {TriAxisDumpLayout.TotalLength} bytes, cabeçalho {HexFormatter.ToHex(TriAxisDumpLayout.ExpectedHeader)}).");
             return false;
         }
 
@@ -88,7 +89,7 @@ public static class TriAxisDumpParser
         for (var p = 0; p < TriAxisDumpLayout.ProgramCount; p++)
         {
             var value = data[TriAxisDumpLayout.ProgramsOffset + p];
-            var display = value < TriAxisDumpLayout.PresetCount ? (value + 1).ToString("00") : $"? (0x{value:X2})";
+            var display = value < TriAxisDumpLayout.PresetCount ? (value + 1).ToString("00") : TrF($"? (0x{value:X2})");
             programs.Add(new TriAxisProgramMapping(p + 1, value, display));
         }
 
@@ -109,14 +110,14 @@ public static class TriAxisDumpParser
             }
 
             unknown = true;
-            return $"? (0x{value:X2})";
+            return TrF($"? (0x{value:X2})");
         }
 
         var mode = TriAxisValues.ModeFromByte(b[TriAxisValues.ModeOffset]) is { } m ? TriAxisValues.ModeLabel(m) : null;
         if (mode is null)
         {
             unknown = true;
-            mode = $"? (0x{b[9]:X2})";
+            mode = TrF($"? (0x{b[9]:X2})");
         }
 
         var fx = b[10];

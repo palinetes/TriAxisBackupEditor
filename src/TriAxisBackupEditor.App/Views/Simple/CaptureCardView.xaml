@@ -66,18 +66,7 @@
             <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                 <Button Command="{Binding StartCommand}" Style="{StaticResource BigAccentButton}" Visibility="{Binding IsReady, Converter={StaticResource BoolToVis}}">
                     <Button.Content>
-                        <TextBlock>
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Text" Value="Começar" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsFailed}" Value="True">
-                                            <Setter Property="Text" Value="Tentar de novo" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                        <TextBlock Text="{Binding StartText}" />
                     </Button.Content>
                 </Button>
                 <Button Content="Cancelar" Command="{Binding CancelCommand}" Style="{StaticResource BigButton}" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />

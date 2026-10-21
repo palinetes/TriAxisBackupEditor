@@ -7,6 +7,7 @@ public partial class TextInputWindow : Window
     public TextInputWindow(string title, string label, string initialValue)
     {
         InitializeComponent();
+        TriAxisBackupEditor.App.Services.UiTranslator.Attach(this);
         Title = title;
         LabelText.Text = label;
         ValueBox.Text = initialValue;

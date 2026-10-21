@@ -1,6 +1,7 @@
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Backup;
 
@@ -38,7 +39,7 @@ public sealed class BackupLibraryService
         var validation = _sysEx.Validate(data);
         if (validation.HasErrors)
         {
-            throw new InvalidOperationException("Os dados recebidos não formam um SysEx válido; nada foi salvo na biblioteca.");
+            throw new InvalidOperationException(Tr("Os dados recebidos não formam um SysEx válido; nada foi salvo na biblioteca."));
         }
 
         var hash = _sysEx.ComputeSha256(data);
@@ -73,7 +74,7 @@ public sealed class BackupLibraryService
         var validation = _sysEx.Validate(data);
         if (validation.HasErrors || !validation.MatchesTriAxisLayout)
         {
-            throw new InvalidOperationException("O dump editado não passou na validação; nada foi salvo.");
+            throw new InvalidOperationException(Tr("O dump editado não passou na validação; nada foi salvo."));
         }
 
         var hash = _sysEx.ComputeSha256(data);
@@ -126,13 +127,13 @@ public sealed class BackupLibraryService
         if (validation.HasErrors)
         {
             throw new InvalidOperationException(
-                "O arquivo não é um SysEx válido e não foi importado:\n" + string.Join("\n", validation.Issues.Select(i => "• " + i.Message)));
+                Tr("O arquivo não é um SysEx válido e não foi importado:\n") + string.Join("\n", validation.Issues.Select(i => "• " + i.Message)));
         }
 
         var existing = _repository.FindByPath(Path.GetFullPath(sourcePath));
         if (existing is not null)
         {
-            throw new InvalidOperationException("Este arquivo já está na biblioteca.");
+            throw new InvalidOperationException(Tr("Este arquivo já está na biblioteca."));
         }
 
         var sourceFolder = Path.GetFullPath(Path.GetDirectoryName(sourcePath) ?? ".");
@@ -166,7 +167,7 @@ public sealed class BackupLibraryService
         var path = BackupFileStore.WriteNew(backupFolder, BackupFileNamer.SanitizeFileName(stem + "_dump-TriAxis"), data);
         VerifyWrittenFile(path, hash);
 
-        var note = string.IsNullOrWhiteSpace(notes) ? $"Importado do editor web ({Path.GetFileName(sourcePath)})" : notes.Trim();
+        var note = string.IsNullOrWhiteSpace(notes) ? TrF($"Importado do editor web ({Path.GetFileName(sourcePath)})") : notes.Trim();
         var record = _repository.Add(new BackupRecord
         {
             FileName = Path.GetFileName(path),
@@ -195,7 +196,7 @@ public sealed class BackupLibraryService
         copy.FilePath = path;
         copy.CreatedAt = DateTime.Now;
         copy.Origin = BackupOrigins.Duplicated;
-        copy.Notes = string.IsNullOrWhiteSpace(source.Notes) ? $"Cópia de {source.FileName}" : source.Notes;
+        copy.Notes = string.IsNullOrWhiteSpace(source.Notes) ? TrF($"Cópia de {source.FileName}") : source.Notes;
 
         var stored = _repository.Add(copy);
         _log.Info($"Duplicado: \"{source.FilePath}\" → \"{path}\".");
@@ -256,7 +257,7 @@ public sealed class BackupLibraryService
     {
         if (!File.Exists(record.FilePath))
         {
-            throw new FileNotFoundException($"O arquivo \"{record.FilePath}\" não existe mais. Ele foi movido ou apagado fora do programa?", record.FilePath);
+            throw new FileNotFoundException(TrF($"O arquivo \"{record.FilePath}\" não existe mais. Ele foi movido ou apagado fora do programa?"), record.FilePath);
         }
     }
 
@@ -265,7 +266,7 @@ public sealed class BackupLibraryService
         var actual = SysExHash.Sha256HexOfFile(path);
         if (!string.Equals(actual, expectedHash, StringComparison.Ordinal))
         {
-            throw new IOException($"Falha na verificação: o arquivo gravado \"{path}\" não confere com os dados (SHA-256 diferente). Verifique o disco.");
+            throw new IOException(TrF($"Falha na verificação: o arquivo gravado \"{path}\" não confere com os dados (SHA-256 diferente). Verifique o disco."));
         }
     }
 

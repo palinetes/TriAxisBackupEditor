@@ -1,3 +1,4 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.Application.Control;
 
 /// <summary>Ações do modo controle que podem ser disparadas por teclado ou por uma entrada MIDI.</summary>
@@ -35,12 +36,12 @@ public static class ControlActions
 
     public static string Label(ControlAction action) => action switch
     {
-        _ when PedalNumber(action) is int p => $"Pedal {p}",
-        _ when CcButtonNumber(action) is int c => $"Botão CC {c}",
-        ControlAction.BankUp => "Banco ▲",
-        ControlAction.BankDown => "Banco ▼",
-        ControlAction.ProgramUp => "Programa +1",
-        ControlAction.ProgramDown => "Programa −1",
+        _ when PedalNumber(action) is int p => TrF($"Pedal {p}"),
+        _ when CcButtonNumber(action) is int c => TrF($"Botão CC {c}"),
+        ControlAction.BankUp => Tr("Banco ▲"),
+        ControlAction.BankDown => Tr("Banco ▼"),
+        ControlAction.ProgramUp => Tr("Programa +1"),
+        ControlAction.ProgramDown => Tr("Programa −1"),
         _ => action.ToString()
     };
 }
@@ -77,9 +78,9 @@ public sealed record MidiTrigger(MidiTriggerKind Kind, int Channel, int Number)
 
     public override string ToString() => Kind switch
     {
-        MidiTriggerKind.ProgramChange => $"PC {Number + 1} · canal {Channel}",
-        MidiTriggerKind.ControlChange => $"CC {Number} · canal {Channel}",
-        _ => $"Nota {Number} · canal {Channel}"
+        MidiTriggerKind.ProgramChange => TrF($"PC {Number + 1} · canal {Channel}"),
+        MidiTriggerKind.ControlChange => TrF($"CC {Number} · canal {Channel}"),
+        _ => TrF($"Nota {Number} · canal {Channel}")
     };
 }
 

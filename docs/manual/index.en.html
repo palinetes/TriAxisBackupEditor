@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual — TriAxis Backup &amp; Editor (English)</title>
+<style>
+  :root {
+    --bg: #15171b; --panel: #1d2026; --panel2: #262a31; --border: #353b45;
+    --text: #e4e6ea; --muted: #98a1ad; --accent: #e8a317; --danger: #ff6b61; --ok: #3fb950; --warn: #e3b341;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f6f4; --panel: #ffffff; --panel2: #efefec; --border: #d8d8d2;
+    --text: #1d1f23; --muted: #5d6470; --accent: #a86f00; --danger: #b3261e; --ok: #1f7a33; --warn: #8a6100;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 "Segoe UI", system-ui, sans-serif; }
+  .wrap { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+  nav { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 24px 16px; border-right: 1px solid var(--border); }
+  nav .brand { font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+  nav .brand b { color: var(--accent); }
+  nav .by { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+  nav a { display: block; color: var(--muted); text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  nav a:hover { color: var(--text); background: var(--panel2); }
+  main { padding: 32px 40px 80px; min-width: 0; }
+  h1 { font-size: 30px; margin: 0 0 4px; }
+  h1 b { color: var(--accent); }
+  h2 { font-size: 22px; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+  h3 { font-size: 17px; margin: 24px 0 8px; }
+  p, li { max-width: 78ch; }
+  a { color: var(--accent); }
+  code, kbd { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  pre { font-family: "Cascadia Mono", Consolas, monospace; font-size: 13px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; overflow-x: auto; }
+  figure { margin: 16px 0 24px; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; display: block; }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; background: var(--panel); }
+  .box { border: 1px solid var(--border); background: var(--panel); border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
+  .box.danger { border-color: var(--danger); }
+  .box.danger strong:first-child { color: var(--danger); }
+  .box.warn { border-color: var(--warn); }
+  .box.ok { border-color: var(--ok); }
+  .lead { color: var(--muted); font-size: 16px; margin-top: 0; }
+  .steps li { margin-bottom: 6px; }
+  .theme { position: fixed; right: 16px; top: 12px; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+    main { padding: 20px 16px 60px; }
+  }
+  @media print { nav, .theme { display: none; } .wrap { display: block; } h2 { break-before: page; } }
+</style>
+</head>
+<body>
+<button class="theme" onclick="toggleTheme()">Light/dark theme</button>
+<div class="wrap">
+<nav>
+  <div class="brand"><b>TRIAXIS</b> Backup &amp; Editor</div>
+  <div class="by">User manual · v1.0 · by @palinetes<br><a href="index.html" style="display:inline;padding:0">Português</a></div>
+  <a href="#start">1. Before you start</a>
+  <a href="#modes">2. Simple and advanced mode</a>
+  <a href="#wizard">3. First time: the setup wizard</a>
+  <a href="#home">4. Home screen</a>
+  <a href="#sounds">5. My sounds</a>
+  <a href="#send">6. Send to the TriAxis</a>
+  <a href="#backup">7. Backup</a>
+  <a href="#play">8. Play</a>
+  <a href="#advanced">9. Advanced mode</a>
+  <a href="#290">10. TriAxis + Simul-Class 2:90</a>
+  <a href="#problems">11. If something does not work</a>
+  <a href="#shortcuts">12. Shortcuts</a>
+  <a href="#about">13. About</a>
+</nav>
+<main>
+<h1><b>TRIAXIS</b> Backup &amp; Editor</h1>
+<p class="lead">Back up, tweak and switch the sounds of your Mesa/Boogie TriAxis from your computer, without needing to understand MIDI. Everything stays on your computer: no internet and no sign-up.</p>
+
+<div class="box ok"><strong>Your safety:</strong> the program never changes anything on the TriAxis unless you ask. And every time you send sounds to the unit, it <strong>saves what is on the TriAxis first</strong>, so you can always go back.</div>
+
+<h2 id="start">1. Before you start</h2>
+<ul>
+  <li>A <strong>computer</strong> with Windows 10 or 11. Just open <code>TriAxisBackupEditor.exe</code>: nothing to install.</li>
+  <li><strong>A way to connect the TriAxis to the computer:</strong>
+    <ul>
+      <li>a <strong>USB-MIDI cable</strong> (USB on one end, two round plugs on the other), which is the most common option;</li>
+      <li>or an <strong>audio interface with MIDI</strong> (RME, Focusrite, etc.) and two MIDI cables.</li>
+    </ul>
+  </li>
+  <li>Close other music programs (DAW, editors) while you use this one.</li>
+</ul>
+
+<h2 id="modes">2. Simple and advanced mode</h2>
+<p>At the top of the window there is a <strong>Simple | Advanced</strong> switch.</p>
+<ul>
+  <li><strong>Simple</strong> (default): three guided paths, <em>My sounds</em>, <em>Backup</em> and <em>Play</em>, with no technical terms. It is meant for almost everyone.</li>
+  <li><strong>Advanced:</strong> all the tools (library with comparison, full editor, hexadecimal view, log, CC buttons, MIDI learn, transfer settings). It is for people who already work with MIDI or own a pedalboard such as the FCB1010.</li>
+</ul>
+<p>Safety is the same in both modes. The program remembers the last mode you used.</p>
+
+<h2 id="wizard">3. First time: the setup wizard</h2>
+<p>The first time, the program opens a 4-step wizard. You can run it again whenever you like, from the <em>Set up connection</em> button at the top or the link on the home screen.</p>
+
+<h3>Step 1: the device</h3>
+<figure><img src="img/en/simples_01_assistente_aparelho.png" alt="Wizard, step 1"><figcaption>Choose how the TriAxis is connected and which device is yours. The list refreshes by itself when you plug in the cable.</figcaption></figure>
+
+<h3>Step 2: the cables</h3>
+<figure><img src="img/en/simples_02_assistente_cabos.png" alt="Wizard, step 2"><figcaption>The drawing shows the two cables: one leaves the TriAxis MIDI OUT and the other goes into the MIDI IN.</figcaption></figure>
+<p>On USB-MIDI cables the IN/OUT labels on the plugs are sometimes wrong. If they are swapped, the next step tells you, and all you do is <strong>swap the two plugs</strong>.</p>
+
+<h3>Step 3: the first backup</h3>
+<figure><img src="img/en/simples_03_assistente_backup.png" alt="Wizard, step 3"><figcaption>Hold SHIFT and press the left PRESET arrow (PRESET ▼). Your sounds arrive and are stored.</figcaption></figure>
+<p>This step tests the connection and, as a bonus, already saves all your sounds on the computer. Nothing is changed on the TriAxis.</p>
+
+<h3>Step 4: the send test</h3>
+<figure><img src="img/en/simples_04_assistente_teste.png" alt="Wizard, step 4"><figcaption>The program asks the TriAxis to change program. Did it change? Done. Did not change? It helps you find the right number.</figcaption></figure>
+<p>The "TriAxis number" is the MIDI channel set on the unit. You do not need to know it. The easiest way is to <strong>listen to the TriAxis</strong>: click <strong>Listen to the TriAxis</strong> and, on its front panel, press one of the ◀ ▶ arrows under the PROGRAM/CHANNEL window. The TriAxis announces its number and the program remembers it. This only listens; nothing is sent to the unit.</p>
+<p>If it hears nothing, or if you want to check that the computer can also send to the TriAxis, use the send test:</p>
+<ol class="steps">
+  <li>Click <strong>Test the connection</strong>. The program sends the program change to all numbers at once.</li>
+  <li>If the TriAxis display does <strong>not</strong> change, the problem is the connection (cable, port, or a pedalboard in the middle of the chain), and the program shows what to check.</li>
+  <li>If it <strong>changes</strong>, the connection works. With at most 4 "did it change? yes/no" tests, the program finds the number by itself.</li>
+</ol>
+<p>If, in <em>Play</em>, the TriAxis does not change program, use the link <strong>"TriAxis won't change program? Find the problem"</strong>, which opens this test directly.</p>
+
+<h2 id="home">4. Home screen</h2>
+<figure><img src="img/en/simples_05_inicio.png" alt="Home screen"><figcaption>Three paths. Above them, when your last backup was made.</figcaption></figure>
+
+<h2 id="sounds">5. My sounds</h2>
+<figure><img src="img/en/simples_06_timbres.png" alt="My sounds"><figcaption>The TriAxis panel on screen, the list of the 90 sounds (with the names you give them) and the button to send to the unit.</figcaption></figure>
+<ul>
+  <li>Pick the sound in the list on the left, or with the PRESET arrows on the panel.</li>
+  <li>To change a value, click the ◄ ► arrows under the display, roll the mouse wheel over it, or click it and choose the value from the list.</li>
+  <li>The LEDs on the right switch the <strong>channel</strong> (Rhythm green/yellow, Lead 1, Lead 2) and turn the <strong>FX LOOP</strong> and the <strong>SW 1–4</strong> outputs on or off.</li>
+  <li><strong>Name this sound:</strong> for example "Clean base" or "Solo". Names stay on the computer only, because the TriAxis does not store names. They also show up on the <em>Play</em> pedalboard.</li>
+  <li><strong>Undo changes</strong> puts everything back as it was in the backup.</li>
+</ul>
+<div class="box warn"><strong>Editing is in testing:</strong> reading the values of each sound uses a map made by another project and has not yet been checked on every unit. That is why the program always saves the TriAxis state before sending. If something sounds different from what you expect, restore the backup from the <em>Backup</em> page.</div>
+
+<h2 id="send">6. Send to the TriAxis</h2>
+<p>Use <strong>Send to the TriAxis</strong> (in <em>My sounds</em>) or <strong>Restore to the TriAxis</strong> (in <em>Backup</em>). It is always three steps:</p>
+<figure><img src="img/en/simples_07_envio_aviso.png" alt="Send, step 1"><figcaption>1. The warning: everything on the TriAxis will be replaced.</figcaption></figure>
+<ol class="steps">
+  <li><strong>Warning:</strong> click <em>Continue</em>, or <em>Cancel</em> if you changed your mind.</li>
+  <li><strong>Safety backup (mandatory):</strong> press SHIFT + PRESET ▼ on the TriAxis. The current state is saved.</li>
+  <li><strong>Confirm:</strong> click <em>Yes, replace</em>.</li>
+</ol>
+<figure><img src="img/en/simples_08_envio_confirmar.png" alt="Send, step 3"><figcaption>3. With the safety backup done, all that is left is to confirm.</figcaption></figure>
+<figure><img src="img/en/simples_09_envio_pronto.png" alt="Send finished"><figcaption>At the end: did the TriAxis display flash? That confirms it received the data.</figcaption></figure>
+<p>If the display <strong>does not flash</strong>, click <em>It didn't flash</em> to see what to check (usually the cable that goes into the TriAxis MIDI IN) and try again. Your old sounds are still saved.</p>
+<p><strong>Tip from the TriAxis manual:</strong> the factory presets 1 to 20 are loaded again every time the unit is switched on, unless you turned that off on the panel (press SHIFT once, then LOOP). If your sounds live in those positions, do this first.</p>
+
+<h2 id="backup">7. Backup</h2>
+<figure><img src="img/en/simples_10_backup.png" alt="Backup page"><figcaption>Save the memory now, and the list of all your backups.</figcaption></figure>
+<ul>
+  <li><strong>Save the TriAxis memory now:</strong> give it a name (e.g. "Gig sounds") and press SHIFT + PRESET ▼.</li>
+  <li><strong>Restore to the TriAxis:</strong> pick a backup from the list and follow the 3 steps in <a href="#send">section 6</a>.</li>
+  <li><strong>Rename</strong>, <strong>Delete</strong> (the file goes to the Windows Recycle Bin and can be recovered) and <strong>Open folder</strong> (<code>Documents\TriAxis Backups</code>).</li>
+  <li>Backups marked <em>edited</em> were created by the <em>My sounds</em> page.</li>
+</ul>
+<p><strong>Tip:</strong> now and then, keep a copy of the backups folder on a USB stick or in the cloud.</p>
+
+<h2 id="play">8. Play</h2>
+<figure><img src="img/en/simples_11_tocar.png" alt="Play"><figcaption>The pedalboard on screen. Each pedal shows the program number it calls.</figcaption></figure>
+<ul>
+  <li>Click a pedal, or press <kbd>1</kbd>…<kbd>9</kbd> and <kbd>0</kbd> on the keyboard, to change program. The LED of the active pedal lights up.</li>
+  <li><strong>BANK ▲▼</strong> (or <kbd>↑</kbd> <kbd>↓</kbd>) switches the group of 10 programs: bank 0 has programs 1 to 10, bank 1 has 11 to 20, and so on.</li>
+  <li><kbd>←</kbd> <kbd>→</kbd> go to the previous or next program.</li>
+  <li>The pedals show the <strong>program number</strong>. The program cannot yet read, from the backup, which sound each program calls on your TriAxis; once it can, the pedals will show the sound name.</li>
+  <li>Changing program does not change any sound: it is like pressing the PROGRAM/CHANNEL arrows on the TriAxis.</li>
+</ul>
+
+<h2 id="advanced">9. Advanced mode</h2>
+<p>Turn on the <strong>Advanced</strong> switch at the top. The tools appear in tabs:</p>
+<table>
+  <tr><th>Tab</th><th>What it is for</th></tr>
+  <tr><td>Connection</td><td>Choose MIDI IN and MIDI OUT separately and test the connection (listen only, nothing is sent).</td></tr>
+  <tr><td>Control</td><td>Full pedalboard: MIDI channel, 4/5/8/10 pedals per bank, CC buttons, <strong>MIDI learn</strong> from a pedalboard connected to the PC (e.g. FCB1010) and Program Change forwarding. The TriAxis does not switch channel, FX Loop or switches by CC (see the note in the tab).</td></tr>
+  <tr><td>Backup / Restore</td><td>Backup with technical details and restore with block size and interval settings. The confirmation asks you to type <code>RESTORE</code> (in the Portuguese interface, <code>RESTAURAR</code>).</td></tr>
+  <tr><td>Library</td><td>Search, import, CSV export and <strong>byte-by-byte comparison</strong> between two backups.</td></tr>
+  <tr><td>Editor</td><td>The TriAxis panel with the list of changes byte by byte and the matrix of the 90 presets.</td></tr>
+  <tr><td>View dump</td><td>Hexadecimal/ASCII, presets and program map.</td></tr>
+  <tr><td>Settings</td><td>Folder, timings, log, language, names of outputs and loops (e.g. 2:90 functions) and dump request.</td></tr>
+  <tr><td>Log</td><td>Technical record of the session (devices, bytes, hashes, errors).</td></tr>
+</table>
+<figure><img src="img/en/avancado_editor.png" alt="Advanced editor"><figcaption>Advanced-mode editor, with the change list and the preset matrix.</figcaption></figure>
+<figure><img src="img/en/avancado_controle.png" alt="Advanced control"><figcaption>Advanced Control mode: pedalboard, CC buttons and MIDI learn.</figcaption></figure>
+<figure><img src="img/en/avancado_biblioteca.png" alt="Library"><figcaption>Library: select two backups (Ctrl+click) and compare.</figcaption></figure>
+
+<h2 id="290">10. TriAxis + Simul-Class 2:90: loops and outputs</h2>
+<p>With the 2:90, the TriAxis <strong>switch outputs</strong> (SW1–SW4) and the <strong>FX LOOP</strong> usually drive functions of the power amp and the rack.</p>
+<table>
+  <tr><th>What</th><th>Where it lives</th><th>In the program</th></tr>
+  <tr><td>FX LOOP and SW1–SW4 on/off <em>per sound</em></td><td>Inside each sound</td><td>Editable on the panel (SW and FX LOOP LEDs). Name the outputs in <em>Advanced → Settings → Outputs and loops</em>.</td></tr>
+  <tr><td><em>General</em> loop and output configuration</td><td>In the final region of the memory (dump positions 995 to 1124), not yet decoded</td><td>It is saved and restored intact by backups, but not yet editable. Use the routine below to discover it.</td></tr>
+</table>
+<h3>Routine to discover the general configuration (backups only)</h3>
+<ol class="steps">
+  <li>Make backup <strong>A</strong> and write the current configuration in its name.</li>
+  <li>On the TriAxis, change <strong>just one</strong> loop or output setting, following the unit's manual.</li>
+  <li>Make backup <strong>B</strong> and write what changed in its name.</li>
+  <li>In <strong>Advanced mode → Library</strong>, select A and B (<kbd>Ctrl</kbd>+click), click <strong>Compare</strong> and note the <code>End +N</code> positions (the region after the presets).</li>
+  <li>Put the setting back to its original value, make backup <strong>C</strong> and check that C is identical to A.</li>
+</ol>
+<table>
+  <tr><th>Setting changed</th><th>Before → after</th><th>Position(s)</th><th>Bytes A → B</th><th>C = A?</th></tr>
+  <tr><td>e.g. loop mode</td><td>…</td><td>End +…</td><td>… → …</td><td>yes/no</td></tr>
+</table>
+
+<h2 id="problems">11. If something does not work</h2>
+<table>
+  <tr><th>What happened</th><th>What to do</th></tr>
+  <tr><td>My device is not in the list</td><td>Plug in the USB cable and wait a few seconds; try another USB port if needed. The list refreshes by itself.</td></tr>
+  <tr><td>"Nothing arrived from the TriAxis"</td><td>Check the cable on the TriAxis <strong>MIDI OUT</strong>. On a USB-MIDI cable, <strong>swap the two plugs</strong>. Hold SHIFT and press PRESET ▼.</td></tr>
+  <tr><td>"The transmission stopped halfway"</td><td>Try again. If it repeats, change the cable or the USB port (avoid hubs).</td></tr>
+  <tr><td>My sounds 1 to 20 go back to what they were when I power the TriAxis on again</td><td>According to the TriAxis manual, the factory presets 1–20 are loaded again every time it is switched on. To keep your own sounds in those positions, press <strong>SHIFT</strong> once and then <strong>LOOP</strong> on the panel (this turns the reload off). To use the factory sounds again: SHIFT and then MODE (this erases presets 1–20!). Make a backup first.</td></tr>
+  <tr><td>The TriAxis does not change program</td><td>In <em>Play</em>, click <strong>"TriAxis won't change program? Find the problem"</strong>. The test tells you whether it is the cable or the number, and sets the number by itself.</td></tr>
+  <tr><td>I want to stop a backup that is receiving nothing</td><td>Click <em>Cancel</em> or close the program. Waiting for the TriAxis changes nothing on the unit, so it can be interrupted at any time. Only <em>sending</em> to the TriAxis asks you to wait until it finishes.</td></tr>
+  <tr><td>The display did not flash when sending sounds</td><td>Check the cable going into the TriAxis <strong>MIDI IN</strong> and take the pedalboard out of the chain. In advanced mode, increase the send interval.</td></tr>
+  <tr><td>I have a <code>.syx</code> file saved from triaxiseditor.com</td><td>It opens normally. That site saves the backup with zero "padding" at the end (2,746 bytes); the program uses only the part the TriAxis understands (1,126 bytes) and never changes your file. When importing, it stores a clean copy.</td></tr>
+  <tr><td>"Could not use the interface"</td><td>Close the DAW and other music programs and try again.</td></tr>
+</table>
+<p>When asking for help, send the log file, located in <code>%LOCALAPPDATA%\TriAxisBackupEditor\logs</code> (or on the Log tab in advanced mode).</p>
+
+<h2 id="shortcuts">12. Shortcuts</h2>
+<table>
+  <tr><th>Key</th><th>Where</th><th>Action</th></tr>
+  <tr><td><kbd>F1</kbd></td><td>Anywhere</td><td>Opens this manual</td></tr>
+  <tr><td><kbd>1</kbd>…<kbd>9</kbd>, <kbd>0</kbd></td><td>Play</td><td>Pedals 1–10</td></tr>
+  <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Play</td><td>Next / previous bank</td></tr>
+  <tr><td><kbd>→</kbd> / <kbd>←</kbd></td><td>Play</td><td>Next / previous program</td></tr>
+  <tr><td>Mouse wheel</td><td>TriAxis panel</td><td>Changes the display value</td></tr>
+</table>
+
+<h2 id="about">13. About</h2>
+<p><strong>TriAxis Backup &amp; Editor</strong> v1.0, by <strong>@palinetes</strong>.</p>
+<p>The TriAxis memory map used for editing comes from the web editor by Mark Philpot (<a href="https://github.com/markphilpot/triaxiseditor">markphilpot/triaxiseditor</a>, GPL-3.0, published at triaxiseditor.com). The code of this program was written from scratch. The parameter order was checked against the factory presets in the official TriAxis owner's manual.</p>
+<p>Mesa/Boogie, TriAxis and Simul-Class are trademarks of their respective owners. This is an independent project, not affiliated with the manufacturer.</p>
+</main>
+</div>
+<script>
+  function toggleTheme() {
+    var root = document.documentElement;
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('triaxis-manual-theme', next); } catch (e) {}
+  }
+  try { var saved = localStorage.getItem('triaxis-manual-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); } catch (e) {}
+</script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+using static TriAxisBackupEditor.Localization.Localizer;
 namespace TriAxisBackupEditor.SysEx;
 
 /// <summary>
@@ -53,17 +54,17 @@ public static class TriAxisDumpLayout
     /// <summary>Nomes dos 11 bytes de cada preset, na ordem do editor de referência.</summary>
     public static IReadOnlyList<string> PresetParameterNames { get; } = new[]
     {
-        "Dynamic Voice",
+        Tr("Dynamic Voice"),
         "Presence",
         "Master",
-        "Lead 2 Drive",
-        "Lead 1 Drive",
+        Tr("Lead 2 Drive"),
+        Tr("Lead 1 Drive"),
         "Bass",
         "Middle",
         "Treble",
         "Gain",
-        "Modo (LEDs)",
-        "FX Loop / Switches"
+        Tr("Modo (LEDs)"),
+        Tr("FX Loop / Switches")
     };
 
     public static bool HasExpectedHeader(ReadOnlySpan<byte> data) =>
@@ -74,12 +75,12 @@ public static class TriAxisDumpLayout
     {
         if (offset < 0 || offset >= TotalLength)
         {
-            return "fora do dump";
+            return Tr("fora do dump");
         }
 
         if (offset < HeaderLength)
         {
-            return $"Cabeçalho byte {offset}";
+            return TrF($"Cabeçalho byte {offset}");
         }
 
         if (offset < ProgramsOffset)
@@ -87,20 +88,20 @@ public static class TriAxisDumpLayout
             var relative = offset - PresetsOffset;
             var preset = (relative / PresetLength) + 1;
             var parameter = relative % PresetLength;
-            return $"Preset {preset:00} · {PresetParameterNames[parameter]}";
+            return TrF($"Preset {preset:00} · {PresetParameterNames[parameter]}");
         }
 
         if (offset < TrailerOffset)
         {
-            return $"Final +{offset - ProgramsOffset} (programa {offset - ProgramsOffset + 1:000}? não confirmado)";
+            return TrF($"Final +{offset - ProgramsOffset} (programa {offset - ProgramsOffset + 1:000}? não confirmado)");
         }
 
         if (offset < TerminatorOffset)
         {
-            return $"Final +{offset - ProgramsOffset} (desconhecido)";
+            return TrF($"Final +{offset - ProgramsOffset} (desconhecido)");
         }
 
-        return "Terminador F7";
+        return Tr("Terminador F7");
     }
 }
 
@@ -122,8 +123,8 @@ public static class TriAxisDumpFile
             return new TriAxisFileContent(
                 raw[..TriAxisDumpLayout.TotalLength],
                 true,
-                $"Arquivo salvo pelo editor web (triaxiseditor.com): {TriAxisDumpLayout.WebEditorFileLength} bytes, dos quais só os primeiros " +
-                $"{TriAxisDumpLayout.TotalLength} são o dump do TriAxis (o resto são zeros). O programa usa só a parte válida.");
+                TrF($"Arquivo salvo pelo editor web (triaxiseditor.com): {TriAxisDumpLayout.WebEditorFileLength} bytes, dos quais só os primeiros ") +
+                TrF($"{TriAxisDumpLayout.TotalLength} são o dump do TriAxis (o resto são zeros). O programa usa só a parte válida."));
         }
 
         return new TriAxisFileContent(raw, false, null);

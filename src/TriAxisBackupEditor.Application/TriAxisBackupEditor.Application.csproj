@@ -9,6 +9,7 @@
     <ProjectReference Include="..\TriAxisBackupEditor.Midi\TriAxisBackupEditor.Midi.csproj" />
     <ProjectReference Include="..\TriAxisBackupEditor.Storage\TriAxisBackupEditor.Storage.csproj" />
     <ProjectReference Include="..\TriAxisBackupEditor.SysEx\TriAxisBackupEditor.SysEx.csproj" />
+    <ProjectReference Include="..\TriAxisBackupEditor.Localization\TriAxisBackupEditor.Localization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

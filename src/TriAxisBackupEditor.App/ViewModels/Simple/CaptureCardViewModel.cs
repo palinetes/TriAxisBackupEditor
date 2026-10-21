@@ -5,6 +5,7 @@ using TriAxisBackupEditor.Application.Backup;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
 using TriAxisBackupEditor.Storage;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -23,7 +24,7 @@ public enum CaptureCardState
 /// </summary>
 public sealed class CaptureCardViewModel : ObservableObject
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
 
     private readonly AppState _state;
     private readonly BackupCaptureService _capture;
@@ -33,7 +34,7 @@ public sealed class CaptureCardViewModel : ObservableObject
     private CancellationTokenSource? _cts;
     private CaptureCardState _cardState = CaptureCardState.Ready;
     private double _percent;
-    private string _title = "Pronto para guardar a memória do TriAxis";
+    private string _title = Tr("Pronto para guardar a memória do TriAxis");
     private string _detail = string.Empty;
     private string _hint = string.Empty;
 
@@ -61,6 +62,7 @@ public sealed class CaptureCardViewModel : ObservableObject
                 OnPropertyChanged(nameof(IsRunning));
                 OnPropertyChanged(nameof(IsSuccess));
                 OnPropertyChanged(nameof(IsFailed));
+                OnPropertyChanged(nameof(StartText));
                 OnPropertyChanged(nameof(IsReady));
                 OnPropertyChanged(nameof(ShowInstruction));
                 CommandManager.InvalidateRequerySuggested();
@@ -73,6 +75,8 @@ public sealed class CaptureCardViewModel : ObservableObject
     public bool IsSuccess => CardState == CaptureCardState.Success;
 
     public bool IsFailed => CardState == CaptureCardState.Failed;
+
+    public string StartText => IsFailed ? Tr("Tentar de novo") : Tr("Começar");
 
     public bool IsReady => CardState is CaptureCardState.Ready or CaptureCardState.Failed;
 
@@ -112,11 +116,11 @@ public sealed class CaptureCardViewModel : ObservableObject
     {
         if (_state.SelectedInput is null || _state.SelectedOutput is null)
         {
-            Fail("A ligação com o TriAxis ainda não foi configurada", "Use \"Configurar ligação\" no topo da tela.");
+            Fail(Tr("A ligação com o TriAxis ainda não foi configurada"), Tr("Use \"Configurar ligação\" no topo da tela."));
             return null;
         }
 
-        if (!_state.TryBeginOperation("Guardando a memória do TriAxis", () => _cts?.Cancel()))
+        if (!_state.TryBeginOperation(Tr("Guardando a memória do TriAxis"), () => _cts?.Cancel()))
         {
             return null;
         }
@@ -125,7 +129,7 @@ public sealed class CaptureCardViewModel : ObservableObject
         Result = null;
         Percent = 0;
         Hint = string.Empty;
-        Title = "Agora, no TriAxis: SHIFT + PRESET ▼";
+        Title = Tr("Agora, no TriAxis: SHIFT + PRESET ▼");
         CardState = CaptureCardState.Waiting;
         StartWaitingClock();
 
@@ -143,8 +147,8 @@ public sealed class CaptureCardViewModel : ObservableObject
                 if (p.Phase is CapturePhase.Receiving or CapturePhase.Finishing && CardState == CaptureCardState.Waiting)
                 {
                     CardState = CaptureCardState.Receiving;
-                    Title = "Recebendo os timbres do TriAxis...";
-                    Detail = "Não desligue o TriAxis.";
+                    Title = Tr("Recebendo os timbres do TriAxis...");
+                    Detail = Tr("Não desligue o TriAxis.");
                 }
 
                 Percent = p.Percent;
@@ -156,7 +160,7 @@ public sealed class CaptureCardViewModel : ObservableObject
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or MidiException)
         {
             _log.Error("Backup (modo simples): falha.", ex);
-            Fail("Não foi possível guardar a memória", "Feche outros programas de música (DAW, editores) e tente de novo. Detalhe: " + ex.Message);
+            Fail(Tr("Não foi possível guardar a memória"), Tr("Feche outros programas de música (DAW, editores) e tente de novo. Detalhe: ") + ex.Message);
             return null;
         }
         finally
@@ -189,22 +193,22 @@ public sealed class CaptureCardViewModel : ObservableObject
 
                 Result = record;
                 Percent = 100;
-                Title = "Pronto! Memória do TriAxis guardada";
-                Detail = $"Salvo em {record.CreatedAt.ToString("dd/MM/yyyy 'às' HH:mm", PtBr)}.";
+                Title = Tr("Pronto! Memória do TriAxis guardada");
+                Detail = TrF($"Salvo em {record.CreatedAt.ToString(Tr("dd/MM/yyyy 'às' HH:mm"), PtBr)}.");
                 CardState = CaptureCardState.Success;
-                _state.StatusText = "Backup guardado: " + record.FileName;
+                _state.StatusText = Tr("Backup guardado: ") + record.FileName;
                 Completed?.Invoke(this, record);
                 return record;
             }
 
             case CaptureStatus.NoDataReceived:
-                Fail("Não chegou nada do TriAxis",
-                    "Confira:\n• O cabo está no conector MIDI OUT do TriAxis?\n• Usa um cabo USB-MIDI? Troque os dois plugues de lugar no TriAxis e tente de novo.\n• Segure SHIFT e então aperte PRESET ▼.");
+                Fail(Tr("Não chegou nada do TriAxis"),
+                    Tr("Confira:\n• O cabo está no conector MIDI OUT do TriAxis?\n• Usa um cabo USB-MIDI? Troque os dois plugues de lugar no TriAxis e tente de novo.\n• Segure SHIFT e então aperte PRESET ▼."));
                 return null;
 
             case CaptureStatus.Cancelled when result.RawPartialData.Length == 0:
                 CardState = CaptureCardState.Ready;
-                Title = "Cancelado";
+                Title = Tr("Cancelado");
                 Detail = string.Empty;
                 return null;
 
@@ -215,11 +219,11 @@ public sealed class CaptureCardViewModel : ObservableObject
                     _library.SaveIncomplete(result.RawPartialData, _state.Settings.BackupFolder, DateTime.Now);
                 }
 
-                Fail("A transmissão parou no meio", "Nada foi alterado no TriAxis. Tente de novo; se repetir, troque o cabo ou a porta USB.");
+                Fail(Tr("A transmissão parou no meio"), Tr("Nada foi alterado no TriAxis. Tente de novo; se repetir, troque o cabo ou a porta USB."));
                 return null;
 
             default:
-                Fail("Não foi possível usar a interface", "Feche outros programas de música e tente de novo. Detalhe: " + result.Message);
+                Fail(Tr("Não foi possível usar a interface"), Tr("Feche outros programas de música e tente de novo. Detalhe: ") + result.Message);
                 return null;
         }
     }
@@ -234,7 +238,7 @@ public sealed class CaptureCardViewModel : ObservableObject
     {
         var started = DateTime.Now;
         var limit = _state.Settings.StartTimeoutSeconds;
-        Detail = $"Segure SHIFT e aperte PRESET ▼ (a seta da esquerda, embaixo do display PRESET). Esperando... 0 s de {limit} s";
+        Detail = TrF($"Segure SHIFT e aperte PRESET ▼ (a seta da esquerda, embaixo do display PRESET). Esperando... 0 s de {limit} s");
 
         _waitClock?.Stop();
         _waitClock = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -247,15 +251,15 @@ public sealed class CaptureCardViewModel : ObservableObject
             }
 
             var seconds = (int)(DateTime.Now - started).TotalSeconds;
-            Detail = $"Segure SHIFT e aperte PRESET ▼ (a seta da esquerda, embaixo do display PRESET). Esperando... {seconds} s de {limit} s";
+            Detail = TrF($"Segure SHIFT e aperte PRESET ▼ (a seta da esquerda, embaixo do display PRESET). Esperando... {seconds} s de {limit} s");
             if (seconds >= EarlyHintSeconds && string.IsNullOrEmpty(Hint))
             {
-                Hint = "Ainda não chegou nada do TriAxis. Confira, sem fechar esta tela:\n" +
-                       "• O cabo sai do conector MIDI OUT do TriAxis e entra no MIDI IN da interface?\n" +
-                       "• Em cabo USB-MIDI: troque os dois plugues de lugar no TriAxis.\n" +
-                       "• Placa de áudio (ex.: RME): o cabo está no conector MIDI que o programa mostra?\n" +
-                       "• Segure SHIFT primeiro e, sem soltar, aperte a seta ◄ do PRESET.\n" +
-                       "Se quiser parar, clique em Cancelar: nada é alterado no TriAxis.";
+                Hint = Tr("Ainda não chegou nada do TriAxis. Confira, sem fechar esta tela:\n") +
+                       Tr("• O cabo sai do conector MIDI OUT do TriAxis e entra no MIDI IN da interface?\n") +
+                       Tr("• Em cabo USB-MIDI: troque os dois plugues de lugar no TriAxis.\n") +
+                       Tr("• Placa de áudio (ex.: RME): o cabo está no conector MIDI que o programa mostra?\n") +
+                       Tr("• Segure SHIFT primeiro e, sem soltar, aperte a seta ◄ do PRESET.\n") +
+                       Tr("Se quiser parar, clique em Cancelar: nada é alterado no TriAxis.");
             }
         };
         _waitClock.Start();

@@ -164,7 +164,7 @@
                                                     </Ellipse.Style>
                                                 </Ellipse>
                                                 <TextBlock DockPanel.Dock="Right" Text="{Binding Controller, StringFormat='CC {0}'}" Foreground="{StaticResource MutedBrush}" FontSize="11" VerticalAlignment="Center" />
-                                                <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                             </DockPanel>
                                         </Button>
                                     </DataTemplate>
@@ -238,13 +238,11 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="1" Text="{Binding TriggerText}" Style="{StaticResource Mono}" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" />
-                                        <Button Grid.Column="2" Command="{Binding LearnCommand}" Padding="10,4" Margin="6,0,6,0" Focusable="False">
+                                        <Button Grid.Column="2" Command="{Binding LearnCommand}" Content="{Binding LearnText}" Padding="10,4" Margin="6,0,6,0" Focusable="False">
                                             <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                                    <Setter Property="Content" Value="Aprender" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsLearning}" Value="True">
-                                                            <Setter Property="Content" Value="Aguardando..." />
                                                             <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}" />
                                                             <Setter Property="Foreground" Value="{StaticResource WarnBrush}" />
                                                         </DataTrigger>

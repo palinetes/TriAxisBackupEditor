@@ -1,5 +1,6 @@
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Midi;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.Application.Control;
 
@@ -71,7 +72,7 @@ public sealed class ControlSurfaceService : IDisposable
         }
 
         _log.Info($"Modo controle ativado: MIDI OUT \"{output.DisplayName}\"" +
-                  (controlInput is null ? "." : $", entrada de controle \"{controlInput.DisplayName}\"."));
+                  (controlInput is null ? "." : TrF($", entrada de controle \"{controlInput.DisplayName}\".")));
     }
 
     public void Stop()
@@ -124,7 +125,7 @@ public sealed class ControlSurfaceService : IDisposable
         {
             if (_output is null)
             {
-                throw new InvalidOperationException("Ative o modo controle antes de enviar mensagens.");
+                throw new InvalidOperationException(Tr("Ative o modo controle antes de enviar mensagens."));
             }
 
             _output.SendShort(message);

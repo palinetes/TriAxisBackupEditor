@@ -4,6 +4,7 @@ using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Application.Restore;
 using TriAxisBackupEditor.Midi;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -24,7 +25,7 @@ public enum SafeSendStep
 /// </summary>
 public sealed class SafeSendViewModel : SimplePage
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
 
     private readonly AppState _state;
     private readonly RestoreService _restore;
@@ -45,7 +46,7 @@ public sealed class SafeSendViewModel : SimplePage
         _returnTo = returnTo;
         Description = description;
 
-        SafetyCard = shell.NewCaptureCard("Backup de segurança (automático antes de mandar timbres)");
+        SafetyCard = shell.NewCaptureCard(Tr("Backup de segurança (automático antes de mandar timbres)"));
         SafetyCard.Completed += (_, record) =>
         {
             _flow?.RegisterSafetyBackup(record);
@@ -75,11 +76,11 @@ public sealed class SafeSendViewModel : SimplePage
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             _step = SafeSendStep.Blocked;
-            _message = "Não foi possível ler o arquivo: " + ex.Message;
+            _message = Tr("Não foi possível ler o arquivo: ") + ex.Message;
         }
     }
 
-    public override string Title => "Mandar para o TriAxis";
+    public override string Title => Tr("Mandar para o TriAxis");
 
     public override bool CanLeave => Step != SafeSendStep.Sending && !SafetyCard.IsRunning;
 
@@ -128,7 +129,7 @@ public sealed class SafeSendViewModel : SimplePage
     }
 
     public string SafetyBackupText => _flow?.SafetyBackup is { } r
-        ? $"Estado anterior guardado em {r.CreatedAt.ToString("dd/MM/yyyy 'às' HH:mm", PtBr)} (aparece em Backup, se precisar voltar)."
+        ? TrF($"Estado anterior guardado em {r.CreatedAt.ToString(Tr("dd/MM/yyyy 'às' HH:mm"), PtBr)} (aparece em Backup, se precisar voltar).")
         : string.Empty;
 
     public ICommand ContinueCommand { get; }
@@ -155,12 +156,12 @@ public sealed class SafeSendViewModel : SimplePage
         var output = _state.SelectedOutput;
         if (_flow is null || output is null)
         {
-            Message = "A ligação com o TriAxis não está configurada.";
+            Message = Tr("A ligação com o TriAxis não está configurada.");
             Step = SafeSendStep.Failed;
             return;
         }
 
-        if (!_state.TryBeginOperation("Mandando timbres para o TriAxis"))
+        if (!_state.TryBeginOperation(Tr("Mandando timbres para o TriAxis")))
         {
             return;
         }
@@ -178,7 +179,7 @@ public sealed class SafeSendViewModel : SimplePage
             {
                 Percent = 100;
                 Step = SafeSendStep.Done;
-                _state.StatusText = "Timbres enviados ao TriAxis.";
+                _state.StatusText = Tr("Timbres enviados ao TriAxis.");
             }
             else
             {
@@ -190,7 +191,7 @@ public sealed class SafeSendViewModel : SimplePage
         {
             _log.Error("Envio (modo simples): falha.", ex);
             Message = ex is MidiException
-                ? "A interface parou de responder durante o envio. Não desligue o TriAxis: confira o cabo e tente de novo."
+                ? Tr("A interface parou de responder durante o envio. Não desligue o TriAxis: confira o cabo e tente de novo.")
                 : ex.Message;
             Step = SafeSendStep.Failed;
         }

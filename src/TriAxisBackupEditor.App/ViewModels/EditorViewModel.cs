@@ -7,6 +7,7 @@ using TriAxisBackupEditor.Application.Backup;
 using TriAxisBackupEditor.Application.Logging;
 using TriAxisBackupEditor.Storage;
 using TriAxisBackupEditor.SysEx;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels;
 
@@ -62,7 +63,7 @@ public sealed class KnobViewModel : ObservableObject
 /// </summary>
 public sealed class EditorViewModel : ObservableObject
 {
-    private static readonly CultureInfo PtBr = new("pt-BR");
+    private static CultureInfo PtBr => CultureInfo.CurrentCulture;
 
     private readonly AppState _state;
     private readonly BackupLibraryService _library;
@@ -79,7 +80,7 @@ public sealed class EditorViewModel : ObservableObject
     private IReadOnlyList<TriAxisPresetView> _presets = Array.Empty<TriAxisPresetView>();
     private TriAxisPresetView? _selectedMatrixPreset;
     private string _changesText = string.Empty;
-    private string _statusText = "Abra um backup (.syx) para editar. O arquivo original nunca é alterado.";
+    private string _statusText = Tr("Abra um backup (.syx) para editar. O arquivo original nunca é alterado.");
 
     public EditorViewModel(AppState state, BackupLibraryService library, IDialogService dialogs, ITechLog log)
     {
@@ -137,8 +138,8 @@ public sealed class EditorViewModel : ObservableObject
     }
 
     public string PreliminaryWarning =>
-        "Editor baseado no mapa SysEx PRELIMINAR (editor de referência markphilpot/triaxiseditor), ainda não validado em hardware. " +
-        "As edições geram um NOVO arquivo; o backup original nunca é alterado. Antes de confiar no editor, faça o teste de ida e volta do Plano de Testes (seção D).";
+        Tr("Editor baseado no mapa SysEx PRELIMINAR (editor de referência markphilpot/triaxiseditor), ainda não validado em hardware. ") +
+        Tr("As edições geram um NOVO arquivo; o backup original nunca é alterado. Antes de confiar no editor, faça o teste de ida e volta do Plano de Testes (seção D).");
 
     // ---------------- Painel ----------------
 
@@ -159,13 +160,13 @@ public sealed class EditorViewModel : ObservableObject
 
             if (!_programMapValid)
             {
-                return $"Program Change {_currentProgram} · ligação programa → timbre ainda não confirmada neste TriAxis";
+                return TrF($"Program Change {_currentProgram} · ligação programa → timbre ainda não confirmada neste TriAxis");
             }
 
             var mapped = _editor.GetProgramPreset(_currentProgram);
             return mapped is int p
-                ? $"Program Change {_currentProgram} → preset {p:00}"
-                : $"Program Change {_currentProgram} → valor desconhecido";
+                ? TrF($"Program Change {_currentProgram} → preset {p:00}")
+                : TrF($"Program Change {_currentProgram} → valor desconhecido");
         }
     }
 
@@ -180,7 +181,7 @@ public sealed class EditorViewModel : ObservableObject
         {
             if (value && !_programMapValid)
             {
-                StatusText = "A ligação programa → timbre deste TriAxis ainda não foi confirmada; por segurança ela não pode ser editada.";
+                StatusText = Tr("A ligação programa → timbre deste TriAxis ainda não foi confirmada; por segurança ela não pode ser editada.");
                 OnPropertyChanged();
                 return;
             }
@@ -188,8 +189,8 @@ public sealed class EditorViewModel : ObservableObject
             if (SetProperty(ref _assignMode, value))
             {
                 StatusText = value
-                    ? $"Modo PGM/CH: as setas de PRESET agora escolhem qual preset o Program Change {_currentProgram} chama."
-                    : "Modo PGM/CH desligado: as setas de PRESET navegam entre os presets.";
+                    ? TrF($"Modo PGM/CH: as setas de PRESET agora escolhem qual preset o Program Change {_currentProgram} chama.")
+                    : Tr("Modo PGM/CH desligado: as setas de PRESET navegam entre os presets.");
             }
         }
     }
@@ -211,7 +212,7 @@ public sealed class EditorViewModel : ObservableObject
 
     public string ModeText => _editor is null
         ? string.Empty
-        : Mode is { } m ? TriAxisValues.ModeLabel(m) : $"Modo desconhecido (0x{_editor.GetPresetByte(_currentPreset, TriAxisValues.ModeOffset):X2})";
+        : Mode is { } m ? TriAxisValues.ModeLabel(m) : TrF($"Modo desconhecido (0x{_editor.GetPresetByte(_currentPreset, TriAxisValues.ModeOffset):X2})");
 
     public bool FxLoop { get => GetSwitch(FxSwitch.FxLoop); set => SetSwitch(FxSwitch.FxLoop, value); }
 
@@ -277,7 +278,7 @@ public sealed class EditorViewModel : ObservableObject
 
     // ---------------- Nomes das saídas (ex.: ligações com a Simul-Class 2:90) ----------------
 
-    public string FxLoopName => SwitchName(0, "FX LOOP");
+    public string FxLoopName => SwitchName(0, Tr("FX LOOP"));
 
     public string Switch1Name => SwitchName(1, "SW1");
 
@@ -292,11 +293,11 @@ public sealed class EditorViewModel : ObservableObject
         ? string.Empty
         : string.Join("   ·   ", new[]
         {
-            $"{FxLoopName}: {OnOff(FxLoop)}",
-            $"{Switch1Name}: {OnOff(Switch1)}",
-            $"{Switch2Name}: {OnOff(Switch2)}",
-            $"{Switch3Name}: {OnOff(Switch3)}",
-            $"{Switch4Name}: {OnOff(Switch4)}"
+            TrF($"{FxLoopName}: {OnOff(FxLoop)}"),
+            TrF($"{Switch1Name}: {OnOff(Switch1)}"),
+            TrF($"{Switch2Name}: {OnOff(Switch2)}"),
+            TrF($"{Switch3Name}: {OnOff(Switch3)}"),
+            TrF($"{Switch4Name}: {OnOff(Switch4)}")
         });
 
     public void NotifySwitchNamesChanged()
@@ -309,13 +310,13 @@ public sealed class EditorViewModel : ObservableObject
         OnPropertyChanged(nameof(SwitchSummary));
     }
 
-    private static string OnOff(bool value) => value ? "ligado" : "desligado";
+    private static string OnOff(bool value) => value ? Tr("ligado") : Tr("desligado");
 
     private string SwitchName(int index, string fallback)
     {
         var names = _state.Settings.SwitchNames;
         var name = index < names.Count ? names[index] : null;
-        return string.IsNullOrWhiteSpace(name) ? fallback : $"{fallback} · {name.Trim()}";
+        return string.IsNullOrWhiteSpace(name) ? fallback : TrF($"{fallback} · {name.Trim()}");
     }
 
     private void NextMode()
@@ -339,13 +340,13 @@ public sealed class EditorViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            _dialogs.ShowError("Editor", "Não foi possível ler o arquivo: " + ex.Message);
+            _dialogs.ShowError("Editor", Tr("Não foi possível ler o arquivo: ") + ex.Message);
             return false;
         }
 
         if (!TriAxisDumpEditor.TryCreate(content.Data, out var editor, out var reason))
         {
-            _dialogs.ShowError("Editor", reason + "\n\nO editor só abre dumps completos capturados do TriAxis.");
+            _dialogs.ShowError("Editor", reason + Tr("\n\nO editor só abre dumps completos capturados do TriAxis."));
             return false;
         }
 
@@ -356,15 +357,15 @@ public sealed class EditorViewModel : ObservableObject
         AssignMode = false;
         _log.Info($"Editor: aberto \"{path}\" (cópia em memória; o arquivo não será alterado)." + (content.Note is null ? string.Empty : " " + content.Note));
         StatusText = content.WasPadded
-            ? $"Editando uma cópia de {Path.GetFileName(path)} (arquivo do editor web: usando a parte válida de {TriAxisDumpLayout.TotalLength} bytes)."
-            : $"Editando uma cópia de {Path.GetFileName(path)}. Use ◄ ► (ou a roda do mouse / clique no display) para mudar valores.";
+            ? TrF($"Editando uma cópia de {Path.GetFileName(path)} (arquivo do editor web: usando a parte válida de {TriAxisDumpLayout.TotalLength} bytes).")
+            : TrF($"Editando uma cópia de {Path.GetFileName(path)}. Use ◄ ► (ou a roda do mouse / clique no display) para mudar valores.");
         RefreshAll();
         return true;
     }
 
     /// <summary>true se não há edições pendentes ou o usuário aceitou descartá-las.</summary>
     public bool ConfirmDiscard() =>
-        !IsModified || _dialogs.Confirm("Editor", "Há edições não salvas no editor. Descartar as alterações?");
+        !IsModified || _dialogs.Confirm("Editor", Tr("Há edições não salvas no editor. Descartar as alterações?"));
 
     public string GetKnobDisplay(PresetParameter parameter)
     {
@@ -432,7 +433,7 @@ public sealed class EditorViewModel : ObservableObject
             _editor.SetProgramPreset(_currentProgram, next);
             _currentPreset = next;
             AfterEdit();
-            StatusText = $"Program Change {_currentProgram} agora chama o preset {next:00}.";
+            StatusText = TrF($"Program Change {_currentProgram} agora chama o preset {next:00}.");
             return;
         }
 
@@ -465,7 +466,7 @@ public sealed class EditorViewModel : ObservableObject
     {
         _clipboard = _editor!.GetPresetBytes(_currentPreset);
         _clipboardFrom = _currentPreset;
-        StatusText = $"Preset {_currentPreset:00} copiado. Vá a outro preset e clique em \"Colar\".";
+        StatusText = TrF($"Preset {_currentPreset:00} copiado. Vá a outro preset e clique em \"Colar\".");
     }
 
     private void PastePreset()
@@ -477,26 +478,26 @@ public sealed class EditorViewModel : ObservableObject
 
         _editor!.SetPresetBytes(_currentPreset, _clipboard);
         AfterEdit();
-        StatusText = $"Preset {_clipboardFrom:00} colado sobre o preset {_currentPreset:00}.";
+        StatusText = TrF($"Preset {_clipboardFrom:00} colado sobre o preset {_currentPreset:00}.");
     }
 
     private void RevertPreset()
     {
         _editor!.RevertPreset(_currentPreset);
         AfterEdit();
-        StatusText = $"Preset {_currentPreset:00} voltou ao valor do arquivo original.";
+        StatusText = TrF($"Preset {_currentPreset:00} voltou ao valor do arquivo original.");
     }
 
     private void RevertAll()
     {
-        if (!_dialogs.Confirm("Editor", "Desfazer TODAS as alterações e voltar ao arquivo original?"))
+        if (!_dialogs.Confirm("Editor", Tr("Desfazer TODAS as alterações e voltar ao arquivo original?")))
         {
             return;
         }
 
         _editor!.RevertAll();
         AfterEdit();
-        StatusText = "Todas as alterações foram desfeitas.";
+        StatusText = Tr("Todas as alterações foram desfeitas.");
     }
 
     /// <summary>Salva o dump editado como arquivo novo e passa a editar a partir dele.</summary>
@@ -507,7 +508,7 @@ public sealed class EditorViewModel : ObservableObject
             return null;
         }
 
-        var notes = _dialogs.PromptText("Salvar dump editado", "Observação do novo arquivo:", DefaultEditNotes());
+        var notes = _dialogs.PromptText(Tr("Salvar dump editado"), Tr("Observação do novo arquivo:"), DefaultEditNotes());
         return notes is null ? null : SaveCore(notes);
     }
 
@@ -536,8 +537,8 @@ public sealed class EditorViewModel : ObservableObject
     private string DefaultEditNotes()
     {
         var changes = _editor!.GetChanges();
-        var presets = changes.ChangedPresets.Count > 0 ? "timbres " + string.Join(", ", changes.ChangedPresets.Select(p => p.ToString("00"))) : "mapa de programas";
-        return $"Editado ({presets})";
+        var presets = changes.ChangedPresets.Count > 0 ? Tr("timbres ") + string.Join(", ", changes.ChangedPresets.Select(p => p.ToString("00"))) : Tr("mapa de programas");
+        return TrF($"Editado ({presets})");
     }
 
     private BackupRecord? SaveCore(string notes)
@@ -560,13 +561,13 @@ public sealed class EditorViewModel : ObservableObject
             _currentProgram = keepProgram;
             RefreshPanel();
 
-            StatusText = $"Salvo como {record.FileName}. O arquivo original não foi alterado.";
-            _state.StatusText = "Timbres editados salvos: " + record.FileName;
+            StatusText = TrF($"Salvo como {record.FileName}. O arquivo original não foi alterado.");
+            _state.StatusText = Tr("Timbres editados salvos: ") + record.FileName;
             return record;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
-            _dialogs.ShowError("Salvar dump editado", ex.Message);
+            _dialogs.ShowError(Tr("Salvar dump editado"), ex.Message);
             return null;
         }
     }
@@ -581,8 +582,8 @@ public sealed class EditorViewModel : ObservableObject
         var path = SourcePath;
         if (_editor.IsModified)
         {
-            if (!_dialogs.Confirm("Enviar ao TriAxis",
-                    "As alterações precisam ser salvas como um novo arquivo antes do envio.\n\nSalvar agora e abrir a aba Restaurar?"))
+            if (!_dialogs.Confirm(Tr("Enviar ao TriAxis"),
+                    Tr("As alterações precisam ser salvas como um novo arquivo antes do envio.\n\nSalvar agora e abrir a aba Restaurar?")))
             {
                 return;
             }
@@ -613,7 +614,7 @@ public sealed class EditorViewModel : ObservableObject
         var latest = _library.Search(null).FirstOrDefault(r => r.FileExists && r.Origin == BackupOrigins.Captured);
         if (latest is null)
         {
-            _dialogs.ShowInfo("Editor", "Nenhum backup capturado na biblioteca ainda. Faça um backup primeiro (aba Backup).");
+            _dialogs.ShowInfo("Editor", Tr("Nenhum backup capturado na biblioteca ainda. Faça um backup primeiro (aba Backup)."));
             return;
         }
 
@@ -686,11 +687,11 @@ public sealed class EditorViewModel : ObservableObject
     {
         if (changes.Identical)
         {
-            return "Nenhuma alteração em relação ao arquivo original.";
+            return Tr("Nenhuma alteração em relação ao arquivo original.");
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine($"{changes.DifferenceCount} byte(s) alterado(s):");
+        sb.AppendLine(TrF($"{changes.DifferenceCount} byte(s) alterado(s):"));
         foreach (var d in changes.Differences)
         {
             sb.AppendLine(DescribeDifference(d));
@@ -714,13 +715,13 @@ public sealed class EditorViewModel : ObservableObject
                 TriAxisValues.ModeOffset => TriAxisValues.ModeFromByte(b) is { } m ? TriAxisValues.ModeLabel(m) : $"0x{b:X2}",
                 _ => FxText(b)
             };
-            return $"Preset {preset:00} · {name}: {Value(before)} → {Value(after)}";
+            return TrF($"Preset {preset:00} · {name}: {Value(before)} → {Value(after)}");
         }
 
         if (d.Offset >= TriAxisDumpLayout.ProgramsOffset && d.Offset < TriAxisDumpLayout.TrailerOffset)
         {
             var program = d.Offset - TriAxisDumpLayout.ProgramsOffset + 1;
-            return $"Program Change {program:000}: preset {before + 1:00} → {after + 1:00}";
+            return TrF($"Program Change {program:000}: preset {before + 1:00} → {after + 1:00}");
         }
 
         return d.ToString();
@@ -734,7 +735,7 @@ public sealed class EditorViewModel : ObservableObject
         if ((b & 0x04) != 0) parts.Add("SW2");
         if ((b & 0x08) != 0) parts.Add("SW3");
         if ((b & 0x10) != 0) parts.Add("SW4");
-        return parts.Count == 0 ? "nenhum" : string.Join("+", parts);
+        return parts.Count == 0 ? Tr("nenhum") : string.Join("+", parts);
     }
 
     private static int Wrap(int value, int count) => ((value - 1 + count) % count) + 1;

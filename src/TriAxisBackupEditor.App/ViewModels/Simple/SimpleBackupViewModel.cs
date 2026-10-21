@@ -4,6 +4,7 @@ using TriAxisBackupEditor.App.Mvvm;
 using TriAxisBackupEditor.App.Services;
 using TriAxisBackupEditor.Application.Backup;
 using TriAxisBackupEditor.Storage;
+using static TriAxisBackupEditor.Localization.Localizer;
 
 namespace TriAxisBackupEditor.App.ViewModels.Simple;
 
@@ -102,7 +103,7 @@ public sealed class SimpleBackupViewModel : SimplePage
 
     private void StartNewBackup()
     {
-        var notes = _dialogs.PromptText("Guardar a memória do TriAxis", "Dê um nome para este backup (opcional):", $"Backup de {DateTime.Now:dd/MM/yyyy}");
+        var notes = _dialogs.PromptText(Tr("Guardar a memória do TriAxis"), Tr("Dê um nome para este backup (opcional):"), TrF($"Backup de {DateTime.Now:dd/MM/yyyy}"));
         if (notes is null)
         {
             return;
@@ -117,13 +118,13 @@ public sealed class SimpleBackupViewModel : SimplePage
     private void Restore()
     {
         var row = Selected!;
-        Shell.StartSafeSend(row.Record.FilePath, $"o backup \"{row.Title}\" ({row.When})", this);
+        Shell.StartSafeSend(row.Record.FilePath, TrF($"o backup \"{row.Title}\" ({row.When})"), this);
     }
 
     private void Rename()
     {
         var row = Selected!;
-        var text = _dialogs.PromptText("Renomear backup", "Nome deste backup:", row.Title);
+        var text = _dialogs.PromptText(Tr("Renomear backup"), Tr("Nome deste backup:"), row.Title);
         if (text is null)
         {
             return;
@@ -136,7 +137,7 @@ public sealed class SimpleBackupViewModel : SimplePage
     private void Delete()
     {
         var row = Selected!;
-        if (!_dialogs.Confirm("Apagar backup", $"Mandar \"{row.Title}\" ({row.When}) para a Lixeira do Windows?\n\nDá para recuperar depois pela Lixeira."))
+        if (!_dialogs.Confirm(Tr("Apagar backup"), TrF($"Mandar \"{row.Title}\" ({row.When}) para a Lixeira do Windows?\n\nDá para recuperar depois pela Lixeira.")))
         {
             return;
         }
@@ -147,7 +148,7 @@ public sealed class SimpleBackupViewModel : SimplePage
         }
         catch (IOException ex)
         {
-            _dialogs.ShowError("Apagar backup", ex.Message);
+            _dialogs.ShowError(Tr("Apagar backup"), ex.Message);
         }
 
         Refresh();
