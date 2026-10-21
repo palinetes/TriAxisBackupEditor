@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.0-beta.5 (2026-10-20)
+
+### Português
+- **Simul-Class 2:90:** em *Avançado → Configurações → Saídas e loops*, um botão preenche os nomes das saídas com as três entradas de voicing da 2:90 (SW1 Deep, SW2 1/2 Drive, SW3 Modern, como sugere o manual da 2:90). Confira se seus cabos estão nessa ordem. O manual (seção 10) explica o que cada voicing faz.
+
+### English
+- **Simul-Class 2:90:** in *Advanced → Settings → Outputs and loops*, a button fills in the output names with the three voicing inputs of the 2:90 (SW1 Deep, SW2 1/2 Drive, SW3 Modern, as the 2:90 manual suggests). Check that your cables are in that order. The manual (section 10) explains what each voicing does.
+
+Por **@palinetes** · Licença MIT / MIT License
+
 ## v1.0.0-beta.4 (2026-10-20)
 
 **Português · English** — o programa agora é bilíngue / the program is now bilingual.

@@ -30,6 +30,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         SaveCommand = new RelayCommand(Save, () => !_state.IsBusy);
         ResetCommand = new RelayCommand(Reset, () => !_state.IsBusy);
+        Apply290NamesCommand = new RelayCommand(Apply290Names);
         ChooseFolderCommand = new RelayCommand(ChooseFolder);
         OpenDataFolderCommand = new RelayCommand(() => AppState.OpenInExplorer(_state.Paths.DataFolder));
     }
@@ -58,6 +59,9 @@ public sealed class SettingsViewModel : ObservableObject
     public ICommand SaveCommand { get; }
 
     public ICommand ResetCommand { get; }
+
+    /// <summary>Preenche os nomes das saídas com as três entradas "Voicing Switch" da Simul-Class 2:90 (SW1–SW3).</summary>
+    public ICommand Apply290NamesCommand { get; }
 
     public ICommand ChooseFolderCommand { get; }
 
@@ -114,6 +118,18 @@ public sealed class SettingsViewModel : ObservableObject
         Edit = saved.Clone();
         Message = Tr("Configurações salvas.");
         SettingsSaved?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Apply290Names()
+    {
+        // Pelo manual da 2:90: as três entradas de voicing são Deep, 1/2 Drive e Modern, e o manual do TriAxis manda ligar
+        // os switches 1, 2 e 3 nelas. A ordem é a sugerida; só o usuário sabe como ligou os cabos, por isso é um botão.
+        var copy = Edit.Clone();
+        copy.SwitchNames[1] = Tr("2:90 Deep");
+        copy.SwitchNames[2] = Tr("2:90 1/2 Drive");
+        copy.SwitchNames[3] = Tr("2:90 Modern");
+        Edit = copy;
+        Message = Tr("Nomes da 2:90 preenchidos (SW1 Deep, SW2 1/2 Drive, SW3 Modern). Se os seus cabos estiverem em outra ordem, ajuste os nomes. Clique em Salvar para aplicar.");
     }
 
     private void Reset()

@@ -565,6 +565,9 @@
                                         <TextBox Text="{Binding Settings.Edit.SwitchNames[4]}" />
                                     </StackPanel>
                                 </UniformGrid>
+                                <Button Content="Usar os nomes da Simul-Class 2:90 (Deep, 1/2 Drive, Modern)" Command="{Binding Settings.Apply290NamesCommand}"
+                                        HorizontalAlignment="Left" Margin="0,12,0,0"
+                                        ToolTip="Segundo o manual da 2:90: SW1 = Deep, SW2 = 1/2 Drive, SW3 = Modern. Confira se é assim que seus cabos estão ligados." />
                                 <TextBlock Style="{StaticResource Muted}" Margin="0,10,0,0"
                                            Text="As configurações globais de loops/saídas do TriAxis ficam no bloco ainda não mapeado do dump. Para descobri-las com segurança, siga o roteiro &quot;TriAxis + 2:90&quot; do Manual (aba Biblioteca → Comparar)." />
                             </StackPanel>

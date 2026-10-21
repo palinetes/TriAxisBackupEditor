@@ -69,6 +69,16 @@ internal static partial class English
         map["Aguardando..."] = "Waiting...";
         map["Aprender"] = "Learn";
 
+        // Nomes das saídas para a Simul-Class 2:90
+        map["2:90 Deep"] = "2:90 Deep";
+        map["2:90 1/2 Drive"] = "2:90 1/2 Drive";
+        map["2:90 Modern"] = "2:90 Modern";
+        map["Nomes da 2:90 preenchidos (SW1 Deep, SW2 1/2 Drive, SW3 Modern). Se os seus cabos estiverem em outra ordem, ajuste os nomes. Clique em Salvar para aplicar."] =
+            "2:90 names filled in (SW1 Deep, SW2 1/2 Drive, SW3 Modern). If your cables are in a different order, adjust the names. Click Save to apply.";
+        map["Usar os nomes da Simul-Class 2:90 (Deep, 1/2 Drive, Modern)"] = "Use the Simul-Class 2:90 names (Deep, 1/2 Drive, Modern)";
+        map["Segundo o manual da 2:90: SW1 = Deep, SW2 = 1/2 Drive, SW3 = Modern. Confira se é assim que seus cabos estão ligados."] =
+            "Per the 2:90 manual: SW1 = Deep, SW2 = 1/2 Drive, SW3 = Modern. Check that your cables are wired this way.";
+
         // Operações mostradas na barra de status
         map["Backup"] = "Backup";
         map["Restauração"] = "Restore";
