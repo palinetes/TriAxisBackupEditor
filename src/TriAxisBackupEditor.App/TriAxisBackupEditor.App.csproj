@@ -20,7 +20,8 @@
 
   <ItemGroup>
     <!-- Manual do usuário (docs/manual) embutido no .exe; aberto pelo botão Manual / F1. -->
-    <EmbeddedResource Include="..\..\docs\manual\**\*" LogicalName="manual/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- WithCulture="false": sem isso o .NET trata "index.en.html" como recurso do idioma "en" e o tira do .exe principal. -->
+    <EmbeddedResource Include="..\..\docs\manual\**\*" WithCulture="false" LogicalName="manual/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -12,7 +12,7 @@ A Windows app (C# / .NET 8 / WPF) for the Mesa/Boogie TriAxis. It provides:
 The editor uses a **preliminary** SysEx map whose parameter order has been checked against the factory presets in the official owner's manual, but not yet every value on every unit. It always writes a new file and never changes the original backup (see [docs/SYSEX.md](docs/SYSEX.md), in Portuguese).
 
 **Download:** get `TriAxisBackupEditor.exe` from the [Releases](https://github.com/palinetes/TriAxisBackupEditor/releases) page. It is a single file, no installation, for 64-bit Windows 10/11.
-This is a **beta**: it is being tested with a real TriAxis. Found a problem or have an idea? Open an [issue](https://github.com/palinetes/TriAxisBackupEditor/issues).
+Version **1.0**, tested with a real TriAxis (backup, send, control and Simul-Class 2:90). Found a problem or have an idea? Open an [issue](https://github.com/palinetes/TriAxisBackupEditor/issues).
 
 **Author:** @palinetes · **License:** [MIT](LICENSE) · **User manual:** [docs/manual/index.en.html](docs/manual/index.en.html), also inside the program (**Manual** button or **F1**, works offline).
 

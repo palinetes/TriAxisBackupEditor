@@ -1,5 +1,43 @@
 # Changelog
 
+## v1.0.0 (2026-10-21)
+
+Primeira versão **estável** / First **stable** release.
+
+### Português
+Backup, restauração, edição e controle MIDI do Mesa/Boogie TriAxis no Windows 10/11, sem precisar entender de MIDI. Testada com um TriAxis real e uma Simul-Class 2:90.
+
+- **Modo simples** (assistente de ligação, Meus timbres, Backup, Tocar) e **modo avançado** (biblioteca, editor completo, hex, log, aprender MIDI).
+- **Segurança:** o programa nunca muda nada no TriAxis sem você pedir, guarda um backup de segurança antes de qualquer envio e confere cada arquivo antes de mandar.
+- **Escutar o TriAxis:** descobre o número (canal) do aparelho quando você aperta uma seta de PROGRAM no painel dele.
+- **Controle:** pedaleira na tela com bancos e teclado. O TriAxis troca de timbre por Program Change; o CC só move os nove botões de timbre.
+- **Simul-Class 2:90:** um botão preenche os nomes das saídas SW1 Deep, SW2 Modern, SW3 1/2 Drive.
+- **Português e inglês**, com manual (F1) nos dois idiomas. Tudo fica no seu computador: sem internet e sem telemetria.
+- Como usar: baixe `TriAxisBackupEditor.exe` (em *Assets*), abra e siga o assistente. O Windows pode avisar "editor desconhecido" porque o programa não tem assinatura digital: clique em **Mais informações → Executar assim mesmo**.
+
+### English
+Backup, restore, editing and MIDI control for the Mesa/Boogie TriAxis on Windows 10/11, with no MIDI knowledge needed. Tested with a real TriAxis and a Simul-Class 2:90.
+
+- **Simple mode** (setup wizard, My sounds, Backup, Play) and **advanced mode** (library, full editor, hex, log, MIDI learn).
+- **Safety:** the program never changes anything on the TriAxis unless you ask, saves a safety backup before any send, and checks every file before sending.
+- **Listen to the TriAxis:** finds the unit's number (channel) when you press a PROGRAM arrow on its panel.
+- **Control:** on-screen pedalboard with banks and keyboard. The TriAxis changes sound by Program Change; CC only moves the nine sound knobs.
+- **Simul-Class 2:90:** a button fills in the output names SW1 Deep, SW2 Modern, SW3 1/2 Drive.
+- **Portuguese and English**, with the manual (F1) in both languages. Everything stays on your computer: no internet, no telemetry.
+- How to use: download `TriAxisBackupEditor.exe` (under *Assets*), open it and follow the wizard. Windows may warn about an "unknown publisher" because the program is not digitally signed: click **More info → Run anyway**.
+
+Por **@palinetes** · Licença MIT / MIT License
+
+## v1.0.0-beta.7 (2026-10-21)
+
+### Português
+- **Corrigido: o manual (F1 e botão Manual) não abria em inglês.** O arquivo `index.en.html` não entrava no programa (o .NET o tratava como recurso de idioma). Agora entra, e se a versão no idioma da tela faltar, o programa abre a versão em português.
+
+### English
+- **Fixed: the manual (F1 and the Manual button) did not open in English.** The `index.en.html` file was not being included in the program (.NET treated it as a language resource). It is now included, and if the version in the screen language is missing, the program opens the Portuguese one.
+
+Por **@palinetes** · Licença MIT / MIT License
+
 ## v1.0.0-beta.6 (2026-10-20)
 
 ### Português

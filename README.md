@@ -12,7 +12,7 @@ Aplicativo Windows (C# / .NET 8 / WPF) para o Mesa/Boogie TriAxis. Ele faz:
 O editor usa um mapa SysEx **preliminar**, cuja ordem de parâmetros foi conferida com os presets de fábrica do manual oficial, mas ainda não cada valor em todos os aparelhos. Ele sempre gera um arquivo novo e nunca altera o backup original (veja [docs/SYSEX.md](docs/SYSEX.md)).
 
 **Download:** baixe o `TriAxisBackupEditor.exe` na página [Releases](https://github.com/palinetes/TriAxisBackupEditor/releases). É um arquivo único, sem instalação, para Windows 10/11 64 bits.
-Esta é uma **versão beta**: está sendo testada com o TriAxis real. Encontrou um problema ou tem uma ideia? Abra uma [issue](https://github.com/palinetes/TriAxisBackupEditor/issues).
+Versão **1.0**, testada com um TriAxis real (backup, envio, controle e Simul-Class 2:90). Encontrou um problema ou tem uma ideia? Abra uma [issue](https://github.com/palinetes/TriAxisBackupEditor/issues).
 
 **Autor:** @palinetes · **Licença:** [MIT](LICENSE) · **Manual do usuário:** [docs/manual/index.html](docs/manual/index.html) ([English](docs/manual/index.en.html)), também dentro do programa (botão **Manual** ou tecla **F1**, funciona sem internet).
 

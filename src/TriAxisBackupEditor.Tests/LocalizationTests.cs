@@ -152,6 +152,16 @@ public class LocalizationTests : IDisposable
     }
 
     [Fact]
+    public void BothManuals_ExistAndAreEmbeddedWithoutCultureSplit()
+    {
+        // "index.en.html" tem ".en." no nome: sem WithCulture="false" o .NET o põe num assembly de idioma e o F1 em inglês não acha o arquivo.
+        Assert.True(File.Exists(Path.Combine(RepoPaths.Root, "docs", "manual", "index.html")));
+        Assert.True(File.Exists(Path.Combine(RepoPaths.Root, "docs", "manual", "index.en.html")));
+        var csproj = File.ReadAllText(Path.Combine(RepoPaths.AppFolder, "TriAxisBackupEditor.App.csproj"));
+        Assert.Contains("WithCulture=\"false\"", csproj);
+    }
+
+    [Fact]
     public void Translations_KeepTheSamePlaceholders()
     {
         var problems = new List<string>();

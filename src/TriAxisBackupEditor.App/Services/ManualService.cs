@@ -34,7 +34,14 @@ public static class ManualService
 
     public static void Open(string dataFolder)
     {
-        var index = Extract(Path.Combine(dataFolder, "manual"), TriAxisBackupEditor.Localization.Localizer.IsEnglish ? "index.en.html" : "index.html");
+        var folder = Path.Combine(dataFolder, "manual");
+        var index = Extract(folder, TriAxisBackupEditor.Localization.Localizer.IsEnglish ? "index.en.html" : "index.html");
+        if (!File.Exists(index))
+        {
+            // Se a versão no idioma da tela faltar, abre a em português em vez de falhar em silêncio.
+            index = Path.Combine(folder, "index.html");
+        }
+
         Process.Start(new ProcessStartInfo(index) { UseShellExecute = true });
     }
 }
