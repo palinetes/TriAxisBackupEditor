@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.0-beta.3 (2026-10-20)
+
+Correções no **controle** e na descoberta do número (canal) do TriAxis, a partir do manual oficial.
+
+### O que mudou
+- **Escutar o TriAxis** (passo 4 do assistente): clique no botão e aperte uma seta de PROGRAM no painel do TriAxis. Segundo o manual, o MIDI OUT dele manda uma troca de programa nesse momento, então o programa descobre o **número (canal) certo em um passo**, sem tentativa e erro. Só lê, não envia nada.
+- **Botões CC**: o manual confirma que o TriAxis **não troca de canal (Rhythm/Lead), FX Loop nem switches por CC**. Isso é feito pelos programas (Program Change), porque cada timbre guarda o modo, o loop e os switches. O CC só move os nove botões de timbre, no número de controle atribuído no painel. A tela agora explica isso.
+- **Aviso sobre os timbres 1–20**: o TriAxis recarrega os presets de fábrica 1–20 toda vez que é ligado, a não ser que a recarga seja desativada (SHIFT, depois LOOP). O envio e o manual agora avisam.
+- Conferido com o manual oficial: a ordem dos nove parâmetros, o modo e o bit de SW1 batem com os presets de fábrica gravados no seu aparelho (veja `docs/SYSEX.md`).
+
+### Atenção (beta)
+- Encontrou um problema? Abra uma **issue** contando o que fez, o que esperava e o que aconteceu. Se puder, anexe o log de `%LOCALAPPDATA%\TriAxisBackupEditor\logs`.
+
+Por **@palinetes** · Licença MIT
+
 ## v1.0.0-beta.2 (2026-10-17)
 
 Correção: **backups não abriam**.

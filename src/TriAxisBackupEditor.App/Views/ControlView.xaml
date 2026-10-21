@@ -204,9 +204,9 @@
 
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource H2}" Text="Botões CC (nome e número)" />
+                            <TextBlock Style="{StaticResource H2}" Text="Botões CC (avançado)" />
                             <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,8"
-                                       Text="Cada botão alterna CC = 127 (liga) / 0 (desliga) no canal acima. Use os números que o seu TriAxis (ou G-Major) estiver configurado para responder." />
+                                       Text="Atenção: o TriAxis NÃO troca de canal (Rhythm/Lead), FX Loop nem switches por CC. Isso é feito pelos programas (Program Change): cada timbre guarda o seu modo, o loop e os switches. O CC do TriAxis só move os 9 botões de timbre (Gain, Treble...) e só no número de controle que você atribuiu a cada um no painel (SHIFT 3 vezes). Cada botão abaixo alterna CC = 127 / 0 no canal acima." />
                             <ItemsControl ItemsSource="{Binding CcButtons}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>

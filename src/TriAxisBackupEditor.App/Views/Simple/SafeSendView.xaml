@@ -62,7 +62,9 @@
             <StackPanel Tag="Confirm" Style="{StaticResource ForStep}">
                 <TextBlock Text="Passo 3 de 3" Style="{StaticResource Lead}" />
                 <TextBlock Text="Tudo pronto. Substituir os timbres do TriAxis?" Style="{StaticResource PageTitle}" Margin="0,4,0,0" />
-                <TextBlock Text="{Binding SafetyBackupText}" Style="{StaticResource Lead}" Margin="0,8,0,22" />
+                <TextBlock Text="{Binding SafetyBackupText}" Style="{StaticResource Lead}" Margin="0,8,0,12" />
+                <TextBlock Style="{StaticResource Lead}" FontSize="14" Margin="0,0,0,22"
+                           Text="Dica do manual do TriAxis: os timbres 1 a 20 de fábrica são carregados de novo toda vez que ele é ligado, a não ser que você tenha desativado isso no painel (aperte SHIFT uma vez e depois LOOP). Se os seus timbres estiverem nessas posições, faça isso antes." />
                 <StackPanel Orientation="Horizontal">
                     <Button Content="Sim, substituir" Command="{Binding ReplaceCommand}" Style="{StaticResource BigDangerButton}" />
                     <Button Content="Cancelar" Command="{Binding BackCommand}" Style="{StaticResource BigButton}" />

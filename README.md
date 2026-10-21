@@ -200,7 +200,7 @@ A aba **Controle** transforma o programa num controlador MIDI do TriAxis. O modo
 | **Pedais 1–10** (clique) | Program Change do banco atual. Com 10 por banco: banco 0 → programas 1–10, banco 1 → 11–20, …, banco 12 → 121–128. O LED acende no pedal ativo. |
 | **BANCO ▲ ▼** | Muda o banco (a FCB1010 também não envia nada ao trocar de banco: só o pedal envia). |
 | **PROGRAMA −1 / +1** | Programa anterior/seguinte. |
-| **Botões CC 1–4** | Alternam CC = 127/0 no canal. Nome e número do CC são editáveis (padrão CC 80–83). Use os CCs que o seu TriAxis/G-Major estiver configurado para responder. |
+| **Botões CC 1–4** | Alternam CC = 127/0 no canal. Nome e número do CC são editáveis (padrão CC 80–83). **Atenção:** segundo o manual do TriAxis, ele não troca de canal, FX Loop nem switches por CC (isso é feito pelos programas, ou seja, Program Change). O CC só move os nove botões de timbre, e só no número de controle que você atribuiu a cada um no painel. Os botões servem para pedais de expressão ou para outros aparelhos. |
 
 **Teclado** (com a aba aberta): `1`…`9`, `0` = pedais 1–10 (o teclado numérico também funciona); `↑`/`PgUp` = banco +; `↓`/`PgDn` = banco −; `→`/`←` = programa ±1.
 

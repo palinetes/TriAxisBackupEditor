@@ -1,6 +1,6 @@
 # SysEx do TriAxis: formato, mapa preliminar e plano de validação
 
-> **Status do mapa:** PRELIMINAR nos parâmetros. Vem do editor web [markphilpot/triaxiseditor](https://github.com/markphilpot/triaxiseditor) (`js/triaxis.js`, GPL-3.0; mesmo código publicado em triaxiseditor.com). O **tamanho e a estrutura** do dump (1.126 bytes, 90 presets × 11 bytes) foram confirmados num TriAxis real em 2026-10-16. O **significado de cada byte** dos presets ainda não foi conferido parâmetro por parâmetro. Ele é usado para **visualizar** e pelo **Editor**, que só trabalha sobre cópias e sempre gera arquivos novos. Confie no editor para um parâmetro somente depois de validá-lo pelo plano abaixo e pela seção F do [Plano de Testes](PLANO_DE_TESTES.md).
+> **Status do mapa:** PRELIMINAR nos parâmetros. Vem do editor web [markphilpot/triaxiseditor](https://github.com/markphilpot/triaxiseditor) (`js/triaxis.js`, GPL-3.0; mesmo código publicado em triaxiseditor.com). O **tamanho e a estrutura** do dump (1.126 bytes, 90 presets × 11 bytes) foram confirmados num TriAxis real em 2026-10-16. A **ordem dos parâmetros** foi conferida com o manual oficial (veja a seção 2.1); os valores intermediários da tabela de knob e o restante ainda dependem do plano de validação. Ele é usado para **visualizar** e pelo **Editor**, que só trabalha sobre cópias e sempre gera arquivos novos. Confie no editor para um parâmetro somente depois de validá-lo pelo plano abaixo e pela seção F do [Plano de Testes](PLANO_DE_TESTES.md).
 
 ## 1. O que é SysEx
 
@@ -58,6 +58,26 @@ Um dump completo é enviado ao pressionar **SHIFT + PRESET DOWN** no painel. Um 
 **Região 995–1124:** no aparelho real ela tinha `14` seguido de zeros e `01 00`. Isso não parece um mapa de programas (seria "o programa 1 chama o preset 21 e todos os outros chamam o preset 1"). Por isso o programa **preserva esses bytes como estão**, mas não os edita nem os usa para dar nome aos pedais até que um experimento confirme o significado (`TriAxisDump.ProgramMapLooksValid` exige pelo menos 10 valores diferentes, todos menores que 90).
 
 Não há checksum conhecido.
+
+### 2.1. Conferência com os presets de fábrica (manual oficial)
+
+O manual do TriAxis (`TriAxis_160801.pdf`, Mesa/Boogie) lista os presets de fábrica 1–20, que o aparelho recarrega ao ser ligado, a não ser que o usuário os desative com SHIFT + LOOP. O backup do aparelho real (16 e 17/10/2026) tinha exatamente esses presets nas posições 1–20, então dá para comparar:
+
+| Preset | No manual | Lido do dump | Confere |
+|---|---|---|---|
+| 01 | Lead 1 Red ("Classic British Lead") | modo `6F` = Lead 1 Red | sim |
+| 04 | Gain 5.0, Treble 5.0, Middle 3.0, Bass 4.5, Lead 1/2 0.0, Master 5.5, Presence 7.0, Dynamic Voice 0.0, Rhy Green | exatamente esses valores, com a ordem de bytes da seção 2 | sim |
+| 11–20 | iguais a 1–10, mas com SW1 ligado (Switch Track) | iguais a 1–10 com o byte de FX `01` → `03` (bit 1 = SW1) | sim |
+
+Isso confirma a **ordem dos nove parâmetros**, o byte de modo e o bit de SW1 (bit 0 = FX Loop, bit 1 = SW1). Os demais bits (SW2–SW4) e as demais posições da tabela de knob seguem o plano da seção 4.
+
+### 2.2. O que o TriAxis faz com MIDI (manual oficial)
+
+- **Program Change** é o único jeito de mudar de timbre. O TriAxis tem 128 *programas* (posições MIDI) que apontam para os 90 *presets*; o preset guarda o modo (canal Rhythm/Lead), o FX Loop e os switches 1–4.
+- **Control Change** serve só para mover os 9 botões de timbre (Gain, Treble...) com pedal de expressão: o número do controlador e a quantidade de mudança são atribuídos por preset no painel (SHIFT três vezes, depois mais uma). **Não existe CC para trocar de canal, FX Loop ou switches.**
+- O **canal MIDI** de recepção é escolhido no painel (tecla PGM/CH + setas).
+- O MIDI **OUT** do TriAxis manda um Program Change quando as teclas de PROGRAM do painel são usadas. Por isso o assistente consegue *escutar* o canal em vez de adivinhar.
+- Os presets 1–20 de fábrica são recarregados ao ligar, a menos que sejam desativados (SHIFT, depois LOOP).
 
 ### Arquivos do editor web (2.746 bytes)
 

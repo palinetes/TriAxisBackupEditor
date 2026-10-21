@@ -37,6 +37,9 @@ public sealed class SetupWizardViewModel : SimplePage
     private bool _testSent;
     private string _testMessage = string.Empty;
     private readonly ChannelFinder _finder = new();
+    private readonly TriAxisListener _listener;
+    private CancellationTokenSource? _listenCts;
+    private bool _isListening;
 
     public SetupWizardViewModel(SimpleShellViewModel shell, AppState state, IMidiDeviceService midi, ConnectionViewModel connection, IDialogService dialogs, ITechLog log)
         : base(shell)
@@ -45,6 +48,7 @@ public sealed class SetupWizardViewModel : SimplePage
         _midi = midi;
         _connection = connection;
         _log = log;
+        _listener = new TriAxisListener(midi);
         _channel = state.Settings.ControlMidiChannel;
 
         FirstBackup = shell.NewCaptureCard("Primeiro backup (assistente)");
@@ -56,6 +60,8 @@ public sealed class SetupWizardViewModel : SimplePage
         BackCommand = new RelayCommand(() => Step = Step - 1, () => Step > WizardStep.Device && !FirstBackup.IsRunning);
         SkipCommand = new RelayCommand(Shell.FinishWizard, () => !FirstBackup.IsRunning);
         SendTestCommand = new RelayCommand(SendTest, () => !_state.IsBusy);
+        ListenCommand = new RelayCommand(Listen, () => !_state.IsBusy && !IsListening);
+        StopListenCommand = new RelayCommand(() => _listenCts?.Cancel(), () => IsListening);
         YesCommand = new RelayCommand(() => AnswerTest(true), () => TestSent);
         NoCommand = new RelayCommand(() => AnswerTest(false), () => TestSent);
     }
@@ -183,6 +189,23 @@ public sealed class SetupWizardViewModel : SimplePage
 
     public ICommand SendTestCommand { get; }
 
+    /// <summary>"Escutar o TriAxis": ele mesmo diz o canal quando se aperta a tecla de programa no painel.</summary>
+    public ICommand ListenCommand { get; }
+
+    public ICommand StopListenCommand { get; }
+
+    public bool IsListening
+    {
+        get => _isListening;
+        private set
+        {
+            if (SetProperty(ref _isListening, value))
+            {
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+    }
+
     public ICommand YesCommand { get; }
 
     public ICommand NoCommand { get; }
@@ -196,7 +219,12 @@ public sealed class SetupWizardViewModel : SimplePage
         }
     }
 
-    public override void OnLeave() => _deviceTimer.Stop();
+    public override void OnLeave()
+    {
+        _leaving = true;
+        _listenCts?.Cancel();
+        _deviceTimer.Stop();
+    }
 
     private void RefreshDevices()
     {
@@ -321,6 +349,66 @@ public sealed class SetupWizardViewModel : SimplePage
 
         RaiseTestState();
     }
+
+    /// <summary>
+    /// Escuta o MIDI OUT do TriAxis por 30 s. Quando o usuário aperta a seta de PROGRAM no painel, o TriAxis manda um
+    /// Program Change no canal dele: assim o canal certo aparece sem tentativa e erro. Só lê, não envia nada.
+    /// </summary>
+    private async void Listen()
+    {
+        var input = _state.SelectedInput;
+        if (input is null)
+        {
+            TestMessage = "Volte ao passo 1 e escolha o aparelho.";
+            return;
+        }
+
+        _listenCts = new CancellationTokenSource();
+        var source = _listenCts;
+        if (!_state.TryBeginOperation("Escutando o TriAxis", () => source.Cancel()))
+        {
+            _listenCts = null;
+            return;
+        }
+
+        IsListening = true;
+        TestSent = false;
+        TestMessage = "Estou escutando por 30 segundos. No painel do TriAxis, aperte uma das setas ◀ ▶ embaixo da janela PROGRAM/CHANNEL (ou a seta de PRESET).";
+        _log.Info("Assistente: escutando o MIDI OUT do TriAxis (aguardando um Program Change).");
+        try
+        {
+            var message = await _listener.ListenForProgramChangeAsync(input, TimeSpan.FromSeconds(30), source.Token);
+            if (message is { } heard)
+            {
+                Channel = heard.Channel;
+                TestMessage = $"Ouvi o TriAxis! Ele mandou a troca de programa no número {heard.Channel}. Já deixei esse número guardado: clique em Concluir.";
+                _log.Info($"Assistente: o TriAxis anunciou Program Change (valor {heard.Number}) no canal {heard.Channel}.");
+                _finder.Restart();
+                RaiseTestState();
+            }
+            else if (!_leaving)
+            {
+                TestMessage = "Não ouvi nada. Confira:\n" +
+                              "• O cabo do MIDI OUT do TriAxis chega no MIDI IN da interface? (é o mesmo do backup)\n" +
+                              "• Aperte as setas de PROGRAM no painel do TriAxis, com ele ligado.\n" +
+                              "Se preferir, use o botão Testar a ligação abaixo.";
+                _log.Warn("Assistente: nenhum Program Change ouvido do TriAxis.");
+            }
+        }
+        catch (MidiException ex)
+        {
+            TestMessage = "Não consegui usar a interface: " + ex.Message + " Feche outros programas de música e tente de novo.";
+        }
+        finally
+        {
+            IsListening = false;
+            _listenCts = null;
+            source.Dispose();
+            _state.EndOperation();
+        }
+    }
+
+    private bool _leaving;
 
     /// <summary>Abre o assistente direto no teste de envio (ex.: "o TriAxis não troca de programa").</summary>
     public void StartAtSendTest()
