@@ -122,14 +122,15 @@ public sealed class SettingsViewModel : ObservableObject
 
     private void Apply290Names()
     {
-        // Pelo manual da 2:90: as três entradas de voicing são Deep, 1/2 Drive e Modern, e o manual do TriAxis manda ligar
-        // os switches 1, 2 e 3 nelas. A ordem é a sugerida; só o usuário sabe como ligou os cabos, por isso é um botão.
+        // Pelo manual da 2:90: as três entradas de voicing são Deep, Modern e 1/2 Drive (nessa ordem, da esquerda para a
+        // direita na traseira do amp), e o manual do TriAxis manda ligar os switches 1, 2 e 3 nelas. Só o usuário sabe como
+        // ligou os cabos, por isso é um botão e os nomes continuam editáveis.
         var copy = Edit.Clone();
         copy.SwitchNames[1] = Tr("2:90 Deep");
-        copy.SwitchNames[2] = Tr("2:90 1/2 Drive");
-        copy.SwitchNames[3] = Tr("2:90 Modern");
+        copy.SwitchNames[2] = Tr("2:90 Modern");
+        copy.SwitchNames[3] = Tr("2:90 1/2 Drive");
         Edit = copy;
-        Message = Tr("Nomes da 2:90 preenchidos (SW1 Deep, SW2 1/2 Drive, SW3 Modern). Se os seus cabos estiverem em outra ordem, ajuste os nomes. Clique em Salvar para aplicar.");
+        Message = Tr("Nomes da 2:90 preenchidos (SW1 Deep, SW2 Modern, SW3 1/2 Drive). Se os seus cabos estiverem em outra ordem, ajuste os nomes. Clique em Salvar para aplicar.");
     }
 
     private void Reset()

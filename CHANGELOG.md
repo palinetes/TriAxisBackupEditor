@@ -1,12 +1,22 @@
 # Changelog
 
+## v1.0.0-beta.6 (2026-10-20)
+
+### Português
+- O botão de nomes da **Simul-Class 2:90** agora segue a ordem dos conectores na traseira do amp: **SW1 Deep, SW2 Modern, SW3 1/2 Drive**. Os nomes continuam editáveis (SW4 e FX LOOP ficam livres).
+
+### English
+- The **Simul-Class 2:90** names button now follows the order of the jacks on the amp's rear panel: **SW1 Deep, SW2 Modern, SW3 1/2 Drive**. The names stay editable (SW4 and FX LOOP are left free).
+
+Por **@palinetes** · Licença MIT / MIT License
+
 ## v1.0.0-beta.5 (2026-10-20)
 
 ### Português
-- **Simul-Class 2:90:** em *Avançado → Configurações → Saídas e loops*, um botão preenche os nomes das saídas com as três entradas de voicing da 2:90 (SW1 Deep, SW2 1/2 Drive, SW3 Modern, como sugere o manual da 2:90). Confira se seus cabos estão nessa ordem. O manual (seção 10) explica o que cada voicing faz.
+- **Simul-Class 2:90:** em *Avançado → Configurações → Saídas e loops*, um botão preenche os nomes das saídas com as três entradas de voicing da 2:90 (SW1 Deep, SW2 Modern, SW3 1/2 Drive, na ordem dos conectores da traseira da 2:90). Confira se seus cabos estão nessa ordem. O manual (seção 10) explica o que cada voicing faz.
 
 ### English
-- **Simul-Class 2:90:** in *Advanced → Settings → Outputs and loops*, a button fills in the output names with the three voicing inputs of the 2:90 (SW1 Deep, SW2 1/2 Drive, SW3 Modern, as the 2:90 manual suggests). Check that your cables are in that order. The manual (section 10) explains what each voicing does.
+- **Simul-Class 2:90:** in *Advanced → Settings → Outputs and loops*, a button fills in the output names with the three voicing inputs of the 2:90 (SW1 Deep, SW2 Modern, SW3 1/2 Drive, in the order of the jacks on the 2:90 rear panel). Check that your cables are in that order. The manual (section 10) explains what each voicing does.
 
 Por **@palinetes** · Licença MIT / MIT License
 
